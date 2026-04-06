@@ -60,6 +60,25 @@
 
 ## 快速开始
 
+### 验证入口 (统一)
+```bash
+cd /root/project/FPGA-Litho
+python verify.py                      # 默认验证
+python verify.py --clean              # 清理重新验证
+python verification/run_verification.py --debug  # 调试模式
+```
+
+### 验证输出（SOCS HLS Golden输入）
+
+验证程序生成所有SOCS HLS所需的golden输入数据：
+
+| 文件 | 用途 |
+|------|------|
+| `output/verification/mskf_r/i.bin` | Mask频域数据（AXI-MM输入） |
+| `output/verification/scales.bin` | 特征值数组（AXI-MM输入） |
+| `output/verification/kernels/krn_*_r/i.bin` | SOCS核数据 |
+| `output/verification/image.bin` | 空中像输出（HLS对比基准） |
+
 ### TCC模块
 ```bash
 cd /root/project/FPGA-Litho/source/TCC_HLS
