@@ -51,26 +51,26 @@ tb_socs_simple_test
 # HLS工作目录（vitis-run生成）
 # ============================================================================
 # HLS工程目录（不提交，太大）
-hls_litho_proj/
+# 命名规则：由顶层函数名或--work_dir参数决定
+# 例如：fft_2d_forward_32, socs_simple, hls/socs_fixed 等
+
+# 通配符匹配所有HLS工程目录（项目级）
+*_proj/
+*_hls_proj/
+hls_*/
 *.hlsproj/
 solution*/
-vitis_hls_proj/
+fft_2d_forward_32*/
+*_comp/
+*_test/
+*_vpp/
 
-# SOCS HLS 工作目录
-source/SOCS_HLS/fft_2d_forward_32/
-source/SOCS_HLS/fft_2d_forward_32_comp/
-source/SOCS_HLS/fft_2d_forward_32_proj/
-source/SOCS_HLS/fft_2d_forward_32_test/
-source/SOCS_HLS/fft_2d_forward_32_vpp/
-source/SOCS_HLS/fft_2d_proj/
-source/SOCS_HLS/fft_proj/
-source/SOCS_HLS/hls/
-source/SOCS_HLS/_ide/
-source/SOCS_HLS/logs/
-
-# TCC HLS 工作目录
-source/TCC_HLS/hls_litho_proj/
-source/TCC_HLS/hls/
+# 通配符匹配source子目录下的HLS工作目录
+source/*/**_proj/
+source/*/hls/
+source/*/_ide/
+source/*/logs/
+source/SOCS_HLS/fft_2d_forward_32*/
 
 # 根目录HLS工作目录
 hls/
@@ -258,3 +258,84 @@ source/TCC_HLS/data/
 # 参考：.github/copilot-instructions.md中的验收标准
 _.md
 _.md
+output/SOCS_IP/constraints/calc_socs_simple_hls_ooc.xdc
+output/SOCS_IP/doc/ReleaseNotes.txt
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/data/calc_socs_simple_hls.mdd
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/data/calc_socs_simple_hls.tcl
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/data/calc_socs_simple_hls.yaml
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/CMakeLists.txt
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/Makefile
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/xcalc_socs_simple_hls_hw.h
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/xcalc_socs_simple_hls_linux.c
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/xcalc_socs_simple_hls_sinit.c
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/xcalc_socs_simple_hls.c
+output/SOCS_IP/drivers/calc_socs_simple_hls_v1_0/src/xcalc_socs_simple_hls.h
+output/SOCS_IP/hdl/ip/calc_socs_simple_hls_fadd_32ns_32ns_32_8_full_dsp_1_ip/calc_socs_simple_hls_fadd_32ns_32ns_32_8_full_dsp_1_ip.xci
+output/SOCS_IP/hdl/ip/calc_socs_simple_hls_faddfsub_32ns_32ns_32_8_full_dsp_1_ip/calc_socs_simple_hls_faddfsub_32ns_32ns_32_8_full_dsp_1_ip.xci
+output/SOCS_IP/hdl/ip/calc_socs_simple_hls_fmul_32ns_32ns_32_5_max_dsp_1_ip/calc_socs_simple_hls_fmul_32ns_32ns_32_5_max_dsp_1_ip.xci
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_proc.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_1.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_108_1.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_119_3_VITIS_LOOP_120_4.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_119_3_VITIS_LOOP_120_41.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_132_5.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_132_52.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_142_6.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_142_63.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_tmp_conv_1_3_RAM_AUTO_1R1W.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_control_s_axi.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_entry_proc.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_fadd_32ns_32ns_32_8_full_dsp_1.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_faddfsub_32ns_32ns_32_8_full_dsp_1.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_fifo_w2_d2_S.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_fifo_w3_d2_S.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_fifo_w64_d5_S.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_flow_control_loop_delay_pipe.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_flow_control_loop_pipe_sequential_init.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_flow_control_loop_pipe.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_fmul_32ns_32ns_32_5_max_dsp_1.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_gmem_m_axi.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_hls_deadlock_detection_unit.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_hls_deadlock_detector.vh
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_hls_deadlock_report_unit.vh
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_interp_simple.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_Loop_VITIS_LOOP_29_1_proc.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_sparsemux_9_2_32_1_1.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_tmp_image_RAM_AUTO_1R1W_memcore.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_tmp_image_RAM_AUTO_1R1W.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_tmp_shifted_RAM_AUTO_1R1W_memcore.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls_tmp_shifted_RAM_AUTO_1R1W.v
+output/SOCS_IP/hdl/verilog/calc_socs_simple_hls.v
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_proc.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_1.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_108_1.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_119_3_VITIS_LOOP_120_4.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_119_3_VITIS_LOOP_120_41.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_132_5.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_132_52.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_142_6.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_Pipeline_VITIS_LOOP_142_63.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc_tmp_conv_1_3_RAM_AUTO_1R1W.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Block_entry_tmp_conv_0_0_wr_proc.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_control_s_axi.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_entry_proc.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_fadd_32ns_32ns_32_8_full_dsp_1.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_faddfsub_32ns_32ns_32_8_full_dsp_1.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_fifo_w2_d2_S.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_fifo_w3_d2_S.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_fifo_w64_d5_S.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_flow_control_loop_delay_pipe.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_flow_control_loop_pipe_sequential_init.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_flow_control_loop_pipe.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_fmul_32ns_32ns_32_5_max_dsp_1.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_gmem_m_axi.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_interp_simple.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_Loop_VITIS_LOOP_29_1_proc.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_sparsemux_9_2_32_1_1.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_tmp_image_RAM_AUTO_1R1W_memcore.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_tmp_image_RAM_AUTO_1R1W.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_tmp_shifted_RAM_AUTO_1R1W_memcore.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_tmp_shifted_RAM_AUTO_1R1W.vhd
+output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls.vhd
+output/SOCS_IP/xgui/calc_socs_simple_hls_v1_0.tcl
