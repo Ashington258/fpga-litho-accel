@@ -1,0 +1,228 @@
+# ============================================================================
+# FPGA-Litho 项目 Git Ignore 配置
+# ============================================================================
+# 参考：https://github.com/github/gitignore/blob/main/C++.gitignore
+# ============================================================================
+
+# ============================================================================
+# 编译产物
+# ============================================================================
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.dylib
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+tb_tcc
+test_*
+klitho_tcc
+klitho_socs
+
+# ============================================================================
+# HLS工作目录（vitis-run生成）
+# ============================================================================
+# HLS工程目录（不提交，太大）
+hls_litho_proj/
+*.hlsproj/
+solution*/
+vitis_hls_proj/
+
+# HLS编译产物
+*.log
+*.rpt
+*.xml
+*.json
+*.db
+*.adb
+*.ipynb
+
+# HLS仿真产物
+csim/build/
+csim/report/
+cosim/
+syn/
+impl/
+
+# ============================================================================
+# Vivado工程文件
+# ============================================================================
+# Vivado工程目录
+*.xpr/
+*.runs/
+*.srcs/
+*.hw/
+*.sim/
+*.cache/
+
+# Vivado编译产物
+*.bit
+*.ltx
+*.mcs
+*.prm
+*.bin
+
+# Vivado日志
+*.jou
+*.log
+*.str
+*.xml
+
+# Vivado IP缓存
+ip_repo/
+*.zip
+
+# ============================================================================
+# IDE和编辑器
+# ============================================================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# 操作系统临时文件
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# Python
+# ============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ============================================================================
+# 临时测试文件
+# ============================================================================
+# 测试输出
+test_output/
+temp_*
+tmp_*
+
+# 临时二进制文件（Phase 5+可提交golden数据）
+# golden/*.bin 在Phase 1-4需要保留
+# output/reference/ 在Phase 0需要保留（CPU参考输出）
+
+# ============================================================================
+# 项目特定忽略规则
+# ============================================================================
+# 不提交大型二进制文件（golden数据除外）
+# input/mask/*.bin
+# input/source/*.bin
+# output/image.bin
+# output/kernels/*.bin
+
+# 但保留：
+# - source/TCC_HLS/hls/tb/golden/*.bin（测试数据）
+# - output/reference/（CPU参考输出，验证基准）
+
+# 不提交HLS临时产物
+source/TCC_HLS/hls_litho_proj/
+
+# ============================================================================
+# 重要：需要提交的文件（排除上述规则）
+# ============================================================================
+# 以下目录/文件应该提交：
+# - .github/copilot-instructions.md
+# - TODO.md
+# - source/TCC_HLS/**（除了hls_litho_proj）
+# - reference/（CPU参考代码和文档）
+# - input/config/config.json
+# - input/BIN_Format_Specification.md
+# - run_reference_test.py
+# - output/reference/kernels/kernel_info.txt（统计信息）
+
+# ============================================================================
+# 白名单文件（强制提交）
+# ============================================================================
+# 即使符合忽略规则也提交：
+!source/TCC_HLS/hls/tb/golden/*.bin
+!output/reference/*.bin
+!output/reference/kernels/*.bin
+!input/config/*.json
+!input/*.md
+
+# ============================================================================
+# 注释说明
+# ============================================================================
+# Phase 0-4：提交Golden测试数据（hls/tb/golden/*.bin）
+# Phase 5+：不提交大型输出文件，通过运行生成
+# 参考：.github/copilot-instructions.md中的验收标准

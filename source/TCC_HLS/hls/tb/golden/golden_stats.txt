@@ -1,0 +1,16 @@
+# Golden Data Statistics (for HLS Validation)
+# Generated from CPU reference output
+#
+# Image Statistics:
+Image Mean: 0.015253
+Image StdDev: 0.027946
+Image Max: 0.147050
+Image Min: 0.001425
+#
+# Configuration:
+Lx=Ly=512
+Nx=Ny=4
+Kernel Size: 9x9
+#
+# Validation Criteria:
+Relative Error < 1e-5

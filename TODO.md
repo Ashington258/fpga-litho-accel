@@ -166,14 +166,14 @@ source/TCC_HLS/                    ← 与现有工程结构一致
 #### Phase 0: 项目初始化
 | #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
 |-----|-------------------------------------------|--------|----------|----------|------|
-| 0.1 | 创建目录结构 `source/TCC_HLS/`            | P0     | 0.5d     | 目录结构与文档一致 | ⬜   |
-| 0.2 | 定义数据类型 `data_types.h`（全用 `float` / `hls::complex<float>`，暂不用定点） | P0 | 0.5d | 类型定义完成，编译通过 | ⬜ |
-| 0.3 | 编写 `hls_config.cfg`（参考参考文档）     | P0     | 0.5d     | 包含器件、时钟、源文件列表 | ⬜   |
-| 0.4 | 编写 `run_csynth.tcl` + `export_ip.tcl`   | P0     | 1d       | 可执行 vitis-run 命令 | ⬜   |
-| 0.5 | 准备 golden 数据（用 CPU 参考代码生成）  | P0     | 0.5d     | source_33x33.bin + mask_128x128.bin + expected_tcc.bin | ⬜ |
-0.6 | 创建 `ALGORITHM_MATH.md`（算法数学公式文档）| P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ALGORITHM_MATH.md` | ✅ |
-0.7 | 创建 `ARRAY_SIZE_CONSTRAINTS.md`（数组尺寸约束）| P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ARRAY_SIZE_CONSTRAINTS.md` | ✅ |
-0.8 | 创建 `Litho-TCC-HLS` 简化参考版本（固定数组+固定循环边界）| P1     | 1d       | hls_ref_types.h + hls_ref_pupil.cpp 完成（后续补充tcc/fft/image） | ⬜ |
+| 0.1 | 创建目录结构 `source/TCC_HLS/`            | P0     | 0.5d     | 目录结构与文档一致 | ✅   |
+| 0.2 | 定义数据类型 `data_types.h`（全用 `float` / `hls::complex<float>`，暂不用定点） | P0 | 0.5d | 类型定义完成，编译通过 | ✅ |
+| 0.3 | 编写 `hls_config.cfg`（参考参考文档）     | P0     | 0.5d     | 包含器件、时钟、源文件列表 | ✅   |
+| 0.4 | 编写 `run_csynth.tcl` + `export_ip.tcl`   | P0     | 1d       | 可执行 vitis-run 命令 | ✅   |
+| 0.5 | 准备 golden 数据（用 CPU 参考代码生成）  | P0     | 0.5d     | source_33x33.bin + mask_128x128.bin + expected_tcc.bin | ✅ |
+| 0.6 | 创建 `ALGORITHM_MATH.md`（算法数学公式文档）| P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ALGORITHM_MATH.md` | ✅ |
+| 0.7 | 创建 `ARRAY_SIZE_CONSTRAINTS.md`（数组尺寸约束）| P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ARRAY_SIZE_CONSTRAINTS.md` | ✅ |
+| 0.8 | 创建 `Litho-TCC-HLS` 简化参考版本（固定数组+固定循环边界）| P1     | 1d       | hls_ref_types.h + hls_ref_pupil.cpp 完成（后续补充tcc/fft/image） | ✅ |
 
 **📌 HLS 配置文件模板（参考参考文档）**：
 ```cfg
@@ -394,5 +394,6 @@ void tcc_top(
 ---
 
 **创建日期**: 2026-04-05
-**状态**: 待执行
+**状态**: Phase 0 已完成 (2026-04-06)
+**下一阶段**: Phase 1 - calcTCC核心模块实现
 
