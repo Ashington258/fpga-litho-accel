@@ -1,0 +1,396 @@
+  **** HLS Build v2025.2 6295257
+INFO: [HLS 200-2005] Using work_dir E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/fft_top 
+INFO: [HLS 200-2176] Writing Vitis IDE component file E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/fft_top/vitis-comp.json
+INFO: [HLS 200-10] Creating and opening component 'E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/fft_top'.
+INFO: [HLS 200-1505] Using default flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-2174] Applying component config ini file hls_config.cfg
+INFO: [HLS 200-1465] Applying config ini 'syn.file=fft_top.cpp' from hls_config.cfg(6)
+INFO: [HLS 200-10] Adding design file 'E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/fft_top.cpp' to the project
+INFO: [HLS 200-1465] Applying config ini 'tb.file=fft_tb.cpp' from hls_config.cfg(8)
+INFO: [HLS 200-10] Adding test bench file 'E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/fft_tb.cpp' to the project
+INFO: [HLS 200-1465] Applying config ini 'tb.file=data' from hls_config.cfg(9)
+INFO: [HLS 200-10] Adding test bench file 'E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/data' to the project
+INFO: [HLS 200-1465] Applying config ini 'syn.top=fft_top' from hls_config.cfg(7)
+INFO: [HLS 200-1465] Applying config ini 'flow_target=vivado' from hls_config.cfg(5)
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see docs.amd.com/access/sources/dita/topic?Doc_Version=2025.2%20English&url=ug1448-hls-guidance&resourceid=200-1505.html
+INFO: [HLS 200-1465] Applying config ini 'part=xcku3p-ffvb676-2-e' from hls_config.cfg(1)
+INFO: [HLS 200-1611] Setting target device to 'xcku3p-ffvb676-2-e'
+INFO: [HLS 200-1465] Applying config ini 'clock=2ns' from hls_config.cfg(4)
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 2ns.
+INFO: [HLS 200-1465] Applying config ini 'package.output.format=rtl' from hls_config.cfg(10)
+INFO: [HLS 200-2176] Writing Vitis IDE component file E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream/fft_top/vitis-comp.json
+INFO: [SIM 211-2] *************** CSIM start ***************
+INFO: [HLS 200-2191] C-Simulation will use clang-16 as the compiler
+INFO: [HLS 200-2036] Building debug C Simulation binaries
+   Compiling ../../../../fft_tb.cpp in debug mode
+   Compiling ../../../../fft_top.cpp in debug mode
+   Generating csim.exe
+In file included from ../../../../fft_tb.cpp:21:
+In file included from ../../../../fft_top.h:17:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\ap_fixed.h:9:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\etc/ap_common.h:668:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\etc/ap_private.h:68:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\hls_half.h:26:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include/etc/hls_half_fpo.h:19:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\hls_fpo.h:140:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include/floating_point_v7_1_bitacc_cmodel.h:150:
+C:/AMDDesignTools/2025.2/Vitis/include\gmp.h:58:9: warning: '__GMP_LIBGMP_DLL' macro redefined [-Wmacro-redefined]
+#define __GMP_LIBGMP_DLL  0
+        ^
+C:/AMDDesignTools/2025.2/Vitis/include/floating_point_v7_1_bitacc_cmodel.h:142:9: note: previous definition is here
+#define __GMP_LIBGMP_DLL 1
+        ^
+In file included from ../../../../fft_tb.cpp:21:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2734:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2735:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2760:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2761:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2785:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2786:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2811:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2812:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2840:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2841:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2870:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2871:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2903:96: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                               ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2904:97: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                                ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2937:96: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                               ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2938:97: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                                ^
+17 warnings generated.
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:17:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\ap_fixed.h:9:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\etc/ap_common.h:668:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\etc/ap_private.h:68:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\hls_half.h:26:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include/etc/hls_half_fpo.h:19:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include\hls_fpo.h:140:
+In file included from C:/AMDDesignTools/2025.2/Vitis/include/floating_point_v7_1_bitacc_cmodel.h:150:
+C:/AMDDesignTools/2025.2/Vitis/include\gmp.h:58:9: warning: '__GMP_LIBGMP_DLL' macro redefined [-Wmacro-redefined]
+#define __GMP_LIBGMP_DLL  0
+        ^
+C:/AMDDesignTools/2025.2/Vitis/include/floating_point_v7_1_bitacc_cmodel.h:142:9: note: previous definition is here
+#define __GMP_LIBGMP_DLL 1
+        ^
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2734:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2735:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2760:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2761:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2785:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2786:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2811:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2812:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2840:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2841:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2870:75: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                          ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2871:76: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                           ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2903:96: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                               ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2904:97: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                                ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2937:96: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_IN_T>  xn[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                               ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2938:97: warning: 'no_ctor' attribute ignored [-Wignored-attributes]
+    std::complex<_DATA_OUT_T>  xk[_CONFIG_T::channels][1 << _CONFIG_T_max_nfft]  __attribute__((no_ctor));
+                                                                                                ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2402:24: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(nfft <= _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2486:2: note: in instantiation of function template specialization 'hls::set_data<config1, ap_fixed<16, 1>>' requested here
+        set_data<_CONFIG_T, _DATA_IN_T>(nfft, in, out);
+        ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2739:5: note: in instantiation of function template specialization 'hls::inputdatamover<config1, ap_fixed<16, 1>>' requested here
+    inputdatamover(in, xn, config, _CONFIG_T_max_nfft, fwd_inv, scale_sch, cp_len);
+    ^
+../../../../fft_top.cpp:31:10: note: in instantiation of function template specialization 'hls::fft<config1, ap_fixed<16, 1>, ap_fixed<16, 1>>' requested here
+    hls::fft<config1>(xn, xk, dir, scaling, -1, status);
+         ^
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2402:24: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(nfft <= _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2404:31: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(length <= 1 << _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2404:31: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(length <= 1 << _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2605:24: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(nfft <= _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2667:9: note: in instantiation of function template specialization 'hls::get_data<config1, ap_fixed<16, 1>>' requested here
+        get_data<_CONFIG_T, _DATA_OUT_T>(in, out, nfft);
+        ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2741:5: note: in instantiation of function template specialization 'hls::outputdatamover<config1, ap_fixed<16, 1>>' requested here
+    outputdatamover(xk, out, status, ovflo, blk_exp, _CONFIG_T_max_nfft);
+    ^
+../../../../fft_top.cpp:31:10: note: in instantiation of function template specialization 'hls::fft<config1, ap_fixed<16, 1>, ap_fixed<16, 1>>' requested here
+    hls::fft<config1>(xn, xk, dir, scaling, -1, status);
+         ^
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2605:24: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(nfft <= _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2606:31: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(length <= 1 << _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+In file included from ../../../../fft_top.cpp:17:
+In file included from ../../../../fft_top.h:18:
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:2606:31: warning: left operand of comma operator has no effect [-Wunused-value]
+        assert(length <= 1 << _CONFIG_T_max_nfft);
+        ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:105:3: note: expanded from macro '_CONFIG_T_max_nfft'
+  HLS_FFT_CHECK(log2_transform_length, max_nfft, 10) 
+  ^
+C:/AMDDesignTools/2025.2/Vitis/include\hls_fft.h:99:6: note: expanded from macro 'HLS_FFT_CHECK'
+    (hls::ip_fft::my_assert<(_CONFIG_T::new_name) == (def_val) || (_CONFIG_T::old_name) == (def_val)>, \
+     ^
+C:/AMDDesignTools/2025.2/Vitis/tps/mingw/10.0.0/win64.o/nt\x86_64-w64-mingw32\include\assert.h:52:7: note: expanded from macro 'assert'
+ ((!!(_Expression)) || \
+      ^~~~~~~~~~~
+25 warnings generated.
+INFO: Reading data/stimulus_00.dat
+NFFT 10
+CP_LEN 83
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_01.dat
+NFFT 10
+CP_LEN 617
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_02.dat
+NFFT 10
+CP_LEN 676
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_03.dat
+NFFT 10
+CP_LEN 724
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_04.dat
+NFFT 10
+CP_LEN 337
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_05.dat
+NFFT 10
+CP_LEN 759
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_06.dat
+NFFT 10
+CP_LEN 155
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_07.dat
+NFFT 10
+CP_LEN 9
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_08.dat
+NFFT 10
+CP_LEN 198
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_09.dat
+NFFT 10
+CP_LEN 892
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_10.dat
+NFFT 10
+CP_LEN 349
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_11.dat
+NFFT 10
+CP_LEN 541
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_12.dat
+NFFT 10
+CP_LEN 195
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_13.dat
+NFFT 10
+CP_LEN 857
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_14.dat
+NFFT 10
+CP_LEN 656
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_15.dat
+NFFT 10
+CP_LEN 646
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_16.dat
+NFFT 10
+CP_LEN 849
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_17.dat
+NFFT 10
+CP_LEN 452
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_18.dat
+NFFT 10
+CP_LEN 534
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_19.dat
+NFFT 10
+CP_LEN 417
+FWD_INV 1
+sc_sch 2AB
+ ERRORS: 0
+ (PASSED!!!)
+INFO [HLS SIM]: The maximum depth reached by any hls::stream() instance in the design is 1024
+INFO: [SIM 211-1] CSim done with 0 errors.
+INFO: [SIM 211-3] *************** CSIM finish ***************
+INFO: [HLS 200-112] Total CPU user time: 2 seconds. Total CPU system time: 2 seconds. Total elapsed time: 10.658 seconds; peak allocated memory: 173.395 MB.
+INFO: [vitis-run 60-791] Total elapsed time: 0h 0m 14s

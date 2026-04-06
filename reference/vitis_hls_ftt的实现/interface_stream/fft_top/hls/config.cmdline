@@ -1,0 +1,3 @@
+relativeroot=E:/1.Project/4.FPGA/vitis/FPGA_Litho/interface_stream
+original_argv=--mode hls --csim --config E:\1.Project\4.FPGA\vitis\FPGA_Litho\interface_stream\hls_config.cfg --work_dir fft_top 
+

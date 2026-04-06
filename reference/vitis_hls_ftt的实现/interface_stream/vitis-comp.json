@@ -1,0 +1,14 @@
+{
+  "name": "interface_stream",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": [
+      "hls_config.cfg"
+    ],
+    "work_dir": "fft_top"
+  },
+  "useSysrootToolchain": false,
+  "template": "vitis_hls_examples/DSP/fft/interface_stream",
+  "templateFlow": "VITIS"
+}

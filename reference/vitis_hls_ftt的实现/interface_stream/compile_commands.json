@@ -1,0 +1,27 @@
+[
+  {
+    "directory": "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream",
+    "arguments": [
+      "C:\\AMDDesignTools\\2025.2\\Vitis\\win64\\tools\\vcxx\\libexec\\clang++.exe",
+      "--sysroot=C:\\AMDDesignTools\\2025.2\\Vitis\\tps\\mingw\\10.0.0\\win64.o\\nt",
+      "-fhls",
+      "-hls-syn-headers-dir=C:\\AMDDesignTools\\2025.2\\Vitis\\common\\technology\\autopilot",
+      "-fhlstoplevel=fft_top",
+      "-c",
+      "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_top.cpp"
+    ],
+    "file": "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_top.cpp"
+  },
+  {
+    "directory": "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream",
+    "arguments": [
+      "C:\\AMDDesignTools\\2025.2\\Vitis\\win64\\tools\\vcxx\\libexec\\clang++.exe",
+      "--sysroot=C:\\AMDDesignTools\\2025.2\\Vitis\\tps\\mingw\\10.0.0\\win64.o\\nt",
+      "-fhls-tb",
+      "-hls-sim-headers-dir=C:\\AMDDesignTools\\2025.2\\Vitis\\include",
+      "-c",
+      "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_tb.cpp"
+    ],
+    "file": "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_tb.cpp"
+  }
+]

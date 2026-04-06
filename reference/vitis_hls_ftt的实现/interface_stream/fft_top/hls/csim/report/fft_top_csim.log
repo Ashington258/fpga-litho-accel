@@ -1,0 +1,109 @@
+INFO: [SIM 2] *************** CSIM start ***************
+   Compiling ../../../../fft_tb.cpp in debug mode
+   Compiling ../../../../fft_top.cpp in debug mode
+   Generating csim.exe
+INFO: Reading data/stimulus_00.dat
+NFFT 10
+CP_LEN 83
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_01.dat
+NFFT 10
+CP_LEN 617
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_02.dat
+NFFT 10
+CP_LEN 676
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_03.dat
+NFFT 10
+CP_LEN 724
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_04.dat
+NFFT 10
+CP_LEN 337
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_05.dat
+NFFT 10
+CP_LEN 759
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_06.dat
+NFFT 10
+CP_LEN 155
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_07.dat
+NFFT 10
+CP_LEN 9
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_08.dat
+NFFT 10
+CP_LEN 198
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_09.dat
+NFFT 10
+CP_LEN 892
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_10.dat
+NFFT 10
+CP_LEN 349
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_11.dat
+NFFT 10
+CP_LEN 541
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_12.dat
+NFFT 10
+CP_LEN 195
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_13.dat
+NFFT 10
+CP_LEN 857
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_14.dat
+NFFT 10
+CP_LEN 656
+FWD_INV 0
+sc_sch 2AB
+INFO: Reading data/stimulus_15.dat
+NFFT 10
+CP_LEN 646
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_16.dat
+NFFT 10
+CP_LEN 849
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_17.dat
+NFFT 10
+CP_LEN 452
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_18.dat
+NFFT 10
+CP_LEN 534
+FWD_INV 1
+sc_sch 2AB
+INFO: Reading data/stimulus_19.dat
+NFFT 10
+CP_LEN 417
+FWD_INV 1
+sc_sch 2AB
+ ERRORS: 0
+ (PASSED!!!)
+INFO [HLS SIM]: The maximum depth reached by any hls::stream() instance in the design is 1024
+INFO: [SIM 1] CSim done with 0 errors.
+INFO: [SIM 3] *************** CSIM finish ***************

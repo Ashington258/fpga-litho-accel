@@ -1,0 +1,43 @@
+Category,Tcl Command,Description
+hw_target,close_hw_target,Close a hardware target.
+hw_target,current_hw_target,Get or set the current hardware target.
+hw_target,get_hw_targets,Get list of hardware targets for the hardware servers.
+hw_target,open_hw_target,Open a connection to a hardware target on the hardware server.
+hw_target,refresh_hw_target,Refresh a connection to a hardware target.
+hw_device,current_hw_device,Get or set the current hardware device.
+hw_device,get_hw_devices,Get list of hardware devices for the target.
+hw_device,program_hw_device,Program AMD FPGA devices.
+hw_device,refresh_hw_device,Refresh a hardware device.
+hw_ila,current_hw_ila,Get or set the current hardware ILA.
+hw_ila,get_hw_ilas,Get list of hardware ILAs for the target.
+hw_ila,reset_hw_ila,Reset hw_ila control properties to default values.
+hw_ila,run_hw_ila,Arm® hw_ila triggers.
+hw_ila,wait_on_hw_ila,Wait until all data has been captured.
+hw_ila_data,current_hw_ila_data,Get or set the current hardware ILA data.
+hw_ila_data,display_hw_ila_data,Display hw_ila_data in waveform viewer.
+hw_ila_data,get_hw_ila_data,Get list of hw_ila_data objects.
+hw_ila_data,list_hw_samples,Lists data samples associated with an individual hardware probe.
+hw_ila_data,read_hw_ila_data,Read hw_ila_data from a file.
+hw_ila_data,upload_hw_ila_data,Stop the ILA core from capturing data and upload any captured data.
+hw_ila_data,write_hw_ila_data,Write hw_ila_data to a file.
+hw_probe,create_hw_probe,Creates a new hardware probe from physical ILA probe ports and/or constant values.
+hw_probe,delete_hw_probe,Deletes a user-defined hardware probe creating using the create_hw_probe command.
+hw_probe,get_hw_probes,Get list of hardware probes.
+hw_vio,commit_hw_vio,Write hw_probe OUTPUT_VALUE properties values to VIO cores.
+hw_vio,get_hw_vios,Get a list of hw_vios.
+hw_vio,refresh_hw_vio,Update hw_probe INPUT_VALUE and ACTIVITY_VALUE properties with values read from VIO cores.
+hw_vio,reset_hw_vio_activity,Reset VIO ACTIVITY_VALUE properties, for hw_probes associated with specified hw_vio objects.
+hw_vio,reset_hw_vio_outputs,Reset VIO core outputs to initial values.
+hw_axi/hw_axi_txn,create_hw_axi_txn,Creates hardware AXI transaction object.
+hw_axi/hw_axi_txn,delete_hw_axi_txn,Deletes hardware AXI transaction objects.
+hw_axi/hw_axi_txn,get_hw_axi_txns,Gets a list of hardware AXI transaction objects.
+hw_axi/hw_axi_txn,get_hw_axis,Gets a list of hardware AXI objects.
+hw_axi/hw_axi_txn,refresh_hw_axi,Refreshes hardware AXI object status.
+hw_axi/hw_axi_txn,report_hw_axi_txn,Reports formatted hardware AXI transaction data.
+hw_axi/hw_axi_txn,reset_hw_axi,Resets hardware AXI core state.
+hw_axi/hw_axi_txn,run_hw_axi,Runs hardware AXI read/write transactions and update transaction status in the corresponding hw_axi object.
+hw_sysmon,commit_hw_sysmon,Commits the current property values defined on a hw_sysmon object to the System Monitor registers on the hardware device.
+hw_sysmon,get_hw_sysmon_reg,Returns the hex value of the System Monitor register defined at the specified address of the specified hw_sysmon object.
+hw_sysmon,get_hw_sysmons,Returns the list of Sysmon debug core objects defined on the current hardware device.
+hw_sysmon,refresh_hw_sysmon,Refreshes the properties of the hw_sysmon object with the values on the System Monitor from the current hw_device.
+hw_sysmon,set_hw_sysmon_reg,Sets the System Monitor register at the specified address to the hex value specified.

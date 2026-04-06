@@ -1,0 +1,156 @@
+<ENTRY>
+{
+ "thisFile": "E:/1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_top\\fft_top.hlsrun_csim_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "04/02/26 11:12:05",
+ "timestampMillis": "1775099525256",
+ "buildStep": {
+  "cmdId": "c3f25a91-befe-45e3-b939-7c4226c4a98a",
+  "name": "vitis-run",
+  "logFile": "E:/1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_top\\logs\\fft_top.steps.log",
+  "commandLine": "C:/AMDDesignTools/2025.2/Vitis/bin/unwrapped/win64.o/vitis-run.exe  --mode hls --csim --config E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\hls_config.cfg --work_dir fft_top ",
+  "args": [
+   "--mode",
+   "hls",
+   "--csim",
+   "--config",
+   "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\hls_config.cfg",
+   "--work_dir",
+   "fft_top"
+  ],
+  "iniFiles": [],
+  "cwd": "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "04/02/26 11:12:05",
+ "timestampMillis": "1775099525256",
+ "status": {
+  "cmdId": "c3f25a91-befe-45e3-b939-7c4226c4a98a",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "04/02/26 11:12:09",
+ "timestampMillis": "1775099529390",
+ "buildSummary": {
+  "hardwarePlatform": "",
+  "hardwareDsa": "",
+  "platformDirectory": "",
+  "runtime": "",
+  "systemConfig": "",
+  "flow": "BF_RUN",
+  "target": "TT_HLS_C_SIM",
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "fft_top",
+     "file": "",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "E:/1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_top.cpp"
+    ],
+    "psSources": [],
+    "cuNames": [],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "2025.2"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "04/02/26 11:12:09",
+ "timestampMillis": "1775099529390",
+ "buildStep": {
+  "cmdId": "d83184fd-4bc7-4d77-a704-b6d5bb328aa6",
+  "name": "",
+  "logFile": "E:/1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream\\fft_top\\hls\\hls.log",
+  "commandLine": "",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "E:\\1.Project\\4.FPGA\\vitis\\FPGA_Litho\\interface_stream"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "04/02/26 11:12:09",
+ "timestampMillis": "1775099529391",
+ "status": {
+  "cmdId": "d83184fd-4bc7-4d77-a704-b6d5bb328aa6",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "04/02/26 11:12:17",
+ "timestampMillis": "1775099537557",
+ "status": {
+  "cmdId": "d83184fd-4bc7-4d77-a704-b6d5bb328aa6",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "04/02/26 11:12:17",
+ "timestampMillis": "1775099537661",
+ "status": {
+  "cmdId": "c3f25a91-befe-45e3-b939-7c4226c4a98a",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "04/02/26 11:12:17",
+ "timestampMillis": "1775099537661",
+ "report": {
+  "path": "",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "04/02/26 11:12:17",
+ "timestampMillis": "1775099537661",
+ "report": {
+  "path": "",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
