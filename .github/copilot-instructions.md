@@ -22,23 +22,41 @@
 
 ## 严格控制流程
 
-### HLS 命令规范
+### HLS 命令规范（已验证的正确方案）
 
-**必须使用 `vitis-run`，禁止使用旧版 `vitis_hls` 或 `vivado_hls`**：
+**两种可行的C综合方式（均已验证）**：
 
+#### 方案1：v++ 命令方式（推荐用于FFT组件）
 ```bash
-# C 仿真
+# C仿真 + C综合（一站式）
 cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls --csim --config hls/script/config/hls_config.cfg --work_dir hls/socs_proj
+v++ -c --mode hls --config script/config/hls_config_fft.cfg --work_dir fft_2d_forward_32
 
-# C 综合（推荐 TCL 驱动）
-vitis-run --mode hls --tcl --input_file hls/script/run_csynth.tcl --work_dir hls/socs_proj
+# 结果：Estimated Fmax 273.97 MHz，Latency 19,407 cycles
+```
 
-# CoSim
-vitis-run --mode hls --cosim --config hls/script/config/hls_config.cfg --work_dir hls/socs_proj
+#### 方案2：vitis-run TCL方式（适合完整项目流程）
+```bash
+cd /root/project/FPGA-Litho/source/SOCS_HLS
+vitis-run --mode hls --tcl script/run_csynth_fft.tcl
 
-# IP 导出
-vitis-run --mode hls --package --config hls/script/config/hls_config.cfg --work_dir hls/socs_proj
+# 结果：同方案1，耗时约39秒
+```
+
+#### C仿真单独运行
+```bash
+cd /root/project/FPGA-Litho/source/SOCS_HLS
+vitis-run --mode hls --csim --config script/config/hls_config_fft.cfg --work_dir hls/fft_2d_forward_32
+```
+
+#### CoSim验证（需先完成C综合）
+```bash
+vitis-run --mode hls --cosim --config script/config/hls_config_fft.cfg --work_dir fft_2d_forward_32
+```
+
+#### IP导出
+```bash
+vitis-run --mode hls --package --config script/config/hls_config_fft.cfg --work_dir fft_2d_forward_32
 ```
 
 ### TCL 验证流程（板级）
@@ -212,22 +230,32 @@ void socs_top(
 
 ---
 
-## CPU 参考代码测试方法
+## Golden 数据验证方法
 
-### 运行命令
+### 统一验证入口
+
+**使用 `verification/` 目录的独立验证系统**：
 
 ```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-python generate_golden.py
+cd /root/project/FPGA-Litho
+python verify.py                      # 默认验证
+python verify.py --clean              # 清理重新验证
+python verification/run_verification.py --debug  # 调试模式
 ```
 
-### Golden 数据生成说明
+### 验证输出文件（SOCS HLS Golden 输入）
 
-- `generate_golden.py` 调用或复现 `klitho_socs.cpp` 的 calcSOCS 算法
-- 使用 numpy + scipy.fft 生成完全一致的 float32 结果
-- 输出所有 .bin 文件 + golden_info.txt
+| 文件 | 尺寸 | 说明 | SOCS HLS用途 |
+|------|------|------|--------------|
+| `mskf_r.bin` | Lx×Ly float32 | Mask频域实部 | **AXI-MM输入** |
+| `mskf_i.bin` | Lx×Ly float32 | Mask频域虚部 | **AXI-MM输入** |
+| `scales.bin` | nk float32 | 特征值数组 | **AXI-MM输入** |
+| `kernels/krn_*_r/i.bin` | tccSize float32 | SOCS核数据 | **AXI-MM输入** |
+| `kernels/kernel_info.txt` | 文本 | 核数量、尺寸、特征值 | 参数配置 |
+| `image.bin` | Lx×Ly float32 | SOCS空中像输出 | **HLS输出对比** |
+| `image_tcc.bin` | Lx×Ly float32 | TCC空中像输出 | 交叉验证 |
 
-### 验证输出关键指标
+### 验证关键指标
 
 ```
 VERIFICATION SUMMARY:
@@ -301,15 +329,15 @@ FI 步骤：
 
 | 资源 | 数量 | 总容量 |
 |------|------|--------|
-| BRAM (KU3P) | 216 | 960KB |
+| BRAM (KU3P) | 216 | 7776KB (7.6MB) |
 
 ### 配置方案
 
 | 配置 | Lx×Ly | Nx×Ny | nk | 临时尺寸 | 存储策略 |
 |------|-------|-------|----|---------|---------|
-| **最小(CoSim)** | 128×128 | 4×4 | 16 | 17×17 | BRAM |
-| **中等** | 256×256 | 8×8 | 16 | 33×33 | BRAM |
-| **实际** | 512×512 | 16×16 | 16 | 65×65 | BRAM |
+| **最小(CoSim)** | 128×128 | 4×4 | 16 | 17×17 | BRAM (利用率<1%) |
+| **中等** | 256×256 | 8×8 | 16 | 33×33 | BRAM (利用率<1%) |
+| **实际** | 512×512 | 16×16 | 16 | 65×65 | BRAM (利用率1.5%) |
 
 ### HLS 固定数组示例
 
@@ -321,7 +349,7 @@ const int MAX_IMG_SIZE = 512;     // Lx/Ly 最大512
 const int MAX_CONV_SIZE = 4*16 + 1;  // 65
 
 // 输入数组（通过AXI-MM传入）
-cmpxData_t mskf[MAX_IMG_SIZE * MAX_IMG_SIZE];     // 最多512KB complex
+cmpxData_t mskf[MAX_IMG_SIZE * MAX_IMG_SIZE];     // 最多2048KB complex (2MB)
 cmpxData_t krns[MAX_NK * MAX_CONV_SIZE * MAX_CONV_SIZE];  // 约68KB
 data_t scales[MAX_NK];                             // 64B
 
