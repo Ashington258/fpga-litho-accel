@@ -1,23 +1,104 @@
 
-## 全局约束
+# FPGA-Litho 项目任务索引
 
-> **所有参考资源、命令规范、数据类型、验收标准等全局约束已统一到 `.github/copilot-instructions.md`**
->
-> 本文档仅包含项目概述、目录结构、任务清单、接口设计等项目特定内容。
+**最后更新**: 2026-04-06
 
 ---
 
-### 📋 项目概述
+## 项目概述
 
-将 `reference/CPP_reference/Litho-TCC` 中的 **TCC 计算模块** 重构为 **Vitis HLS IP 核**，最终目标是得到一个**标准 Vivado IP**，可直接拖入 Vivado Block Design（BD）中绘制系统。
+将 `reference/CPP_reference/Litho-TCC` 和 `Litho-SOCS` 重构为 Vitis HLS IP 核。
 
-**当前重构范围（Phase 0-4）**：
-| 模块 | 执行位置 | 说明 |
-|------|----------|------|
-| calcTCC | FPGA (HLS) | 四层循环，核心性能瓶颈 |
-| FFT (r2c/c2r) | FPGA (HLS) | 替换 fftw3 → hls::fft |
-| calcImage | FPGA (HLS) | 频域卷积 → 空中像 |
-| **calcKernels** | **不重构** | SOCS 核由 Host 端从 TCC 矩阵计算 |
+---
+
+## 独立任务清单
+
+本项目包含两个**完全独立**的HLS重构任务，各有独立的TODO、Golden数据和测试脚本：
+
+| 模块 | 任务清单 | 状态 | 说明 |
+|------|----------|------|------|
+| **TCC** | [source/TCC_HLS/TCC_TODO.md](source/TCC_HLS/TCC_TODO.md) | Phase 1 存档 | 等待DDR计算卡 |
+| **SOCS** | [source/SOCS_HLS/SOCS_TODO.md](source/SOCS_HLS/SOCS_TODO.md) | Phase 0 完成 | 基础框架搭建 |
+
+---
+
+## 模块关系
+
+```
+光源/参数 → TCC模块(FPGA) → TCC矩阵 → Host端calcKernels → SOCS核 → SOCS模块(FPGA) → 空中像
+```
+
+- **TCC模块**: FPGA端实现，Phase 1已完成存档
+- **calcKernels**: Host端LAPACK实现，不在FPGA重构范围
+- **SOCS模块**: FPGA端实现，当前任务
+
+---
+
+## 全局约束
+
+所有通用约束见 `.github/copilot-instructions.md`，包括：
+
+- 参考资源路径
+- HLS命令规范（vitis-run）
+- 数据类型定义（float / complex<float>）
+- BIN文件格式
+- 输出要求
+- 验收标准
+
+---
+
+## 关键文件位置
+
+| 类型 | TCC模块 | SOCS模块 |
+|------|---------|----------|
+| 任务清单 | `source/TCC_HLS/TCC_TODO.md` | `source/SOCS_HLS/SOCS_TODO.md` |
+| 源码 | `source/TCC_HLS/hls/src/` | `source/SOCS_HLS/hls/src/` |
+| Golden数据 | `source/TCC_HLS/hls/golden/` | `source/SOCS_HLS/hls/tb/golden/` |
+| 测试脚本 | `source/TCC_HLS/hls/tb/` | `source/SOCS_HLS/hls/tb/` |
+
+---
+
+## 快速开始
+
+### TCC模块
+```bash
+cd /root/project/FPGA-Litho/source/TCC_HLS
+cat TCC_TODO.md          # 查看任务
+make csim                # 运行C仿真
+```
+
+### SOCS模块
+```bash
+cd /root/project/FPGA-Litho/source/SOCS_HLS
+cat SOCS_TODO.md         # 查看任务
+python generate_golden.py  # 生成Golden数据
+make csim                # 运行C仿真
+```
+
+---
+
+## 当前状态
+
+### TCC模块 (Phase 1 存档)
+- ✅ C仿真通过（相对误差 < 1e-5）
+- ✅ C综合完成（RTL生成）
+- ⚠️ BRAM超限407%（等待DDR计算卡）
+
+### SOCS模块 (Phase 0 完成)
+- ✅ 目录结构创建
+- ✅ 基础框架搭建
+- ⬜ 集成hls::fft
+- ⬜ 生成Golden数据
+
+---
+
+**维护说明**: 本索引文件仅作为入口，详细任务请查看各模块独立的TODO文件。
+
+---
+
+## 详细任务清单（历史参考）
+
+> **注意**: 以下为历史任务清单，新任务请查看各模块独立TODO文件
 
 ---
 

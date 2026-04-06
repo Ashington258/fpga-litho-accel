@@ -533,12 +533,14 @@ outerSigma = 1;
   }
   
   writeFloatArrayToPNGWithContinuousColor(tccSize, tccSize, tccReal, outputDir + "/tcc_r.png", min, max);
+  writeFloatArrayToBinary(outputDir + "/tcc_r.bin", tccReal, tccSize * tccSize);
   max = getMax(tccImag);
   min = getMin(tccImag);
   cout << "TCC Matrix Statistics (Imag):" << endl;
   cout << "  Max: " << max << endl;
   cout << "  Min: " << min << endl;
   writeFloatArrayToPNGWithContinuousColor(tccSize, tccSize, tccImag, outputDir + "/tcc_i.png", min, max);
+  writeFloatArrayToBinary(outputDir + "/tcc_i.bin", tccImag, tccSize * tccSize);
 
   // ===== MODULE 5: Calculate Image =====
   auto t5_start = system_clock::now();
