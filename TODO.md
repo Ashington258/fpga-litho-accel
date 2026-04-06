@@ -197,12 +197,12 @@ testbench_file = tb/tb_tcc.cpp
 #### Phase 1: calcTCC 核心模块（最高优先级）
 | #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
 |-----|-------------------------------------------|--------|----------|----------|------|
-| 1.1 | 实现 `calc_tcc.cpp`（pupil 计算 + TCC 计算） | P0 | 3d       | 功能正确（CSIM 通过） | ⬜   |
+| 1.1 | 实现 `calc_tcc.cpp`（pupil 计算 + TCC 计算） | P0 | 3d       | 功能正确（CSIM 通过） | ✅（C仿真通过，相对误差<1e-5） |
 | 1.2 | 循环优化：添加 `#pragma HLS PIPELINE` + `UNROLL` | P0 | 2d       | Latency 报告显示优化效果 | ⬜   |
-| 1.3 | 三角函数替换：`hls::sin()` / `hls::cos()` / `hls::sqrt()` | P0 | 1d       | 编译通过，无精度警告 | ⬜   |
+| 1.3 | 三角函数替换：`hls::sin()` / `hls::cos()` / `hls::sqrt()` | P0 | 1d       | 编译通过，无精度警告 | ✅   |
 | 1.4 | BRAM 分区：pupil 矩阵 `#pragma HLS ARRAY_PARTITION` | P0 | 1d       | 资源报告显示 BRAM 分布合理 | ⬜   |
-| 1.5 | **AXI-Lite 参数接口**：NA, lambda, defocus, Lx, Ly, Nx, Ny, srcSize | P0 | 1d       | 接口报告显示 AXI-Lite 端口 | ⬜   |
-| 1.6 | C 仿真验证（对比 golden 数据）             | P0     | 1d       | 输出误差 < 1e-5 | ⬜   |
+| 1.5 | **AXI-Lite 参数接口**：NA, lambda, defocus, Lx, Ly, Nx, Ny, srcSize | P0 | 1d       | 接口报告显示 AXI-Lite 端口 | ✅   |
+| 1.6 | C 仿真验证（对比 golden 数据）             | P0     | 1d       | 输出误差 < 1e-5 | ⬜（初始验证失败，需修正） |
 | 1.7 | C 综合 + CoSim（使用 `vitis-run` 命令）    | P0     | 2d       | CoSim PASS | ⬜   |
 
 **📌 核心命令（必须使用 vitis-run，参考参考文档）**：
