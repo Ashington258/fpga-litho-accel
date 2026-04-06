@@ -234,7 +234,7 @@ source/TCC_HLS/                    ← 与现有工程结构一致
 │   └── hls_litho_proj/              ← HLS 工作目录（由 vitis-run 生成）
 │       └ solution1/
 │       │   ├── impl/
-│       │   │    export/ip/*.zip     ← 导出的 Vivado IP
+│       │   │    export/rtl/     ← 导出的 RTL 包
 │       │   ├── csim/
 │       │   └ cosim/
 │       └ reports/\                  ← 资源/时序报告
@@ -350,7 +350,7 @@ const hls::ip_fft::arch FFT_ARCH = hls::ip_fft::pipelined_streaming_io;
 | 4.4 | **AXI4-Master** 存储接口（当前接 BRAM）   | P0     | 1.5d     | 接口报告显示 M_AXI 端口 | ⬜   |
 | 4.5 | 实现 `axi_bram_adapter.cpp`               | P0     | 1d       | JTAG 可加载数据 | ⬜   |
 | 4.6 | 端到端 CoSim（空中像 + TCC 输出）         | P0     | 3d       | 全流程 CoSim PASS | ⬜   |
-| 4.7 | 导出 Vivado IP（`vitis-run --package`）   | P0     | 1d       | 生成 `solution1/impl/export/ip/*.zip` | ⬜   |
+| 4.7 | 导出 RTL 包（`vitis-run --package`）   | P0     | 1d       | 生成 `solution1/impl/export/rtl/` | ⬜   |
 
 **📌 导出命令**：
 ```bash
@@ -486,7 +486,7 @@ void tcc_top(
 ---
 
 **最终回答您的4个问题**：
-1. **是的**，最终得到标准 Vivado IP 核（`.zip`），可直接拖入 Block Design
+1. **是的**，最终得到 RTL 包，可直接导入 Block Design
 2. **所有关键参数**通过 AXI-Lite 暴露，改参数只需写寄存器，无需重新综合
 3. **JTAG 加载路径**已设计（`axi_bram_adapter` + `verify_bram.tcl`）
 4. **接口模块化**：AXI-Stream 输入 + AXI-Master 存储，后期换 PCIe/DDR 只需改 Vivado BD 连线

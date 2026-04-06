@@ -1,0 +1,55 @@
+{
+    "simulation": {
+        "description": "测试 IFFT 65x65 -> 128x128 转换",
+        "version": "1.0"
+    },
+    "mask": {
+        "period": {
+            "Lx": 2048,
+            "Ly": 2048
+        },
+        "size": {
+            "maskSizeX": 256,
+            "maskSizeY": 256
+        },
+        "type": "LineSpace",
+        "lineSpace": {
+            "lineWidth": 128,
+            "spaceWidth": 128,
+            "isHorizontal": false
+        },
+        "inputFile": "",
+        "dose": 1.0
+    },
+    "source": {
+        "gridSize": 101,
+        "type": "Annular",
+        "annular": {
+            "innerRadius": 0.6,
+            "outerRadius": 0.9
+        },
+        "dipole": {
+            "radius": 0.5,
+            "offset": 0.3,
+            "onXAxis": true
+        },
+        "crossQuadrupole": {
+            "radius": 0.5,
+            "offset": 0.3
+        },
+        "point": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "inputFile": ""
+    },
+    "optics": {
+        "NA": 1.0,
+        "wavelength": 193,
+        "defocus": 0.0
+    },
+    "kernel": {
+        "count": 4,
+        "targetIntensity": 0.225
+    }
+}

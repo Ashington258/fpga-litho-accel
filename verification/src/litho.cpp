@@ -507,10 +507,14 @@ void calcSOCS(vector<float>& image, vector<ComplexD>& msk, int Lx, int Ly,
               vector<vector<ComplexD>>& krns, vector<float>& scales, int nk, int Nx, int Ny,
               fftw_plan& LxyC2R_plan, vector<ComplexD>& complexDataLxy, vector<double>& realDataLxy,
               int verbose) {
+    // Convolution size: 4*Nx+1 (e.g., 17 for Nx=4, 65 for Nx=16)
     int sizeX = 4 * Nx + 1;
     int sizeY = 4 * Ny + 1;
+    
+    // Data placement offset in convolution array
     int difX = sizeX - (2 * Nx + 1);
     int difY = sizeY - (2 * Ny + 1);
+    
     int Lxh = Lx / 2;
     int Lyh = Ly / 2;
     
@@ -520,6 +524,7 @@ void calcSOCS(vector<float>& image, vector<ComplexD>& msk, int Lx, int Ly,
         cout << "[calcSOCS] Number of kernels: " << nk << endl;
     }
     
+    // FFT buffers for IFFT (complex-to-complex)
     vector<ComplexD> bwdDataIn(sizeX * sizeY, ComplexD(0, 0));
     vector<ComplexD> bwdDataOut(sizeX * sizeY, ComplexD(0, 0));
     fftw_plan bwd_plan = fftw_plan_dft_2d(sizeY, sizeX, 
@@ -527,15 +532,19 @@ void calcSOCS(vector<float>& image, vector<ComplexD>& msk, int Lx, int Ly,
         reinterpret_cast<fftw_complex*>(bwdDataOut.data()), 
         FFTW_BACKWARD, FFTW_ESTIMATE);
     
+    // FI interpolation buffers (R2C for Fourier Interpolation)
     vector<double> realDataNxy(sizeX * sizeY);
     vector<ComplexD> complexDataNxy((sizeX / 2 + 1) * sizeY);
     fftw_plan NxyR2C = fftw_plan_dft_r2c_2d(sizeY, sizeX, realDataNxy.data(), 
         reinterpret_cast<fftw_complex*>(complexDataNxy.data()), FFTW_ESTIMATE);
     
+    // Accumulated intensity image
     vector<double> tmpImg(sizeX * sizeY, 0);
     vector<double> tmpImgp(sizeX * sizeY, 0);
     
+    // Compute SOCS aerial image: sum of |IFFT(kernel * mask)|^2 weighted by eigenvalues
     for (int k = 0; k < nk; ++k) {
+        // Place kernel*mask product into convolution array
         for (int y = -Ny; y <= Ny; ++y) {
             for (int x = -Nx; x <= Nx; ++x) {
                 bwdDataIn[(difY + y + Ny) * sizeX + difX + x + Nx] = 
@@ -543,14 +552,17 @@ void calcSOCS(vector<float>& image, vector<ComplexD>& msk, int Lx, int Ly,
             }
         }
         
+        // Execute IFFT (frequency domain -> spatial domain)
         fftw_execute(bwd_plan);
         
+        // Accumulate intensity: |amplitude|^2 weighted by eigenvalue (scale)
         for (int i = 0; i < sizeX * sizeY; ++i) {
             tmpImg[i] += scales[k] * (bwdDataOut[i].real() * bwdDataOut[i].real() 
                                     + bwdDataOut[i].imag() * bwdDataOut[i].imag());
         }
     }
     
+    // Shift array (move zero-frequency to center) and apply Fourier Interpolation
     myShift(tmpImg, tmpImgp, sizeX, sizeY, true, true);
     FI(tmpImgp, sizeX, sizeY, image, Lx, Ly, NxyR2C, realDataNxy, complexDataNxy, 
        LxyC2R_plan, complexDataLxy, realDataLxy);
@@ -910,9 +922,10 @@ int main(int argc, char* argv[]) {
     printStatistics("Aerial Image (TCC)", imgTcc, 5);
     cout << "[TIME] TCC Image: " << t5_dur << " us" << endl;
     
-    writeFloatArrayToBinary(outputDir + "/image_tcc.bin", imgTcc, Lxy);
+    // TCC-based aerial image (direct TCC matrix calculation)
+    writeFloatArrayToBinary(outputDir + "/aerial_image_tcc_direct.bin", imgTcc, Lxy);
     writeFloatArrayToPNGWithContinuousColor(config.Lx, config.Ly, imgTcc, 
-                                             outputDir + "/image_tcc.png", getMin(imgTcc), getMax(imgTcc));
+                                             outputDir + "/aerial_image_tcc_direct.png", getMin(imgTcc), getMax(imgTcc));
     
     // ========================================================================
     // MODULE 6: Calculate Kernels (SOCS)
@@ -964,11 +977,12 @@ int main(int argc, char* argv[]) {
     printStatistics("Aerial Image (SOCS)", imgSocs, 5);
     cout << "[TIME] SOCS Image: " << t7_dur << " us" << endl;
     
-    writeFloatArrayToBinary(outputDir + "/image.bin", imgSocs, Lxy);
+    // SOCS-based aerial image (SOCS kernel approximation method)
+    writeFloatArrayToBinary(outputDir + "/aerial_image_socs_kernel.bin", imgSocs, Lxy);
     writeFloatArrayToPNGWithContinuousColor(config.Lx, config.Ly, imgSocs, 
-                                             outputDir + "/image.png", getMin(imgSocs), getMax(imgSocs));
+                                             outputDir + "/aerial_image_socs_kernel.png", getMin(imgSocs), getMax(imgSocs));
     writeFloatArrayToPNGWith7Colors(config.Lx, config.Ly, imgSocs, 
-                                     outputDir + "/image_s.png", 0, config.targetIntensity);
+                                     outputDir + "/aerial_image_socs_threshold.png", 0, config.targetIntensity);
     
     // ========================================================================
     // Summary

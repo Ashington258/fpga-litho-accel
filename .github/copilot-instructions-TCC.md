@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-本项目将 `reference/CPP_reference/Litho-TCC` 重构为 Vitis HLS IP 核，最终目标是得到标准 Vivado IP（`.zip`），可直接拖入 Vivado Block Design。
+本项目将 `reference/CPP_reference/Litho-TCC` 重构为 Vitis HLS IP 核，最终目标是生成 RTL 包，可直接导入 Vivado Block Design。
 
 ---
 
@@ -262,7 +262,7 @@ Aerial Image Samples (center region):
 |--------|------|
 | C 仿真 | 输出与 CPU 参考误差 < 1e-5 |
 | CoSim | PASS |
-| IP 导出 | 生成 `solution1/impl/export/ip/*.zip` |
+| IP 导出 | 生成 `solution1/impl/export/rtl/` |
 | 板级测试 | JTAG 加载 → 计算 → 输出与参考一致 |
 
 ---

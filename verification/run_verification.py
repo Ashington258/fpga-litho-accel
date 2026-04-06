@@ -81,8 +81,8 @@ def analyze_results(output_dir: Path) -> bool:
         "tcc_r.bin", "tcc_i.bin",
         "mskf_r.bin", "mskf_i.bin",  # SOCS HLS 输入
         "scales.bin",                 # SOCS HLS 输入
-        "image_tcc.bin", "image_tcc.png",
-        "image.bin", "image.png",
+        "aerial_image_tcc_direct.bin", "aerial_image_tcc_direct.png",  # TCC 直接计算成像
+        "aerial_image_socs_kernel.bin", "aerial_image_socs_kernel.png",  # SOCS kernel 重建成像
         "kernels/kernel_info.txt"
     ]
     
@@ -99,8 +99,8 @@ def analyze_results(output_dir: Path) -> bool:
         return False
     
     # 比较 TCC vs SOCS
-    img_tcc = output_dir / "image_tcc.bin"
-    img_socs = output_dir / "image.bin"
+    img_tcc = output_dir / "aerial_image_tcc_direct.bin"
+    img_socs = output_dir / "aerial_image_socs_kernel.bin"
     
     if img_tcc.exists() and img_socs.exists():
         tcc_data = np.fromfile(str(img_tcc), dtype=np.float32)
