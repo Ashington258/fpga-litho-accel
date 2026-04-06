@@ -110,7 +110,7 @@ int difY = sizeY - krnSizeY;   // Y填充偏移 = 2*Ny
 ### Phase 2: 接口模块化（已完成）
 | # | 任务 | 优先级 | 预计工时 | 验收标准 | 状态 |
 |---|------|--------|----------|----------|------|
-| 2.1 | 添加 AXI-Lite 参数接口（Lx, Ly, Nx, Ny, nk 等） | P0 | 0.5d | 接口报告显示 AXI-Lite | ✅ 简化版使用AXI-MM |
+| 2.1 | 添加 AXI-Lite 参数接口（Lx, Ly, Nx, Ny, nk 等） | P0 | 0.5d | 接口报告显示 AXI-Lite | ✅ **AXI-Lite控制接口已实现** |
 | 2.2 | 输入接口：**AXI-MM**（mskf + krns + scales） | P0 | 1.5d | 支持大数组高效传输 | ✅ |
 | 2.3 | 输出接口：**AXI-MM**（image） | P0 | 1d | 高吞吐输出 | ✅ |
 | 2.4 | CoSim 验证（含接口） | P0 | 2d | CoSim PASS | ✅ **PASS** |

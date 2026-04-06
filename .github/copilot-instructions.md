@@ -55,6 +55,12 @@ vitis-run --mode hls --cosim --config script/config/hls_config_fft.cfg --work_di
 ```
 
 #### IP导出
+
+```TCL脚本
+[package]
+package.output.format=rtl
+```
+
 ```bash
 vitis-run --mode hls --package --config script/config/hls_config_fft.cfg --work_dir fft_2d_forward_32
 ```

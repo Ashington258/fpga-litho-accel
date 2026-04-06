@@ -2,13 +2,10 @@
  * SOCS HLS 顶层函数（修复接口版本）
  * FPGA-Litho Project
  * 
- * 功能：完整的calcSOCS算法实现，修复AXI接口类型转换问题
+ * 功能：calcSOCS算法简化版本（无FFT库），修复AXI接口类型转换问题
  */
 
 #include "data_types.h"
-#include "fft_2d.h"
-#include "fi_hls.h"
-#include "hls_stream.h"
 #include <cmath>
 
 // ============================================================================
@@ -145,7 +142,7 @@ void calc_socs_core_fixed(
 // 顶层函数（修复接口）
 // ============================================================================
 
-void socs_top_fixed(
+extern "C" void socs_top_fixed(
     // AXI4-Master 输入
     cmpxData_t* m_axi_mskf,
     cmpxData_t* m_axi_krns,

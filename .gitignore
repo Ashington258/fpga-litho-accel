@@ -71,6 +71,7 @@ source/*/hls/
 source/*/_ide/
 source/*/logs/
 source/SOCS_HLS/fft_2d_forward_32*/
+source/SOCS_HLS/socs_axilite_final/
 
 # 根目录HLS工作目录
 hls/
@@ -121,6 +122,9 @@ cosim_log.txt
 # Vivado IP缓存
 ip_repo/
 *.zip
+
+# HLS IP 导出目录
+output/SOCS_IP/
 
 # ============================================================================
 # IDE和编辑器
