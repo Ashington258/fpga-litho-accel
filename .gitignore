@@ -64,6 +64,10 @@ fft_2d_forward_32*/
 *_comp/
 *_test/
 *_vpp/
+*_csynth*/
+*_csim*/
+*_cosim*/
+socs_full_*/
 
 # 通配符匹配source子目录下的HLS工作目录
 source/*/**_proj/
@@ -72,6 +76,8 @@ source/*/_ide/
 source/*/logs/
 source/SOCS_HLS/fft_2d_forward_32*/
 source/SOCS_HLS/socs_axilite_final/
+source/SOCS_HLS/socs_full_csynth_final2/
+source/SOCS_HLS/data/kernels/
 
 # 根目录HLS工作目录
 hls/
@@ -253,6 +259,15 @@ source/TCC_HLS/data/
 !output/reference/kernels/*.bin
 !input/config/*.json
 !input/*.md
+
+# Phase 5 Float FFT失败节点：保留验证数据作为后续参考
+!output/verification_original/
+!output/verification_original/*.bin
+!output/verification_original/*.png
+!output/verification_original/kernels/
+!output/verification_original/kernels/*.bin
+!output/verification_original/kernels/png/
+!output/verification_original/kernels/png/*.png
 
 # ============================================================================
 # 注释说明
