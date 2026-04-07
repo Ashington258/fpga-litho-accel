@@ -170,6 +170,86 @@ create_hw_axi_txn rd_txn [get_hw_axis hw_axi_1] \
 
 **注意**: 当前推荐使用方案A进行快速验证
 
+---
+
+## ⚠️ Toolcall 命令规范（必须严格遵守）
+
+**背景**：项目开发中发现 toolcall 报错，原因在于 Shell 命令格式错误。
+
+### TCL 命令执行规范（适用于 Vivado Hardware Manager）
+
+**禁止的错误格式**：
+```bash
+# ❌ 错误示例：混用 Shell 和 TCL 命令
+echo "启动硬件验证..." exit_code: $?   # Shell 变量在 toolcall 中无法解析
+
+# ❌ 错误示例：中文引号冲突
+echo "连接JTAG..." && program_hw_devices  # 中文引号""，命令解析错误
+```
+
+### ✅ 正确格式规范
+
+**单行 TCL 命令**：
+```tcl
+# ✅ 正确：在 Vivado Tcl Console 中逐条执行
+connect_hw_server -url localhost:3121
+
+# ✅ 正确：使用英文引号
+puts "Starting hardware validation..."
+```
+
+**多行 TCL 命令**：
+```tcl
+# ✅ 正确：使用 proc 封装复杂逻辑
+proc wait_for_ap_done {axi_master base_addr timeout_ms} {
+    # ... proc implementation ...
+}
+
+# ✅ 正确：逐条执行命令
+connect_hw_server -url localhost:3121
+open_hw_target
+program_hw_devices [get_hw_devices]
+```
+
+**Shell 命令与 TCL 命令分离**：
+```bash
+# ✅ 正确：Shell 命令使用英文引号
+cd /root/project/FPGA-Litho && ls -la vivado_bd/
+
+# ✅ 正确：启动 Vivado Hardware Manager
+vivado -mode tcl && connect_hw_server -url localhost:3121
+```
+
+### 🔑 关键原则
+
+1. **禁止中文引号**：所有 toolcall 命令字符串必须使用 **英文引号** `""`
+2. **禁止 Shell 变量**：不要在 toolcall 中使用 `$?`, `$PWD`, `$HOME`, `$$` 等 Shell 特有变量
+3. **TCL 命令在 Vivado Console 执行**：不要混用 Shell 和 TCL 命令语法
+4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行命令
+5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
+
+### 📝 HLS 板级验证命令规范
+
+**正确的 Vivado Hardware Manager 启动方式**：
+```bash
+# ✅ 方案1：启动 Vivado GUI
+cd /root/project/FPGA-Litho && vivado &
+
+# ✅ 方案2：启动 Vivado TCL 模式
+cd /root/project/FPGA-Litho && vivado -mode tcl
+
+# ✅ 方案3：使用 run_in_terminal 工具
+run_in_terminal(command="cd /root/project/FPGA-Litho && vivado -mode tcl")
+```
+
+**⚠️ 注意事项**：
+- Vivado Hardware Manager 需要在 Vivado 环境中执行
+- TCL 命令应在 Vivado Tcl Console 中逐条执行
+- 不要在 Shell toolcall 中直接执行 TCL 命令
+- 确保 JTAG 连接正确后再执行 AXI 操作
+
+---
+
 ## 验证流程
 
 ### 步骤 6: 数据对比与验证

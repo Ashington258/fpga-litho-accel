@@ -28,6 +28,93 @@ description: 'WORKFLOW SKILL — Generate HLS golden data for SOCS IP validation
 2. **中间输出**: tmpImgp_pad32.bin (缺失，需生成)
 3. **最终输出**: aerial_image (已存在，用于端到端验证)
 
+---
+
+## ⚠️ Toolcall 命令规范（必须严格遵守）
+
+**背景**：项目开发中发现 toolcall 报错，原因在于 Shell 命令格式错误。
+
+### 禁止的错误格式
+
+```bash
+# ❌ 错误示例1：中文引号与英文引号冲突
+echo "启动Golden数据生成..." exit_code: $?   # 中文引号""，命令结构不完整
+
+# ❌ 错误示例2：使用 Shell 特有变量
+echo "Python脚本执行完成，退出码: $?"         # $? 是 shell 变量，toolcall 中无法解析
+
+# ❌ 错误示例3：多行命令未正确拼接
+echo "开始生成数据"
+python verification/run_verification.py
+echo "生成完成"                    # 应使用 && 或 ; 拼接
+```
+
+### ✅ 正确格式规范
+
+**单行命令**：
+```bash
+# ✅ 正确：简单命令（无引号冲突）
+cd /root/project/FPGA-Litho && python verification/run_verification.py
+
+# ✅ 正确：使用英文引号
+echo "Starting Golden data generation..."
+
+# ✅ 正确：避免中文引号，使用转义或变量
+message="Golden data generation started" && echo "$message"
+
+# ✅ 正确：检查文件存在性
+ls -lh /root/project/FPGA-Litho/output/verification/mskf_r.bin
+```
+
+**多行命令**：
+```bash
+# ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
+cd /root/project/FPGA-Litho && \
+python verification/run_verification.py && \
+echo "Golden data generation completed"
+
+# ✅ 正确：使用 ; 拼接（无论成功与否都继续）
+cd /root/project/FPGA-Litho ; \
+ls -la output/verification/ ; \
+python verification/run_verification.py
+
+# ✅ 正确：复杂命令建议使用 run_in_terminal 工具
+run_in_terminal(command="cd /root/project/FPGA-Litho && python verification/run_verification.py")
+```
+
+### 🔑 关键原则
+
+1. **禁止中文引号**：所有 toolcall 命令字符串必须使用 **英文引号** `""`
+2. **禁止 Shell 变量**：不要在 toolcall 中使用 `$?`, `$PWD`, `$HOME`, `$$` 等 Shell 特有变量
+3. **单行命令优先**：复杂逻辑拆分为多个独立的 toolcall，或使用 `run_in_terminal` 工具
+4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行 shell 命令
+5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
+
+### 📝 Golden 数据生成命令规范
+
+**正确的验证数据生成命令**：
+```bash
+# ✅ 步骤1：运行验证脚本生成数据
+cd /root/project/FPGA-Litho && python verification/run_verification.py
+
+# ✅ 步骤2：检查生成的文件
+ls -lh /root/project/FPGA-Litho/output/verification/*.bin
+
+# ✅ 步骤3：复制数据到HLS项目目录
+cp /root/project/FPGA-Litho/output/verification/mskf_r.bin /root/project/FPGA-Litho/source/SOCS_HLS/data/
+
+# ✅ 步骤4：验证数据完整性
+cd /root/project/FPGA-Litho/source/SOCS_HLS && python scripts/verify_golden_data.py
+```
+
+**⚠️ 注意事项**：
+- Python 脚本使用绝对路径执行
+- 所有文件路径使用绝对路径
+- 验证步骤与生成步骤分开执行
+- 使用 `ls`, `cp` 等 Shell 命令时确保路径正确
+
+---
+
 ## 执行流程
 
 ### 步骤 1: 分析当前配置和Golden状态

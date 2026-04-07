@@ -89,6 +89,88 @@ package.output.format=rtl    # 这会导致配置解析错误
 
 ---
 
+## ⚠️ Toolcall 命令规范（必须严格遵守）
+
+**背景**：项目开发中发现 toolcall 报错，原因在于 Shell 命令格式错误。
+
+### 禁止的错误格式
+
+```bash
+# ❌ 错误示例1：中文引号与英文引号冲突
+echo "启动C综合..." exit_code: $?   # 中文引号""，命令结构不完整
+
+# ❌ 错误示例2：使用 Shell 特有变量
+echo "执行完成，退出码: $?"         # $? 是 shell 变量，toolcall 中无法解析
+
+# ❌ 错误示例3：多行命令未正确拼接
+echo "启动任务"
+sleep 10
+echo "任务完成"                    # 应使用 && 或 ; 拼接
+```
+
+### ✅ 正确格式规范
+
+**单行命令**：
+```bash
+# ✅ 正确：简单命令（无引号冲突）
+cd /root/project/FPGA-Litho/source/SOCS_HLS && ls -la
+
+# ✅ 正确：使用英文引号
+echo "Starting C Synthesis..."
+
+# ✅ 正确：避免中文引号，使用转义或变量
+message="C Synthesis started" && echo "$message"
+```
+
+**多行命令**：
+```bash
+# ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
+cd /root/project/FPGA-Litho/source/SOCS_HLS && \
+v++ -c --mode hls --config script/config/hls_config.cfg && \
+echo "C Synthesis completed"
+
+# ✅ 正确：使用 ; 拼接（无论成功与否都继续）
+cd /root/project/FPGA-Litho/source/SOCS_HLS ; \
+ls -la ; \
+pwd
+
+# ✅ 正确：复杂命令建议使用 run_in_terminal 工具
+run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth.tcl")
+```
+
+### 🔑 关键原则
+
+1. **禁止中文引号**：所有 toolcall 命令字符串必须使用 **英文引号** `""`
+2. **禁止 Shell 变量**：不要在 toolcall 中使用 `$?`, `$PWD`, `$HOME`, `$$` 等 Shell 特有变量
+3. **单行命令优先**：复杂逻辑拆分为多个独立的 toolcall，或使用 `run_in_terminal` 工具
+4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行 shell 命令
+5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
+
+### 📝 HLS 命令专用规范
+
+**正确的 HLS 综合命令**：
+```bash
+# ✅ 方案1：v++ 一站式命令
+cd /root/project/FPGA-Litho/source/SOCS_HLS && v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+
+# ✅ 方案2：vitis-run + TCL
+cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
+
+# ✅ 方案3：C 仿真（使用 --csim 参数）
+cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
+
+# ✅ 方案4：Co-Simulation（使用 --cosim 参数）
+cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+```
+
+**⚠️ 注意事项**：
+- **不要使用** `vitis-run --csynth`（此命令不存在）
+- **不要使用** `vitis-run --synth`（此命令不存在）
+- C综合的正确方式是：`v++ -c` 或 `vitis-run --tcl` + `csynth_design` TCL 命令
+- 所有命令路径建议使用绝对路径或确保在正确目录下执行
+
+---
+
 ## 执行流程
 
 ### 步骤 0: 源代码准备检查（新增）
