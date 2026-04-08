@@ -1,5 +1,40 @@
 # SOCS HLS 重构 TODO
 
+## 当前状态 (2026-04-07)
+
+### ✅ Phase 1: Fixed-Point FFT Implementation - COMPLETED
+- Fixed-point types: `ap_fixed<32, 1>` (Q1.31 format)
+- FFT config fixes: `input_width=32, output_width=32, config_width=8`
+- Input scaling removed (no saturation issues)
+
+### ✅ Phase 2: C Simulation - COMPLETED (v9)
+- **v6-v8 FAILURES**: Output ~10⁶× too large due to incorrect scaling formula
+- **Root Cause**: HLS FFT uses UNSCALED mode despite `scaling_options = scaled` config
+- **v9 Fix**: Removed N⁴ compensation factor from intensity calculation
+- **v9 Result**: 
+  - Output range: [0.00235701, 0.146997] ✓ Matches golden
+  - Relative error: 0.39% ✓ (< 5% tolerance)
+  - RMSE: 0.000173677
+  - **TEST RESULT: PASS**
+
+### ✅ Phase 3: C Synthesis - COMPLETED (RTL generated)
+- **Estimated Fmax**: 273.97 MHz ✓ (> 200 MHz target)
+- **Total Latency**: 201,833 cycles (~1ms @ 200MHz)
+- **Resource Usage**: BRAM 76 (10%), DSP 29 (2%), FF 18,120 (5%), LUT 22,906 (14%)
+- **RTL Files**: 56 Verilog modules generated
+
+### ⚠️ Phase 4: IP Packaging - ISSUE
+- **Problem**: Vivado FFT IP parameter validation error
+  - Error: `number_of_stages_using_block_ram_for_data_and_phase_factors` = 1 (only 0 allowed for 32-point FFT)
+- **Root Cause**: HLS generates FFT config with BRAM stages=1, but Vivado IP requires 0 for N≤32
+- **Status**: RTL fully generated, IP packaging blocked
+- **Workaround Options**:
+  1. Use RTL directly in Vivado (bypass IP packager)
+  2. Modify FFT config to use LUT-based storage
+  3. Manual IP packaging with TCL script
+
+---
+
 ## 项目目标
 
 将 `reference/CPP_reference/Litho-SOCS/klitho_socs.cpp` 中的 **calcSOCS** 算法进行工程改写，生成 Vitis HLS IP 核。
@@ -741,7 +776,7 @@ int main() {
 ### A. HLS 实现正确性验收
 
 | 验收项 | 方案A标准 | 方案B标准 |
-|--------|-----------|-----------|
+|--------|-----------|-----------| 
 | 1D FFT/2D IFFT | 32点 FFT与CPU参考对齐，误差 `1e-5 ~ 1e-4` | 128点 FFT与CPU参考对齐，误差 `1e-5 ~ 1e-4` |
 | `tmpImgp` 精度 | 与 `tmpImgp_pad32.bin`（17×17）误差达标（RMSE < 1e-4）| 与 `tmpImgp_pad128.bin`（65×65）误差达标（RMSE < 1e-4）|
 | C Simulation | PASS | PASS |

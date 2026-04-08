@@ -89,8 +89,11 @@ void calc_socs_hls(
         cmpxData_t padded[fftConvY][fftConvX];
         cmpxData_t ifft_out[fftConvY][fftConvX];
         
-        #pragma HLS ARRAY_PARTITION variable=padded cyclic factor=4 dim=2
-        #pragma HLS ARRAY_PARTITION variable=ifft_out cyclic factor=4 dim=2
+        // REMOVED: ARRAY_PARTITION causes FFT port mismatch with HLS FFT IP
+        // FFT IP core provides single unified port, but partition generates _0_, _1_, _2_, _3_ suffix ports
+        // Original pragmas:
+        // #pragma HLS ARRAY_PARTITION variable=padded cyclic factor=4 dim=2
+        // #pragma HLS ARRAY_PARTITION variable=ifft_out cyclic factor=4 dim=2
         
         // Step 1: Build padded IFFT input (kernel × mask product)
         build_padded_ifft_input_32(
@@ -115,7 +118,7 @@ void calc_socs_hls(
     // Step 5: Extract center 17×17 from shifted 32×32 (matching litho.cpp golden output)
     float tmpImgp_17[convY][convX];
     
-    #pragma HLS ARRAY_PARTITION variable=tmpImgp_17 cyclic factor=4 dim=2
+    // REMOVED: ARRAY_PARTITION for consistency (not used by FFT)
     
     extract_center_17x17_from_32(tmpImgp_32, tmpImgp_17);
     
