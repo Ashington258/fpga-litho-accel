@@ -1,0 +1,9 @@
+{
+  "name": "socs_simple_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_simple.cfg"],
+    "work_dir": "."
+  }
+}
