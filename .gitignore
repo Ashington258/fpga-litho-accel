@@ -133,6 +133,24 @@ ip_repo/
 output/SOCS_IP/
 
 # ============================================================================
+# 输出数据目录（Golden验证数据、板级验证数据）
+# ============================================================================
+# Golden验证数据（由run_verification.py生成，不提交）
+output/verification/*.bin
+output/verification/*.png
+output/verification_original/*.bin
+output/verification_original/*.png
+output/verification_original/kernels/*.bin
+
+# 板级验证数据（HLS输出、调试数据）
+output/board/*.bin
+output/board/*.log
+
+# 调试日志文件
+tcl_log.txt
+*.log
+
+# ============================================================================
 # IDE和编辑器
 # ============================================================================
 # VSCode
