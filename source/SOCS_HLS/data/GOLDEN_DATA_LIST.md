@@ -344,7 +344,7 @@ int by = offY + ky;  // Embed at center
 - **详细计划**: `source/SOCS_HLS/data/GOLDEN_EXTRACTION_PLAN.md`
 - **提取总结**: `source/SOCS_HLS/data/GOLDEN_EXTRACTION_SUMMARY.md`
 - **任务清单**: `source/SOCS_HLS/SOCS_TODO.md`
-- **算法参考**: `verification/src/litho.cpp`
+- **算法参考**: `validation/golden/src/litho.cpp`
 - **配置参数**: `input/config/config.json`
 
 ---

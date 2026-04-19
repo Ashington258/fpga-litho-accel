@@ -15,10 +15,10 @@
 
 本项目包含两个**完全独立**的HLS重构任务，各有独立的TODO、Golden数据和测试脚本：
 
-| 模块 | 任务清单 | 状态 | 说明 |
-|------|----------|------|------|
-| **TCC** | [source/TCC_HLS/TCC_TODO.md](source/TCC_HLS/TCC_TODO.md) | Phase 1 存档 | 等待DDR计算卡 |
-| **SOCS** | [source/SOCS_HLS/SOCS_TODO.md](source/SOCS_HLS/SOCS_TODO.md) | Phase 0 完成 | 基础框架搭建 |
+| 模块     | 任务清单                                                     | 状态         | 说明          |
+| -------- | ------------------------------------------------------------ | ------------ | ------------- |
+| **TCC**  | [source/TCC_HLS/TCC_TODO.md](source/TCC_HLS/TCC_TODO.md)     | Phase 1 存档 | 等待DDR计算卡 |
+| **SOCS** | [source/SOCS_HLS/SOCS_TODO.md](source/SOCS_HLS/SOCS_TODO.md) | Phase 0 完成 | 基础框架搭建  |
 
 ---
 
@@ -49,12 +49,12 @@
 
 ## 关键文件位置
 
-| 类型 | TCC模块 | SOCS模块 |
-|------|---------|----------|
-| 任务清单 | `source/TCC_HLS/TCC_TODO.md` | `source/SOCS_HLS/SOCS_TODO.md` |
-| 源码 | `source/TCC_HLS/hls/src/` | `source/SOCS_HLS/hls/src/` |
+| 类型       | TCC模块                      | SOCS模块                         |
+| ---------- | ---------------------------- | -------------------------------- |
+| 任务清单   | `source/TCC_HLS/TCC_TODO.md` | `source/SOCS_HLS/SOCS_TODO.md`   |
+| 源码       | `source/TCC_HLS/hls/src/`    | `source/SOCS_HLS/hls/src/`       |
 | Golden数据 | `source/TCC_HLS/hls/golden/` | `source/SOCS_HLS/hls/tb/golden/` |
-| 测试脚本 | `source/TCC_HLS/hls/tb/` | `source/SOCS_HLS/hls/tb/` |
+| 测试脚本   | `source/TCC_HLS/hls/tb/`     | `source/SOCS_HLS/hls/tb/`        |
 
 ---
 
@@ -65,19 +65,19 @@
 cd /root/project/FPGA-Litho
 python verify.py                      # 默认验证
 python verify.py --clean              # 清理重新验证
-python verification/run_verification.py --debug  # 调试模式
+python validation/golden/run_verification.py --debug  # 调试模式
 ```
 
 ### 验证输出（SOCS HLS Golden输入）
 
 验证程序生成所有SOCS HLS所需的golden输入数据：
 
-| 文件 | 用途 |
-|------|------|
-| `output/verification/mskf_r/i.bin` | Mask频域数据（AXI-MM输入） |
-| `output/verification/scales.bin` | 特征值数组（AXI-MM输入） |
-| `output/verification/kernels/krn_*_r/i.bin` | SOCS核数据 |
-| `output/verification/image.bin` | 空中像输出（HLS对比基准） |
+| 文件                                        | 用途                       |
+| ------------------------------------------- | -------------------------- |
+| `output/verification/mskf_r/i.bin`          | Mask频域数据（AXI-MM输入） |
+| `output/verification/scales.bin`            | 特征值数组（AXI-MM输入）   |
+| `output/verification/kernels/krn_*_r/i.bin` | SOCS核数据                 |
+| `output/verification/image.bin`             | 空中像输出（HLS对比基准）  |
 
 ### TCC模块
 ```bash
@@ -123,12 +123,12 @@ make csim                # 运行C仿真
 
 ### 🎯 核心设计原则（接口模块化，便于后期更换）
 
-| 接口类型 | 当前实现 | 后期升级路径 | 更改点 |
-|----------|----------|--------------|--------|
-| **参数配置** | AXI-Lite 寄存器 | JTAG/PCIe Host 写寄存器 | 只改 Vivado BD 连线 |
-| **数据输入** | JTAG → BRAM → AXI-Stream | PCIe DMA → AXI-Stream | Vivado BD 替换 IP 核 |
-| **存储接口** | AXI-Master → BRAM | AXI-Master → DDR (MIG) | Vivado BD 连线 |
-| **数据输出** | JTAG 读 BRAM | PCIe DMA 接收 | Vivado BD 替换 IP 核 |
+| 接口类型     | 当前实现                 | 后期升级路径            | 更改点               |
+| ------------ | ------------------------ | ----------------------- | -------------------- |
+| **参数配置** | AXI-Lite 寄存器          | JTAG/PCIe Host 写寄存器 | 只改 Vivado BD 连线  |
+| **数据输入** | JTAG → BRAM → AXI-Stream | PCIe DMA → AXI-Stream   | Vivado BD 替换 IP 核 |
+| **存储接口** | AXI-Master → BRAM        | AXI-Master → DDR (MIG)  | Vivado BD 连线       |
+| **数据输出** | JTAG 读 BRAM             | PCIe DMA 接收           | Vivado BD 替换 IP 核 |
 
 **关键约束**：
 1. **HLS 代码不依赖数据来源**：所有输入/输出均通过 AXI-Stream，不直接访问 BRAM/DDR
@@ -139,14 +139,14 @@ make csim                # 运行C仿真
 ### 🎯 最终输出要求
 
 **FPGA 端输出（当前重构范围）**：
-| 输出项 | 格式 | 说明 | 用途 |
-|--------|------|------|------|
-| **空中像 (Aerial Image)** | float32, Lx×Ly | 光刻成像强度分布 | 直接可用 |
-| **TCC 矩阵** | complex float32, tccSize×tccSize | 传输交叉相关矩阵 | 供 Host 端计算 SOCS 核 |
+| 输出项                    | 格式                             | 说明             | 用途                   |
+| ------------------------- | -------------------------------- | ---------------- | ---------------------- |
+| **空中像 (Aerial Image)** | float32, Lx×Ly                   | 光刻成像强度分布 | 直接可用               |
+| **TCC 矩阵**              | complex float32, tccSize×tccSize | 传输交叉相关矩阵 | 供 Host 端计算 SOCS 核 |
 
 **Host 端输出（后期实现）**：
-| 输出项 | 格式 | 说明 | 执行位置 |
-|--------|------|------|----------|
+| 输出项           | 格式                                | 说明                 | 执行位置              |
+| ---------------- | ----------------------------------- | -------------------- | --------------------- |
 | **SOCS Kernels** | nk 个复数核，每个 (2×Nx+1)×(2×Ny+1) | 特征值分解后的卷积核 | Host (LAPACK zheevr_) |
 
 **输出流程**：
@@ -264,16 +264,16 @@ source/TCC_HLS/                    ← 与现有工程结构一致
 ### 📝 完整任务清单（最终修正版）
 
 #### Phase 0: 项目初始化
-| #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
-|-----|-------------------------------------------|--------|----------|----------|------|
-| 0.1 | 创建目录结构 `source/TCC_HLS/`            | P0     | 0.5d     | 目录结构与文档一致 | ✅   |
-| 0.2 | 定义数据类型 `data_types.h`（全用 `float` / `hls::complex<float>`，暂不用定点） | P0 | 0.5d | 类型定义完成，编译通过 | ✅ |
-| 0.3 | 编写 `hls_config.cfg`（参考参考文档）     | P0     | 0.5d     | 包含器件、时钟、源文件列表 | ✅   |
-| 0.4 | 编写 `run_csynth.tcl` + `export_ip.tcl`   | P0     | 1d       | 可执行 vitis-run 命令 | ✅   |
-| 0.5 | 准备 golden 数据（用 CPU 参考代码生成）  | P0     | 0.5d     | source_33x33.bin + mask_128x128.bin + expected_tcc.bin | ✅ |
-| 0.6 | 创建 `ALGORITHM_MATH.md`（算法数学公式文档）| P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ALGORITHM_MATH.md` | ✅ |
-| 0.7 | 创建 `ARRAY_SIZE_CONSTRAINTS.md`（数组尺寸约束）| P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ARRAY_SIZE_CONSTRAINTS.md` | ✅ |
-| 0.8 | 创建 `Litho-TCC-HLS` 简化参考版本（固定数组+固定循环边界）| P1     | 1d       | hls_ref_types.h + hls_ref_pupil.cpp 完成（后续补充tcc/fft/image） | ✅ |
+| #   | 任务                                                                            | 优先级 | 预计工时 | 验收标准                                                           | 状态 |
+| --- | ------------------------------------------------------------------------------- | ------ | -------- | ------------------------------------------------------------------ | ---- |
+| 0.1 | 创建目录结构 `source/TCC_HLS/`                                                  | P0     | 0.5d     | 目录结构与文档一致                                                 | ✅    |
+| 0.2 | 定义数据类型 `data_types.h`（全用 `float` / `hls::complex<float>`，暂不用定点） | P0     | 0.5d     | 类型定义完成，编译通过                                             | ✅    |
+| 0.3 | 编写 `hls_config.cfg`（参考参考文档）                                           | P0     | 0.5d     | 包含器件、时钟、源文件列表                                         | ✅    |
+| 0.4 | 编写 `run_csynth.tcl` + `export_ip.tcl`                                         | P0     | 1d       | 可执行 vitis-run 命令                                              | ✅    |
+| 0.5 | 准备 golden 数据（用 CPU 参考代码生成）                                         | P0     | 0.5d     | source_33x33.bin + mask_128x128.bin + expected_tcc.bin             | ✅    |
+| 0.6 | 创建 `ALGORITHM_MATH.md`（算法数学公式文档）                                    | P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ALGORITHM_MATH.md`         | ✅    |
+| 0.7 | 创建 `ARRAY_SIZE_CONSTRAINTS.md`（数组尺寸约束）                                | P0     | 0.5d     | 参考 `reference/CPP_reference/Litho-TCC/ARRAY_SIZE_CONSTRAINTS.md` | ✅    |
+| 0.8 | 创建 `Litho-TCC-HLS` 简化参考版本（固定数组+固定循环边界）                      | P1     | 1d       | hls_ref_types.h + hls_ref_pupil.cpp 完成（后续补充tcc/fft/image）  | ✅    |
 
 **📌 HLS 配置文件模板（参考参考文档）**：
 ```cfg
@@ -295,15 +295,15 @@ testbench_file = tb/tb_tcc.cpp
 - BRAM容量: KU3P仅960KB，TCC需2.2GB → **必须使用DDR**
 
 #### Phase 1: calcTCC 核心模块（最高优先级）
-| #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
-|-----|-------------------------------------------|--------|----------|----------|------|
-| 1.1 | 实现 `calc_tcc.cpp`（pupil 计算 + TCC 计算） | P0 | 3d       | 功能正确（CSIM 通过） | ✅（C仿真通过，相对误差<1e-5） |
-| 1.2 | 循环优化：添加 `#pragma HLS PIPELINE` + `UNROLL` | P0 | 2d       | Latency 报告显示优化效果 | ⬜   |
-| 1.3 | 三角函数替换：`hls::sin()` / `hls::cos()` / `hls::sqrt()` | P0 | 1d       | 编译通过，无精度警告 | ✅   |
-| 1.4 | BRAM 分区：pupil 矩阵 `#pragma HLS ARRAY_PARTITION` | P0 | 1d       | 资源报告显示 BRAM 分布合理 | ⬜   |
-| 1.5 | **AXI-Lite 参数接口**：NA, lambda, defocus, Lx, Ly, Nx, Ny, srcSize | P0 | 1d       | 接口报告显示 AXI-Lite 端口 | ✅   |
-| 1.6 | C 仿真验证（对比 golden 数据）             | P0     | 1d       | 输出误差 < 1e-5 | ⬜（初始验证失败，需修正） |
-| 1.7 | C 综合 + CoSim（使用 `vitis-run` 命令）    | P0     | 2d       | CoSim PASS | ⬜   |
+| #   | 任务                                                                | 优先级 | 预计工时 | 验收标准                   | 状态                          |
+| --- | ------------------------------------------------------------------- | ------ | -------- | -------------------------- | ----------------------------- |
+| 1.1 | 实现 `calc_tcc.cpp`（pupil 计算 + TCC 计算）                        | P0     | 3d       | 功能正确（CSIM 通过）      | ✅（C仿真通过，相对误差<1e-5） |
+| 1.2 | 循环优化：添加 `#pragma HLS PIPELINE` + `UNROLL`                    | P0     | 2d       | Latency 报告显示优化效果   | ⬜                             |
+| 1.3 | 三角函数替换：`hls::sin()` / `hls::cos()` / `hls::sqrt()`           | P0     | 1d       | 编译通过，无精度警告       | ✅                             |
+| 1.4 | BRAM 分区：pupil 矩阵 `#pragma HLS ARRAY_PARTITION`                 | P0     | 1d       | 资源报告显示 BRAM 分布合理 | ⬜                             |
+| 1.5 | **AXI-Lite 参数接口**：NA, lambda, defocus, Lx, Ly, Nx, Ny, srcSize | P0     | 1d       | 接口报告显示 AXI-Lite 端口 | ✅                             |
+| 1.6 | C 仿真验证（对比 golden 数据）                                      | P0     | 1d       | 输出误差 < 1e-5            | ⬜（初始验证失败，需修正）     |
+| 1.7 | C 综合 + CoSim（使用 `vitis-run` 命令）                             | P0     | 2d       | CoSim PASS                 | ⬜                             |
 
 **📌 核心命令（必须使用 vitis-run，参考参考文档）**：
 ```bash
@@ -318,14 +318,14 @@ vitis-run --mode hls --cosim --config script/config/hls_config.cfg --work_dir hl
 ```
 
 #### Phase 2: FFT 模块
-| #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
-|-----|-------------------------------------------|--------|----------|----------|------|
-| 2.1 | 集成 `hls::fft`（参考 `interface_stream/fft_top.h`） | P0 | 2d       | 编译通过 | ⬜   |
-| 2.2 | 实现 2D FFT：行 FFT + 转置 + 列 FFT       | P0     | 2d       | 功能正确（CSIM） | ⬜   |
-| 2.3 | 实现 `fftshift`（myShift 函数移植）        | P0     | 1d       | 输出对齐 CPU 参考 | ⬜   |
-| 2.4 | AXI-Stream 接口封装                       | P0     | 1d       | 接口报告显示 AXIS 端口 | ⬜   |
-| 2.5 | r2c + c2r 独立测试                         | P0     | 1d       | 单模块 CSIM PASS | ⬜   |
-| 2.6 | CoSim 验证                                | P0     | 1.5d     | CoSim PASS | ⬜   |
+| #   | 任务                                                 | 优先级 | 预计工时 | 验收标准               | 状态 |
+| --- | ---------------------------------------------------- | ------ | -------- | ---------------------- | ---- |
+| 2.1 | 集成 `hls::fft`（参考 `interface_stream/fft_top.h`） | P0     | 2d       | 编译通过               | ⬜    |
+| 2.2 | 实现 2D FFT：行 FFT + 转置 + 列 FFT                  | P0     | 2d       | 功能正确（CSIM）       | ⬜    |
+| 2.3 | 实现 `fftshift`（myShift 函数移植）                  | P0     | 1d       | 输出对齐 CPU 参考      | ⬜    |
+| 2.4 | AXI-Stream 接口封装                                  | P0     | 1d       | 接口报告显示 AXIS 端口 | ⬜    |
+| 2.5 | r2c + c2r 独立测试                                   | P0     | 1d       | 单模块 CSIM PASS       | ⬜    |
+| 2.6 | CoSim 验证                                           | P0     | 1.5d     | CoSim PASS             | ⬜    |
 
 **📌 FFT 配置参考（`interface_stream/fft_top.h`）**：
 ```cpp
@@ -334,23 +334,23 @@ const hls::ip_fft::arch FFT_ARCH = hls::ip_fft::pipelined_streaming_io;
 ```
 
 #### Phase 3: calcImage 模块
-| #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
-|-----|-------------------------------------------|--------|----------|----------|------|
-| 3.1 | 实现 `calc_image.cpp`（频域卷积）         | P1     | 2d       | 功能正确（CSIM） | ⬜   |
-| 3.2 | TCC 矩阵分块加载（避免全存储）            | P1     | 1.5d     | BRAM 使用量合理 | ⬜   |
-| 3.3 | 循环流水线化                              | P1     | 1.5d     | Latency 优化明显 | ⬜   |
-| 3.4 | CoSim 验证                                | P1     | 1d       | CoSim PASS | ⬜   |
+| #   | 任务                              | 优先级 | 预计工时 | 验收标准         | 状态 |
+| --- | --------------------------------- | ------ | -------- | ---------------- | ---- |
+| 3.1 | 实现 `calc_image.cpp`（频域卷积） | P1     | 2d       | 功能正确（CSIM） | ⬜    |
+| 3.2 | TCC 矩阵分块加载（避免全存储）    | P1     | 1.5d     | BRAM 使用量合理  | ⬜    |
+| 3.3 | 循环流水线化                      | P1     | 1.5d     | Latency 优化明显 | ⬜    |
+| 3.4 | CoSim 验证                        | P1     | 1d       | CoSim PASS       | ⬜    |
 
 #### Phase 4: 系统集成 + 接口模块化
-| #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
-|-----|-------------------------------------------|--------|----------|----------|------|
-| 4.1 | 实现 `tcc_top.cpp`（`#pragma HLS DATAFLOW`） | P0 | 2d       | 所有子模块串联 | ⬜   |
-| 4.2 | **AXI-Lite 寄存器映射**（见下方接口设计） | P0 | 1d       | 所有参数可通过 AXI-Lite 配置 | ⬜   |
-| 4.3 | **AXI4-Stream Slave** 输入（mask + source） | P0 | 1d       | 接口报告显示 S_AXIS 端口 | ⬜   |
-| 4.4 | **AXI4-Master** 存储接口（当前接 BRAM）   | P0     | 1.5d     | 接口报告显示 M_AXI 端口 | ⬜   |
-| 4.5 | 实现 `axi_bram_adapter.cpp`               | P0     | 1d       | JTAG 可加载数据 | ⬜   |
-| 4.6 | 端到端 CoSim（空中像 + TCC 输出）         | P0     | 3d       | 全流程 CoSim PASS | ⬜   |
-| 4.7 | 导出 RTL 包（`vitis-run --package`）   | P0     | 1d       | 生成 `solution1/impl/export/rtl/` | ⬜   |
+| #   | 任务                                         | 优先级 | 预计工时 | 验收标准                          | 状态 |
+| --- | -------------------------------------------- | ------ | -------- | --------------------------------- | ---- |
+| 4.1 | 实现 `tcc_top.cpp`（`#pragma HLS DATAFLOW`） | P0     | 2d       | 所有子模块串联                    | ⬜    |
+| 4.2 | **AXI-Lite 寄存器映射**（见下方接口设计）    | P0     | 1d       | 所有参数可通过 AXI-Lite 配置      | ⬜    |
+| 4.3 | **AXI4-Stream Slave** 输入（mask + source）  | P0     | 1d       | 接口报告显示 S_AXIS 端口          | ⬜    |
+| 4.4 | **AXI4-Master** 存储接口（当前接 BRAM）      | P0     | 1.5d     | 接口报告显示 M_AXI 端口           | ⬜    |
+| 4.5 | 实现 `axi_bram_adapter.cpp`                  | P0     | 1d       | JTAG 可加载数据                   | ⬜    |
+| 4.6 | 端到端 CoSim（空中像 + TCC 输出）            | P0     | 3d       | 全流程 CoSim PASS                 | ⬜    |
+| 4.7 | 导出 RTL 包（`vitis-run --package`）         | P0     | 1d       | 生成 `solution1/impl/export/rtl/` | ⬜    |
 
 **📌 导出命令**：
 ```bash
@@ -358,14 +358,14 @@ vitis-run --mode hls --package --config script/config/hls_config.cfg --work_dir 
 ```
 
 #### Phase 5: Vivado 验证 + 板级测试
-| #   | 任务                                      | 优先级 | 预计工时 | 验收标准 | 状态 |
-|-----|-------------------------------------------|--------|----------|----------|------|
-| 5.1 | Vivado Block Design：拖入 HLS IP + AXI BRAM Controller + JTAG-to-AXI | P0 | 2d | BD 连线正确，Generate Bitstream 成功 | ⬜ |
-| 5.2 | 编写 `verify_bram.tcl`（参考参考文档 TCL 模板） | P0 | 1d | 可执行 JTAG 加载 + 启动 IP | ⬜ |
-| 5.3 | 板级测试：JTAG 加载 golden 数据 → 计算 → 读空中像 + TCC → Host 端 calcKernels | P0 | 2d | 空中像 + SOCS Kernels 与 CPU 参考一致 | ⬜ |
-| 5.4 | 资源/时序分析                             | P1     | 2d       | 时序收敛，资源利用率报告 | ⬜   |
-| 5.5 | 定点优化（可选，第二阶段）                | P2     | 3d       | 精度误差 < 0.1% | ⬜   |
-| 5.6 | 编写 README + Vivado BD 示例              | P1     | 1d       | 文档完整 | ⬜   |
+| #   | 任务                                                                          | 优先级 | 预计工时 | 验收标准                              | 状态 |
+| --- | ----------------------------------------------------------------------------- | ------ | -------- | ------------------------------------- | ---- |
+| 5.1 | Vivado Block Design：拖入 HLS IP + AXI BRAM Controller + JTAG-to-AXI          | P0     | 2d       | BD 连线正确，Generate Bitstream 成功  | ⬜    |
+| 5.2 | 编写 `verify_bram.tcl`（参考参考文档 TCL 模板）                               | P0     | 1d       | 可执行 JTAG 加载 + 启动 IP            | ⬜    |
+| 5.3 | 板级测试：JTAG 加载 golden 数据 → 计算 → 读空中像 + TCC → Host 端 calcKernels | P0     | 2d       | 空中像 + SOCS Kernels 与 CPU 参考一致 | ⬜    |
+| 5.4 | 资源/时序分析                                                                 | P1     | 2d       | 时序收敛，资源利用率报告              | ⬜    |
+| 5.5 | 定点优化（可选，第二阶段）                                                    | P2     | 3d       | 精度误差 < 0.1%                       | ⬜    |
+| 5.6 | 编写 README + Vivado BD 示例                                                  | P1     | 1d       | 文档完整                              | ⬜    |
 
 **📌 TCL 验证流程（参考参考文档）**：
 ```tcl
@@ -406,17 +406,17 @@ typedef std::complex<data_t> cmpxData_t;
 ```
 
 **2. AXI-Lite 寄存器映射（满足要求2）**：
-| 偏移地址 | 寄存器名 | 说明 |
-|----------|----------|------|
-| 0x00 | AP_CTRL | 控制寄存器（start=bit0, done=bit1, idle=bit2） |
-| 0x10 | NA | 数值孔径 |
-| 0x14 | LAMBDA | 波长 (nm) |
-| 0x18 | DEFOCUS | 离焦量 |
-| 0x20 | LX | Mask 周期 X |
-| 0x24 | LY | Mask 周期 Y |
-| 0x28 | SRC_SIZE | 光源网格尺寸 |
-| 0x30 | NX | TCC 维度 X |
-| 0x34 | NY | TCC 维度 Y |
+| 偏移地址 | 寄存器名 | 说明                                           |
+| -------- | -------- | ---------------------------------------------- |
+| 0x00     | AP_CTRL  | 控制寄存器（start=bit0, done=bit1, idle=bit2） |
+| 0x10     | NA       | 数值孔径                                       |
+| 0x14     | LAMBDA   | 波长 (nm)                                      |
+| 0x18     | DEFOCUS  | 离焦量                                         |
+| 0x20     | LX       | Mask 周期 X                                    |
+| 0x24     | LY       | Mask 周期 Y                                    |
+| 0x28     | SRC_SIZE | 光源网格尺寸                                   |
+| 0x30     | NX       | TCC 维度 X                                     |
+| 0x34     | NY       | TCC 维度 Y                                     |
 
 **3. 接口设计（模块化，便于后期更换）**：
 ```cpp
@@ -459,19 +459,19 @@ void tcc_top(
 ```
 
 **4. BIN 文件格式（参考 `input/BIN_Format_Specification.md`）**：
-| 数据类型 | 格式 |
-|----------|------|
-| Source | float32, srcSize×srcSize, row-major |
-| Mask | float32, maskSizeX×maskSizeY, row-major |
-| 空中像输出 | float32, Lx×Ly, row-major |
+| 数据类型    | 格式                                                  |
+| ----------- | ----------------------------------------------------- |
+| Source      | float32, srcSize×srcSize, row-major                   |
+| Mask        | float32, maskSizeX×maskSizeY, row-major               |
+| 空中像输出  | float32, Lx×Ly, row-major                             |
 | SOCS Kernel | float32, 实部/虚部分开存储 (krn_i_r.bin, krn_i_i.bin) |
 
 **5. 后期升级路径**：
-| 当前方案 | 后期升级 | 改动点 |
-|----------|----------|--------|
-| JTAG-to-AXI 加载 BRAM | PCIe DMA | Vivado BD 替换 IP 核 |
-| AXI4-Master → BRAM | AXI4-Master → DDR (MIG) | Vivado BD 连线 |
-| Host 端空 | Host XRT 程序 | 新增 host/xrt_test.cpp |
+| 当前方案              | 后期升级                | 改动点                 |
+| --------------------- | ----------------------- | ---------------------- |
+| JTAG-to-AXI 加载 BRAM | PCIe DMA                | Vivado BD 替换 IP 核   |
+| AXI4-Master → BRAM    | AXI4-Master → DDR (MIG) | Vivado BD 连线         |
+| Host 端空             | Host XRT 程序           | 新增 host/xrt_test.cpp |
 
 ---
 

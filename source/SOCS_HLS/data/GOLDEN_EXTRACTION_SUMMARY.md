@@ -6,7 +6,7 @@
 
 #### 1.1 当前配置分析（已确认）
 
-通过分析 `input/config/config.json` 和 `verification/src/litho.cpp`：
+通过分析 `input/config/config.json` 和 `validation/golden/src/litho.cpp`：
 
 **关键参数**:
 - **Lx, Ly**: 512×512
@@ -17,11 +17,11 @@
   - 公式: $N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
 
 **尺寸推导**:
-| 尺寸类型 | 值 | 说明 |
-|----------|-----|------|
-| 物理卷积尺寸 | **17×17** | convX = 4×Nx+1 |
+| 尺寸类型     | 值        | 说明               |
+| ------------ | --------- | ------------------ |
+| 物理卷积尺寸 | **17×17** | convX = 4×Nx+1     |
 | IFFT执行尺寸 | **32×32** | nextPowerOfTwo(17) |
-| SOCS核尺寸 | **9×9** | kerX = 2×Nx+1 |
+| SOCS核尺寸   | **9×9**   | kerX = 2×Nx+1      |
 
 **关键发现**: ✅ litho.cpp已满足2^N标准（17→32 zero-padded），无需额外改写！
 
@@ -133,7 +133,7 @@ int fftConvX = nextPowerOfTwo(convX);  // 17 → 32
 
 2. **生成HLS Golden数据**
    ```bash
-   cd verification/src
+   cd validation/golden/src
    make calcSOCS_reference
    ./calcSOCS_reference
    ```
@@ -176,7 +176,7 @@ source/SOCS_HLS/
 ### 待创建文件
 
 ```
-verification/src/
+validation/golden/src/
 └── calcSOCS_reference.cpp                 # TODO: 独立golden生成程序
 ```
 

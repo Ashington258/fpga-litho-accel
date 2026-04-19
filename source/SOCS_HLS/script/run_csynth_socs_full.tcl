@@ -4,7 +4,7 @@
 # =====================================================
 
 # 项目目录
-set proj_dir "/root/project/FPGA-Litho/source/SOCS_HLS"
+set proj_dir "E:/fpga-litho-accel/source/SOCS_HLS"
 
 # 创建 HLS 组件
 open_component -reset socs_full_comp -flow_target vivado

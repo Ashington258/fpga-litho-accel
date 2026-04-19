@@ -59,16 +59,18 @@ int main() {
     
     // Load input data
     std::cout << "\n[STEP 1] Loading input data..." << std::endl;
-    load_binary_data("../../../../../data/mskf_r.bin", mskf_r, Lx * Ly);
-    load_binary_data("../../../../../data/mskf_i.bin", mskf_i, Lx * Ly);
-    load_binary_data("../../../../../data/scales.bin", scales, nk);
+    // CoSim runs in: socs_simple_comp/hls/sim/wrapc/
+    // Data location: SOCS_HLS/data/ (go up 4 levels from wrapc)
+    load_binary_data("../../../../data/mskf_r.bin", mskf_r, Lx * Ly);
+    load_binary_data("../../../../data/mskf_i.bin", mskf_i, Lx * Ly);
+    load_binary_data("../../../../data/scales.bin", scales, nk);
     
     // Load kernels
     for (int k = 0; k < nk; k++) {
         char filename[256];
-        sprintf(filename, "../../../../../data/kernels/krn_%d_r.bin", k);
+        sprintf(filename, "../../../../data/kernels/krn_%d_r.bin", k);
         load_binary_data(filename, &krn_r[k * kerX * kerY], kerX * kerY);
-        sprintf(filename, "../../../../../data/kernels/krn_%d_i.bin", k);
+        sprintf(filename, "../../../../data/kernels/krn_%d_i.bin", k);
         load_binary_data(filename, &krn_i[k * kerX * kerY], kerX * kerY);
     }
     
@@ -89,7 +91,7 @@ int main() {
     
     // Load golden output
     std::cout << "\n[STEP 3] Loading golden output..." << std::endl;
-    load_binary_data("../../../../../data/tmpImgp_pad32.bin", golden, convX * convY);
+    load_binary_data("../../../../data/tmpImgp_pad32.bin", golden, convX * convY);
     
     float golden_min = golden[0], golden_max = golden[0], golden_sum = 0.0f;
     for (int i = 1; i < convX * convY; i++) {
@@ -117,17 +119,55 @@ int main() {
     std::cout << "  Output range: [" << output_min << ", " << output_max << "]" << std::endl;
     std::cout << "  Output mean: " << output_sum / (convX * convY) << std::endl;
     
-    // Note: This is a placeholder implementation, so output won't match golden
-    // The real implementation would have actual FFT and SOCS calculations
-    std::cout << "\n[STEP 6] Validation status..." << std::endl;
-    std::cout << "  ⚠️  PLACEHOLDER IMPLEMENTATION (for workflow testing)" << std::endl;
-    std::cout << "  ⚠️  Output does not match golden (expected)" << std::endl;
-    std::cout << "  ✓  AXI-MM interfaces work correctly" << std::endl;
-    std::cout << "  ✓  Data loading successful" << std::endl;
-    std::cout << "  ✓  Output generation successful" << std::endl;
+    // Compare output with golden
+    std::cout << "\n[STEP 6] Comparing with golden output..." << std::endl;
     
+    float rmse = 0.0f;
+    float max_error = 0.0f;
+    float rel_error_sum = 0.0f;
+    int error_count = 0;
+    const float tolerance = 1e-3f;  // Tolerance threshold
+    
+    for (int i = 0; i < convX * convY; i++) {
+        float error = std::abs(output[i] - golden[i]);
+        rmse += error * error;
+        if (error > max_error) max_error = error;
+        
+        // Relative error (avoid division by zero)
+        if (std::abs(golden[i]) > 1e-6f) {
+            float rel_error = error / std::abs(golden[i]);
+            rel_error_sum += rel_error;
+            if (rel_error > 0.01f) error_count++;  // > 1% error
+        }
+        
+        // Print first few errors for debugging
+        if (i < 5) {
+            std::cout << "  [" << i << "] Output: " << output[i] 
+                      << ", Golden: " << golden[i] 
+                      << ", Error: " << error << std::endl;
+        }
+    }
+    
+    rmse = std::sqrt(rmse / (convX * convY));
+    float avg_rel_error = rel_error_sum / (convX * convY);
+    
+    std::cout << "\n  RMSE: " << rmse << std::endl;
+    std::cout << "  Max error: " << max_error << std::endl;
+    std::cout << "  Avg relative error: " << avg_rel_error * 100 << "%" << std::endl;
+    std::cout << "  Points with >1% error: " << error_count << " / " << convX * convY << std::endl;
+    
+    // Validation result
     std::cout << "\n========================================" << std::endl;
-    std::cout << "TEST RESULT: PASS (workflow verification)" << std::endl;
+    bool passed = (rmse < tolerance) && (avg_rel_error < 0.01f);
+    if (passed) {
+        std::cout << "TEST RESULT: PASS" << std::endl;
+        std::cout << "  ✓ Algorithm implementation verified" << std::endl;
+        std::cout << "  ✓ Output matches golden within tolerance" << std::endl;
+    } else {
+        std::cout << "TEST RESULT: FAIL" << std::endl;
+        std::cout << "  ⚠️  Output does not match golden" << std::endl;
+        std::cout << "  ⚠️  Need to debug algorithm implementation" << std::endl;
+    }
     std::cout << "========================================" << std::endl;
     
     // Cleanup

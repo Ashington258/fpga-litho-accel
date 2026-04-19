@@ -146,7 +146,7 @@ vitis-run --mode hls \
 
 ## 参考文件
 
-- **当前CPU实现**: `verification/src/litho.cpp`
+- **当前CPU实现**: `validation/golden/src/litho.cpp`
 - **配置示例**: `reference/tcl脚本设计参考/hls_config_fft.cfg`
 - **任务清单**: `source/SOCS_HLS/SOCS_TODO.md`
 - **Golden数据**: `output/verification/aerial_image_tcc_direct.bin`

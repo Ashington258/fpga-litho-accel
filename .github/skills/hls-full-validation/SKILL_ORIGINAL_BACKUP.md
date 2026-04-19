@@ -31,7 +31,7 @@ description: 'WORKFLOW SKILL — Execute complete Vitis HLS validation pipeline:
 
 **命令**:
 ```bash
-cd /root/project/FPGA-Litho/verification/src
+cd /root/project/FPGA-Litho/validation/golden/src
 # 如果calcSOCS_reference已编写完成
 make calcSOCS_reference
 ./calcSOCS_reference
@@ -134,12 +134,12 @@ vitis-run --mode hls --package \
 ## 验收标准
 
 **整体验收**:
-| 验收项 | 标准 |
-|--------|------|
-| C Simulation | PASS,误差 ≤ 1e-4 |
-| C Synthesis | Fmax ≥ 270 MHz,Latency达标 |
-| Co-Simulation | RTL与C结果一致,PASS |
-| Package | 成功生成RTL/kernel包 |
+| 验收项        | 标准                       |
+| ------------- | -------------------------- |
+| C Simulation  | PASS,误差 ≤ 1e-4           |
+| C Synthesis   | Fmax ≥ 270 MHz,Latency达标 |
+| Co-Simulation | RTL与C结果一致,PASS        |
+| Package       | 成功生成RTL/kernel包       |
 
 **项目特定验收**:
 - Nx/Ny参数正确计算和传递
@@ -179,8 +179,8 @@ vitis-run --mode hls --package \
 
 ## 参考文件
 
-- **CPU Reference**: `verification/src/litho.cpp`
-- **Golden数据生成**: `python verification/run_verification.py`
+- **CPU Reference**: `validation/golden/src/litho.cpp`
+- **Golden数据生成**: `python validation/golden/run_verification.py`
 - **Golden文件**: `output/verification/aerial_image_tcc_direct.bin`
 - **配置示例**: `reference/tcl脚本设计参考/hls_config_fft.cfg`
 - **任务清单**: `source/SOCS_HLS/SOCS_TODO.md`

@@ -12,26 +12,26 @@
 
 ## 1. 当前配置分析（已确认）
 
-基于 `input/config/config.json` 和 `verification/run_verification.py` 分析：
+基于 `input/config/config.json` 和 `validation/golden/run_verification.py` 分析：
 
 ### 1.1 关键参数
 
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| Lx, Ly | 512×512 | Mask物理尺寸 |
-| NA | 0.8 | 数值孔径 |
-| wavelength | 193 nm | 波长 |
-| outerSigma | 0.9 | Annular source外半径 |
+| 参数       | 值      | 说明                                                                                          |
+| ---------- | ------- | --------------------------------------------------------------------------------------------- |
+| Lx, Ly     | 512×512 | Mask物理尺寸                                                                                  |
+| NA         | 0.8     | 数值孔径                                                                                      |
+| wavelength | 193 nm  | 波长                                                                                          |
+| outerSigma | 0.9     | Annular source外半径                                                                          |
 | **Nx, Ny** | **4×4** | **动态计算**: $N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$ |
-| nk | 10 | SOCS核数量（从TCC分解） |
+| nk         | 10      | SOCS核数量（从TCC分解）                                                                       |
 
 ### 1.2 尺寸推导
 
-| 尺寸类型 | 值 | 计算公式 |
-|----------|-----|----------|
-| 物理卷积尺寸 | **17×17** | convX = 4×Nx+1 |
+| 尺寸类型     | 值        | 计算公式           |
+| ------------ | --------- | ------------------ |
+| 物理卷积尺寸 | **17×17** | convX = 4×Nx+1     |
 | IFFT执行尺寸 | **32×32** | nextPowerOfTwo(17) |
-| SOCS核尺寸 | **9×9** | kerX = 2×Nx+1 |
+| SOCS核尺寸   | **9×9**   | kerX = 2×Nx+1      |
 
 **关键发现**: litho.cpp已满足2^N标准（17→32 zero-padded），无需额外改写！
 
@@ -46,7 +46,7 @@
 ✅ **mskf_r.bin, mskf_i.bin** (512×512 complex<float>)
 - Mask频域数据，已通过FFT计算
 - 大小: 1048576 bytes each (512×512×4)
-- 来源: `verification/src/litho.cpp` → FT_r2c_padded()
+- 来源: `validation/golden/src/litho.cpp` → FT_r2c_padded()
 
 ✅ **scales.bin** (nk=10个float)
 - SOCS特征值权重
@@ -100,10 +100,10 @@ HLS SOCS IP应输出：
 
 ### 4.1 方案对比
 
-| 方案 | 优点 | 缺点 | 推荐 |
-|------|------|------|------|
-| A: 修改litho.cpp | 快速（2小时） | 影响验证流程 | ❌ |
-| B: 编写独立reference | 清晰分离（4-6小时） | 需额外开发 | ✅ |
+| 方案                 | 优点                | 缺点         | 推荐 |
+| -------------------- | ------------------- | ------------ | ---- |
+| A: 修改litho.cpp     | 快速（2小时）       | 影响验证流程 | ❌    |
+| B: 编写独立reference | 清晰分离（4-6小时） | 需额外开发   | ✅    |
 
 **推荐方案B**：编写独立的 `calcSOCS_reference.cpp`，原因：
 1. 不影响现有验证流程
@@ -112,7 +112,7 @@ HLS SOCS IP应输出：
 
 ### 4.2 calcSOCS_reference.cpp设计
 
-**文件路径**: `verification/src/calcSOCS_reference.cpp`
+**文件路径**: `validation/golden/src/calcSOCS_reference.cpp`
 
 **输入**:
 - mskf_r.bin, mskf_i.bin (512×512)
@@ -275,12 +275,12 @@ int main() {
 
 ### 6.2 验收标准
 
-| 验收项 | 标准 |
-|--------|------|
-| 最大绝对误差 | < 1e-5 |
-| 归一化RMSE | < 1e-4 |
-| 峰值位置 | 完全一致 |
-| 数值范围 | 相同量级 |
+| 验收项       | 标准     |
+| ------------ | -------- |
+| 最大绝对误差 | < 1e-5   |
+| 归一化RMSE   | < 1e-4   |
+| 峰值位置     | 完全一致 |
+| 数值范围     | 相同量级 |
 
 ---
 
@@ -321,7 +321,7 @@ int main() {
 
 2. **运行生成golden**
    ```bash
-   cd verification/src
+   cd validation/golden/src
    make calcSOCS_reference
    ./calcSOCS_reference
    ```

@@ -80,8 +80,8 @@ int main() {
     
     // Load input data
     std::cout << "\n[STEP 1] Loading input data..." << std::endl;
-    // Use absolute paths for CoSim compatibility
-    const char* data_dir = "/root/project/FPGA-Litho/source/SOCS_HLS/data";
+    // Use absolute paths for CoSim compatibility (Windows format)
+    const char* data_dir = "E:/fpga-litho-accel/source/SOCS_HLS/data";
     
     char path[512];
     sprintf(path, "%s/mskf_r.bin", data_dir);

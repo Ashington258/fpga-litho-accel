@@ -37,14 +37,37 @@ void calc_socs_hls(
     float *krn_i,       // AXI-MM: Kernels imaginary (10×9×9)
     float *output       // AXI-MM: Output (17×17)
 ) {
-    // HLS pragmas for AXI-MM interfaces
-    #pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 depth=Lx*Ly
-    #pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 depth=Lx*Ly
-    #pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 depth=nk
-    #pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 depth=nk*kerX*kerY
-    #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 depth=nk*kerX*kerY
-    #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=convX*convY
+    // ==================== m_axi 接口配置（推荐方案 B） ====================
+    // 每个接口独立 bundle（保证物理上多个 AXI Master 端口）
+    // offset=slave：生成统一的 s_axi_control 接口，地址寄存器全部放在里面
+    // depth 使用具体数值（避免宏展开问题）- 注意：depth 是元素数量，不是字节数
+    // latency / outstanding / burst 参数显著提升 AXI 吞吐量
     
+    // mskf_r: 512×512 = 262144 elements, 1 MB
+    #pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 \
+        depth=262144 latency=32 num_read_outstanding=8 max_read_burst_length=64
+    
+    // mskf_i: 512×512 = 262144 elements, 1 MB
+    #pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 \
+        depth=262144 latency=32 num_read_outstanding=8 max_read_burst_length=64
+    
+    // scales: nk=10 elements, 40 bytes
+    #pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 \
+        depth=10 latency=16 num_read_outstanding=2 max_read_burst_length=4
+    
+    // krn_r: nk×kerX×kerY = 10×9×9 = 810 elements, 3.24 KB
+    #pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 \
+        depth=810 latency=16 num_read_outstanding=4 max_read_burst_length=16
+    
+    // krn_i: nk×kerX×kerY = 10×9×9 = 810 elements, 3.24 KB
+    #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 \
+        depth=810 latency=16 num_read_outstanding=4 max_read_burst_length=16
+    
+    // output: convX×convY = 17×17 = 289 elements, 1.16 KB
+    #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 \
+        depth=289 latency=8 num_write_outstanding=2 max_write_burst_length=8
+    
+    // ==================== 控制接口（必须保留） ====================
     #pragma HLS INTERFACE s_axilite port=return bundle=control
     
     // Local buffers for kernels (can be cached)

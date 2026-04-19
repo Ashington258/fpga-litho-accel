@@ -6,10 +6,10 @@
 
 ## 版本列表
 
-| 版本号 | 名称 | 状态 | FFT 实现方式 | 资源利用率 | 验证状态 |
-|--------|------|------|--------------|------------|----------|
-| v1.0-DFT-direct | DFT 直接计算 | ✅ 已完成 | 直接 DFT（O(N²)） | DSP 590% ❌ | C Sim ✅, Synth ✅ |
-| v2.0-HLS-FFT-IP | HLS FFT IP | 🔄 开发中 | hls::fft IP（O(N log N)） | 待验证 | C Sim 待运行 |
+| 版本号          | 名称         | 状态     | FFT 实现方式              | 资源利用率 | 验证状态         |
+| --------------- | ------------ | -------- | ------------------------- | ---------- | ---------------- |
+| v1.0-DFT-direct | DFT 直接计算 | ✅ 已完成 | 直接 DFT（O(N²)）         | DSP 590% ❌ | C Sim ✅, Synth ✅ |
+| v2.0-HLS-FFT-IP | HLS FFT IP   | 🔄 开发中 | hls::fft IP（O(N log N)） | 待验证     | C Sim 待运行     |
 
 ---
 
@@ -22,20 +22,20 @@
 - **实例化**：64 个 `sin_or_cos_double_s` 模块
 
 ### 验证结果
-| 验证步骤 | 结果 | 详情 |
-|----------|------|------|
-| C Simulation | ✅ PASSED | RMSE 1.02e-07，0% error rate |
-| C Synthesis | ✅ PASSED | 157,863 cycles, 789.3ms latency |
-| Co-Simulation | ❌ 未执行 | 资源超限，无法继续 |
-| Board Validation | ❌ 不可行 | 无法部署到目标器件 |
+| 验证步骤         | 结果     | 详情                            |
+| ---------------- | -------- | ------------------------------- |
+| C Simulation     | ✅ PASSED | RMSE 1.02e-07，0% error rate    |
+| C Synthesis      | ✅ PASSED | 157,863 cycles, 789.3ms latency |
+| Co-Simulation    | ❌ 未执行 | 资源超限，无法继续              |
+| Board Validation | ❌ 不可行 | 无法部署到目标器件              |
 
 ### 资源利用率（严重超限）
-| 资源类型 | 使用量 | 百分比 | 状态 |
-|----------|--------|--------|------|
-| BRAM | 1,366 | 189% | ❌ 超限 |
-| DSP | 8,080 | 590% | ❌ 超限 |
-| FF | 556,361 | 170% | ❌ 超限 |
-| LUT | 647,936 | 398% | ❌ 超限 |
+| 资源类型 | 使用量  | 百分比 | 状态   |
+| -------- | ------- | ------ | ------ |
+| BRAM     | 1,366   | 189%   | ❌ 超限 |
+| DSP      | 8,080   | 590%   | ❌ 超限 |
+| FF       | 556,361 | 170%   | ❌ 超限 |
+| LUT      | 647,936 | 398%   | ❌ 超限 |
 
 ### 性能指标
 - **Latency**: 157,863 cycles
@@ -58,12 +58,12 @@
 - **资源优化**：共享 FFT IP，减少 DSP 使用
 
 ### 预期优势
-| 对比项 | DFT 直接法 | HLS FFT IP |
-|--------|------------|------------|
-| DSP 使用 | 8,080 (590%) | ~50-100 (<10%) |
-| LUT 使用 | 647K (398%) | ~50K (30%) |
-| Latency | 157,863 cycles | ~4,000-8,000 cycles |
-| II | 8（resource limit） | 1（可流水） |
+| 对比项   | DFT 直接法          | HLS FFT IP          |
+| -------- | ------------------- | ------------------- |
+| DSP 使用 | 8,080 (590%)        | ~50-100 (<10%)      |
+| LUT 使用 | 647K (398%)         | ~50K (30%)          |
+| Latency  | 157,863 cycles      | ~4,000-8,000 cycles |
+| II       | 8（resource limit） | 1（可流水）         |
 
 ### 开发计划
 1. ✅ 复制 `socs_fft.cpp` 基础代码
@@ -126,17 +126,17 @@ vitis-run --mode hls --csim --config script/config/hls_config_socs_fft.cfg --wor
 
 ## Git 提交记录
 
-| 提交 SHA | 版本 | 描述 |
-|----------|------|------|
-| f298039 | v1.0-DFT | feat(SOCS_HLS): Add DFT-based SOCS implementation |
-| TBD | v2.0-FFT | feat(SOCS_HLS): Add HLS FFT IP implementation |
+| 提交 SHA | 版本     | 描述                                              |
+| -------- | -------- | ------------------------------------------------- |
+| f298039  | v1.0-DFT | feat(SOCS_HLS): Add DFT-based SOCS implementation |
+| TBD      | v2.0-FFT | feat(SOCS_HLS): Add HLS FFT IP implementation     |
 
 ---
 
 ## 参考文献
 
 - **FFT IP 参考**：`reference/vitis_hls_ftt的实现/interface_stream/`
-- **CPU Reference**：`verification/src/litho.cpp`
+- **CPU Reference**：`validation/golden/src/litho.cpp`
 - **Golden 数据**：`output/verification/`
 - **器件规格**：xcku3p-ffvb676-2-e (Kintex UltraScale+)
 

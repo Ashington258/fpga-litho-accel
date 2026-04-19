@@ -49,12 +49,12 @@ Timing: Target 5ns, Slack 0.00ns
 
 ## 文件清单
 
-| 文件 | 说明 |
-|------|------|
-| `../../src/socs_simple.cpp` | DFT 直接计算源码 |
-| `../../src/socs_simple.h` | 头文件 |
-| `../../socs_simple_synth/` | C 综合输出目录 |
-| `../../script/config/hls_config_socs_simple.cfg` | HLS 配置文件 |
+| 文件                                             | 说明             |
+| ------------------------------------------------ | ---------------- |
+| `../../src/socs_simple.cpp`                      | DFT 直接计算源码 |
+| `../../src/socs_simple.h`                        | 头文件           |
+| `../../socs_simple_synth/`                       | C 综合输出目录   |
+| `../../script/config/hls_config_socs_simple.cfg` | HLS 配置文件     |
 
 ---
 

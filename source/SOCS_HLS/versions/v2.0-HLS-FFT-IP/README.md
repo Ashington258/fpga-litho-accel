@@ -8,25 +8,25 @@
 
 ## 预期优势
 
-| 对比项 | v1.0 DFT 直接法 | v2.0 HLS FFT IP |
-|--------|----------------|-----------------|
-| DSP 使用 | 8,080 (590%) ❌ | ~50-100 (<10%) ✅ |
-| LUT 使用 | 647K (398%) ❌ | ~50K (30%) ✅ |
-| Latency | 157,863 cycles | ~4,000 cycles ✅ |
-| II | 8 (resource limit) | 1 (pipeline) ✅ |
-| 复杂度 | O(N²) | O(N log N) ✅ |
+| 对比项   | v1.0 DFT 直接法    | v2.0 HLS FFT IP  |
+| -------- | ------------------ | ---------------- |
+| DSP 使用 | 8,080 (590%) ❌     | ~50-100 (<10%) ✅ |
+| LUT 使用 | 647K (398%) ❌      | ~50K (30%) ✅     |
+| Latency  | 157,863 cycles     | ~4,000 cycles ✅  |
+| II       | 8 (resource limit) | 1 (pipeline) ✅   |
+| 复杂度   | O(N²)              | O(N log N) ✅     |
 
 ---
 
 ## 实现状态
 
-| 步骤 | 状态 | 备注 |
-|------|------|------|
-| 基础代码 | ✅ 已存在 | `src/socs_fft.cpp` 已有 hls::fft 调用 |
-| C Simulation | 🔄 待运行 | 需修复配置问题后验证 |
-| C Synthesis | ❌ 未执行 | 待 C Sim 成功后执行 |
-| Co-Simulation | ❌ 未执行 | 待 Synth 成功后执行 |
-| Board Validation | ❌ 未执行 | 待 CoSim 成功后执行 |
+| 步骤             | 状态     | 备注                                  |
+| ---------------- | -------- | ------------------------------------- |
+| 基础代码         | ✅ 已存在 | `src/socs_fft.cpp` 已有 hls::fft 调用 |
+| C Simulation     | 🔄 待运行 | 需修复配置问题后验证                  |
+| C Synthesis      | ❌ 未执行 | 待 C Sim 成功后执行                   |
+| Co-Simulation    | ❌ 未执行 | 待 Synth 成功后执行                   |
+| Board Validation | ❌ 未执行 | 待 CoSim 成功后执行                   |
 
 ---
 

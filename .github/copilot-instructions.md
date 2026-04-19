@@ -6,22 +6,24 @@
 
 ### 1. 参考资源
 
-| 参考项                  | 路径                                                      | 用途                                      |
-|-------------------------|-----------------------------------------------------------|-------------------------------------------|
-| **当前 CPU 实现**       | `verification/src/litho.cpp`                              | **实际运行版本**，使用 65×65 IFFT |
-| HLS FFT 参考实现        | `reference/vitis_hls_ftt的实现/interface_stream/`        | `hls::fft` 集成模板（路径已修正）         |
-| BIN 格式规范            | `input/BIN_Format_Specification.md`                       | 输入数据格式定义                          |
-| 配置参数                | `input/config/config.json`                                | 光学参数、尺寸参数（**Nx/Ny 动态计算**）   |
-| **Golden 数据生成**     | `python verification/run_verification.py`                 | **生成 mskf_r.bin, scales.bin 等** |
-| **Golden 参考**         | `output/verification/aerial_image_tcc_direct.bin`        | **TCC 直接成像（理论标准）** |
-| 任务清单                | `source/SOCS_HLS/SOCS_TODO.md`                            | 详细任务分解与进度追踪                    |
-| HLS Config 示例         | `reference/tcl脚本设计参考/hls_config_fft.cfg`            | `v++` / `vitis-run` 配置文件模板         |
-| TCL 综合脚本示例        | `reference/tcl脚本设计参考/run_csynth_fft.tcl`            | TCL 驱动的综合流程模板                    |
-| 命令与流程参考          | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md` | `vitis-run` 命令、TCL 板级验证流程       |
-| TCL 脚本模板            | `reference/tcl脚本设计参考/Example_Tcl_Command_Script.tcl` | JTAG-to-AXI 操作模板                      |
+| 参考项              | 路径                                                                             | 用途                                     |
+| ------------------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
+| **当前 CPU 实现**   | `validation/golden/src/litho.cpp`                                                | **实际运行版本**，使用 65×65 IFFT        |
+| HLS FFT 参考实现    | `reference/vitis_hls_ftt的实现/interface_stream/`                                | `hls::fft` 集成模板（路径已修正）        |
+| BIN 格式规范        | `input/BIN_Format_Specification.md`                                              | 输入数据格式定义                         |
+| 配置参数            | `input/config/config.json`                                                       | 光学参数、尺寸参数（**Nx/Ny 动态计算**） |
+| **Golden 数据生成** | `python validation/golden/run_verification.py`                                   | **生成 mskf_r.bin, scales.bin 等**       |
+| **Golden 参考**     | `output/verification/aerial_image_tcc_direct.bin`                                | **TCC 直接成像（理论标准）**             |
+| 任务清单            | `source/SOCS_HLS/SOCS_TODO.md`                                                   | 详细任务分解与进度追踪                   |
+| HLS Config 示例     | `reference/tcl脚本设计参考/hls_config_fft.cfg`                                   | `v++` / `vitis-run` 配置文件模板         |
+| TCL 综合脚本示例    | `reference/tcl脚本设计参考/run_csynth_fft.tcl`                                   | TCL 驱动的综合流程模板                   |
+| 命令与流程参考      | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md` | `vitis-run` 命令、TCL 板级验证流程       |
+| TCL 脚本模板        | `reference/tcl脚本设计参考/Example_Tcl_Command_Script.tcl`                       | JTAG-to-AXI 操作模板                     |
+
 ### 2. 严格控制的 HLS 命令规范（已验证）
 
 **推荐工作目录**（所有命令均在此目录下执行）：
+
 ```bash
 cd /root/project/FPGA-Litho/source/SOCS_HLS
 ```
@@ -29,12 +31,14 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS
 ### ⚠️ 关键约束说明
 
 **Nx, Ny 参数特性**：
+
 - **Nx, Ny 不是配置参数**，而是根据光学参数动态计算
 - **计算公式**：$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
 - **当前配置实际值**：Nx ≈ 4（基于 NA=0.8, Lx=512, λ=193, σ≈0.9）
 - **HLS 目标配置**：需将 NA 或 Lx 调大以使 Nx=16（例如 NA=1.2 或 Lx=1536）
 
 **IFFT 尺寸改写需求**：
+
 - **litho.cpp 当前使用 65×65 IFFT（当 Nx=16）**
 - **Vitis HLS FFT 只支持 2 的幂次**，需改写为 128×128 zero-padded IFFT
 - **改写版 CPU reference 尚未实现**，需新编写验证 golden
@@ -42,22 +46,27 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS
 #### 两种推荐的 C 综合（C Synthesis）方式
 
 **方案 1：v++ 一站式命令（推荐用于独立 FFT 组件）**
+
 ```bash
 # C仿真 + C综合（推荐）
 v++ -c --mode hls \
     --config script/config/hls_config_fft.cfg \
     --work_dir fft_2d_forward_32
 ```
+
 **预期结果**：Estimated Fmax ≈ 273.97 MHz，Latency ≈ 19,407 cycles
 
 **方案 2：vitis-run + TCL（适合复杂项目、多步流程控制）**
+
 ```bash
 vitis-run --mode hls \
     --tcl script/run_csynth_fft.tcl
 ```
+
 **预期结果**：与方案 1 一致，耗时约 39 秒（视机器性能而定）
 
 #### C 仿真（C Simulation）单独运行
+
 ```bash
 vitis-run --mode hls --csim \
     --config script/config/hls_config_fft.cfg \
@@ -65,6 +74,7 @@ vitis-run --mode hls --csim \
 ```
 
 #### C/RTL 联合仿真（Co-Simulation）—— 需先完成综合
+
 ```bash
 vitis-run --mode hls --cosim \
     --config script/config/hls_config_fft.cfg \
@@ -72,7 +82,9 @@ vitis-run --mode hls --cosim \
 ```
 
 #### IP / RTL 导出（Package）
+
 在配置文件 `hls_config_fft.cfg` 中加入以下配置：
+
 ```ini
 [package]
 package.output.format=rtl        # 或 kernel（用于 Vitis 加速）
@@ -80,6 +92,7 @@ package.output.format=rtl        # 或 kernel（用于 Vitis 加速）
 ```
 
 执行命令：
+
 ```bash
 vitis-run --mode hls --package \
     --config script/config/hls_config_fft.cfg \
@@ -115,6 +128,7 @@ run_hw_axi_txn rd_txn
 ```
 
 **注意事项**：
+
 - 地址 `0x40000000` 为 HLS IP 的 AXI-Lite Control 接口基地址（根据实际生成报告调整）。
 - 建议为 ap_done 轮询增加超时保护，避免无限等待。
 - 输出数据长度（`-len 128`）请根据具体 IP 的输出 buffer 大小修改。
@@ -122,12 +136,14 @@ run_hw_axi_txn rd_txn
 ### 4. Golden 数据生成流程
 
 **生成测试数据**（从实际配置参数）：
+
 ```bash
 cd /root/project/FPGA-Litho
-python verification/run_verification.py
+python validation/golden/run_verification.py
 ```
 
 **生成的关键文件**（位于 `output/verification/`）：
+
 - `mskf_r.bin`, `mskf_i.bin`：mask 频域数据（512×512 complex<float>）
 - `scales.bin`：特征值（nk 个 float，nk=10）
 - `aerial_image_tcc_direct.bin`：TCC 直接成像（512×512 float）
@@ -158,6 +174,7 @@ echo "任务完成"                    # 应使用 && 或 ; 拼接
 #### ✅ 正确格式规范
 
 **单行命令**：
+
 ```bash
 # ✅ 正确：简单命令（无引号冲突）
 cd /root/project/FPGA-Litho/source/SOCS_HLS && ls -la
@@ -170,6 +187,7 @@ message="C Synthesis started" && echo "$message"
 ```
 
 **多行命令**：
+
 ```bash
 # ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
 cd /root/project/FPGA-Litho/source/SOCS_HLS && \
@@ -196,6 +214,7 @@ run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-ru
 #### 📝 HLS 命令专用规范
 
 **正确的 HLS 综合命令**：
+
 ```bash
 # ✅ 方案1：v++ 一站式命令
 cd /root/project/FPGA-Litho/source/SOCS_HLS && v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
@@ -211,6 +230,7 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --cosim --co
 ```
 
 **⚠️ 注意事项**：
+
 - **不要使用** `vitis-run --csynth`（此命令不存在）
 - **不要使用** `vitis-run --synth`（此命令不存在）
 - C综合的正确方式是：`v++ -c` 或 `vitis-run --tcl` + `csynth_design` TCL 命令

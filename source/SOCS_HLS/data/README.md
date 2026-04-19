@@ -111,5 +111,5 @@ int main() {
 ---
 
 **生成时间**: 2026年4月7日  
-**来源**: `verification/src/litho.cpp`  
+**来源**: `validation/golden/src/litho.cpp`  
 **配置**: NA=0.8, Lx=512, λ=193nm, σ_outer=0.9

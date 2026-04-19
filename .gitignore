@@ -212,8 +212,8 @@ wheels/
 verify_output.log
 
 # 验证产物
-verification/__pycache__/
-verification/src/__pycache__/
+validation/golden/__pycache__/
+validation/golden/src/__pycache__/
 
 # ============================================================================
 # 临时测试文件
@@ -229,7 +229,7 @@ source/host/output/
 # 输出目录（除了verification golden数据）
 output/verification/png/
 *.png
-!verification/png/*.png
+!validation/golden/png/*.png
 
 # 临时二进制文件（Phase 5+可提交golden数据）
 # golden/*.bin 在Phase 1-4需要保留

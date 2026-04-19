@@ -6,7 +6,7 @@ FPGA-Litho 验证快捷入口
 import sys
 from pathlib import Path
 
-verification_dir = Path(__file__).parent / "verification"
+verification_dir = Path(__file__).parent / "validation" / "golden"
 sys.path.insert(0, str(verification_dir))
 
 from run_verification import main
