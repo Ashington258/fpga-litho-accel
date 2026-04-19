@@ -86,11 +86,11 @@ FPGA-Litho/
 
 ### 1. 验证体系 (`validation/`)
 
-| 子目录 | 职能 | 输入 | 输出 | 用途 |
-|--------|------|------|------|------|
-| `golden/` | 算法正确性验证 | `input/config/*.json` | `output/verification/*.bin` | HLS C 仿真、Co-Sim 对比基准 |
-| `board/jtag/` | JTAG 硬件验证 | `output/verification/*.bin` | FPGA 寄存器值 | 板级功能验证 |
-| `board/pcie/` | PCIe 高速验证 | （待开发） | （待开发） | 大数据量验证 |
+| 子目录        | 职能           | 输入                        | 输出                        | 用途                        |
+| ------------- | -------------- | --------------------------- | --------------------------- | --------------------------- |
+| `golden/`     | 算法正确性验证 | `input/config/*.json`       | `output/verification/*.bin` | HLS C 仿真、Co-Sim 对比基准 |
+| `board/jtag/` | JTAG 硬件验证  | `output/verification/*.bin` | FPGA 寄存器值               | 板级功能验证                |
+| `board/pcie/` | PCIe 高速验证  | （待开发）                  | （待开发）                  | 大数据量验证                |
 
 **使用方式**：
 ```bash
@@ -103,12 +103,12 @@ python validation/golden/run_verification.py --config input/config/config.json
 
 ### 2. HLS 开发 (`source/SOCS_HLS/`)
 
-| 目录 | 内容 | 说明 |
-|------|------|------|
-| `src/` | `calcSOCS.cpp`, `fft_2d_forward.cpp` | HLS kernel 源码 |
-| `tb/` | `tb_calcSOCS.cpp` | C 测试平台 |
-| `script/config/` | `hls_config_socs_full.cfg` | HLS 综合配置 |
-| `data/` | `GOLDEN_*.md` | Golden 数据文档 |
+| 目录             | 内容                                 | 说明            |
+| ---------------- | ------------------------------------ | --------------- |
+| `src/`           | `calcSOCS.cpp`, `fft_2d_forward.cpp` | HLS kernel 源码 |
+| `tb/`            | `tb_calcSOCS.cpp`                    | C 测试平台      |
+| `script/config/` | `hls_config_socs_full.cfg`           | HLS 综合配置    |
+| `data/`          | `GOLDEN_*.md`                        | Golden 数据文档 |
 
 **HLS 综合命令**（参考 `.github/copilot-instructions.md`）：
 ```bash
@@ -128,12 +128,12 @@ v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir soc
 
 ### 环境要求
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| Vitis HLS | 2025.2 | HLS 综合 |
-| Vivado | 2025.2 | RTL 综合与板级验证 |
-| Python | 3.10+ | Golden 数据生成 |
-| g++ / gcc | C++17 | CPU 参考编译 |
+| 工具      | 版本   | 用途               |
+| --------- | ------ | ------------------ |
+| Vitis HLS | 2025.2 | HLS 综合           |
+| Vivado    | 2025.2 | RTL 综合与板级验证 |
+| Python    | 3.10+  | Golden 数据生成    |
+| g++ / gcc | C++17  | CPU 参考编译       |
 
 ### 生成 Golden 数据
 
@@ -178,12 +178,12 @@ vitis-run --mode hls --package --config script/config/hls_config_socs_full.cfg
 
 ### Skills 技能系统
 
-| Skill | 文件 | 用途 |
-|-------|------|------|
+| Skill                   | 文件                                            | 用途                |
+| ----------------------- | ----------------------------------------------- | ------------------- |
 | `hls-golden-generation` | `.github/skills/hls-golden-generation/SKILL.md` | Golden 数据生成流程 |
-| `hls-csynth-verify` | `.github/skills/hls-csynth-verify/SKILL.md` | C 综合与性能验证 |
-| `hls-full-validation` | `.github/skills/hls-full-validation/SKILL.md` | 完整验证流程 |
-| `hls-board-validation` | `.github/skills/hls-board-validation/SKILL.md` | 板级 JTAG 验证 |
+| `hls-csynth-verify`     | `.github/skills/hls-csynth-verify/SKILL.md`     | C 综合与性能验证    |
+| `hls-full-validation`   | `.github/skills/hls-full-validation/SKILL.md`   | 完整验证流程        |
+| `hls-board-validation`  | `.github/skills/hls-board-validation/SKILL.md`  | 板级 JTAG 验证      |
 
 ---
 
@@ -212,12 +212,12 @@ $$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
 
 ## 项目状态
 
-| 模块 | 状态 | 进度 |
-|------|------|------|
-| Golden 数据生成 | ✅ 完成 | 可生成 `tmpImgp_pad32.bin` |
-| HLS FFT Kernel | ✅ 完成 | Fmax ≈ 273 MHz |
-| HLS SOCS Kernel | 🔄 开发中 | C 综合通过，CoSim 待验证 |
-| 板级验证 | 📋 准备中 | TCL 脚本已完成 |
+| 模块            | 状态     | 进度                       |
+| --------------- | -------- | -------------------------- |
+| Golden 数据生成 | ✅ 完成   | 可生成 `tmpImgp_pad32.bin` |
+| HLS FFT Kernel  | ✅ 完成   | Fmax ≈ 273 MHz             |
+| HLS SOCS Kernel | 🔄 开发中 | C 综合通过，CoSim 待验证   |
+| 板级验证        | 📋 准备中 | TCL 脚本已完成             |
 
 ---
 
