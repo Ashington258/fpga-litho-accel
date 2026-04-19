@@ -278,14 +278,7 @@ source/TCC_HLS/data/
 !input/config/*.json
 !input/*.md
 
-# Phase 5 Float FFT失败节点：保留验证数据作为后续参考
-!output/verification_original/
-!output/verification_original/*.bin
-!output/verification_original/*.png
-!output/verification_original/kernels/
-!output/verification_original/kernels/*.bin
-!output/verification_original/kernels/png/
-!output/verification_original/kernels/png/*.png
+# Phase 5+ 已完成：不再保留验证数据，通过运行脚本生成
 
 # ============================================================================
 # 注释说明
