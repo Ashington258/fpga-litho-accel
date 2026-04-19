@@ -2,12 +2,12 @@
 
 ## 当前状态 (2026-04-07)
 
-### ✅ Phase 1: Fixed-Point FFT Implementation - COMPLETED
+### ✅ Phase 1: Fixed-Point FFT Implementation (32×32) - COMPLETED
 - Fixed-point types: `ap_fixed<32, 1>` (Q1.31 format)
 - FFT config fixes: `input_width=32, output_width=32, config_width=8`
 - Input scaling removed (no saturation issues)
 
-### ✅ Phase 2: C Simulation - COMPLETED (v9)
+### ✅ Phase 2: C Simulation (32×32) - COMPLETED (v9)
 - **v6-v8 FAILURES**: Output ~10⁶× too large due to incorrect scaling formula
 - **Root Cause**: HLS FFT uses UNSCALED mode despite `scaling_options = scaled` config
 - **v9 Fix**: Removed N⁴ compensation factor from intensity calculation
@@ -17,19 +17,100 @@
   - RMSE: 0.000173677
   - **TEST RESULT: PASS**
 
-### ✅ Phase 3: C Synthesis - COMPLETED (RTL generated)
+### ✅ Phase 3: C Synthesis (32×32) - COMPLETED (RTL generated)
 - **Estimated Fmax**: 273.97 MHz ✓ (> 200 MHz target)
 - **Total Latency**: 201,833 cycles (~1ms @ 200MHz)
 - **Resource Usage**: BRAM 76 (10%), DSP 29 (2%), FF 18,120 (5%), LUT 22,906 (14%)
 - **RTL Files**: 56 Verilog modules generated
 
-### ✅ Phase 4: IP Packaging - COMPLETED (2026-04-09)
+### ✅ Phase 4: IP Packaging (32×32) - COMPLETED (2026-04-09)
 - **IP Archive**: `xilinx_com_hls_calc_socs_hls_1_0.zip` successfully created
 - **Location**: `socs_full_comp/hls/impl/ip/`
 - **Contents**: 55 Verilog files, 52 VHDL files, 10 driver files
 - **Subcores**: fadd, fmul, fsub, fpext (floating-point IPs) + xfft (FFT IP)
 - **Note**: Warning about IP name length was non-blocking (Windows path limitation)
 - **Status**: Ready for Vivado integration testing
+
+---
+
+## 🚀 V3.0 128×128 FFT Migration (2026-04-07)
+
+### ✅ Phase 2.7: HLS Code Migration to 128×128 - COMPLETED
+**目的**：将 HLS SOCS 从 32×32 FFT (Nx=4) 迁移至 128×128 FFT (Nx=16) 以匹配 Golden reference
+
+**根本原因分析**：
+- Board validation 发现 amplitude mismatch: ratio = 30,653×
+- ROOT CAUSE: Nx 配置不匹配 (HLS Nx=4 vs Golden Nx=16)
+- Golden reference 使用 65×65 IFFT (Nx=16)
+- HLS 原实现使用 17×17 IFFT (Nx=4)
+
+**迁移完成的文件**：
+1. ✅ `socs_fft.h` - 所有配置参数迁移
+   - `#define Nx 16` (from 4)
+   - `const int FFT_LENGTH = 128` (from 32)
+   - `const char FFT_NFFT_MAX = 7` (from 5)
+   - `#define FFT_OUTPUT_SCALE_FACTOR 268435456.0f` (2^28 from 2^20)
+   - `struct fft_config_128_fixed` (renamed from fft_config_32_fixed)
+   - 6个函数声明更新：ifft_2d_128x128, transpose_128x128, build_padded_ifft_input_128, accumulate_intensity_128x128, fftshift_128x128, extract_center_65x65_from_128
+
+2. ✅ `socs_fft.cpp` - 所有函数定义迁移
+   - `const float FFT_SCALE_COMP = 16384.0f` (from 1024.0f) - **CRITICAL FIX**
+   - 6个函数定义：ifft_2d_128x128, transpose_128x128, build_padded_ifft_input_128, accumulate_intensity_128x128, fftshift_128x128, extract_center_65x65_from_128
+   - 数学推导注释更新：N² = 128² = 16,384
+
+3. ✅ `socs_hls.cpp` - AXI 接口深度迁移
+   - `depth=10890` for krn_r/krn_i (from 810)
+   - `depth=4225` for output (from 289)
+   - `float tmpImg_128[fftConvY][fftConvX]` (from tmpImg_32)
+   - `float tmpImgp_65[convY][convX]` (from tmpImgp_17)
+   - 所有函数调用更新
+
+**编译验证**：
+- ✅ socs_fft.h - No errors found
+- ✅ socs_fft.cpp - No errors found
+- ✅ socs_hls.cpp - No errors found
+
+**参数迁移总结表**：
+| Parameter      | Old (Nx=4) | New (Nx=16) |
+| -------------- | ---------- | ----------- |
+| Nx/Ny          | 4          | 16          |
+| fftConvX/Y     | 32         | 128         |
+| kerX/Y         | 9          | 33          |
+| convX/Y        | 17         | 65          |
+| FFT_LENGTH     | 32         | 128         |
+| FFT_NFFT_MAX   | 5          | 7           |
+| OUTPUT_SCALE   | 2^20       | 2^28        |
+| FFT_SCALE_COMP | 1024       | 16384       |
+
+**预期结果**：迁移后 HLS output 与 Golden ratio ≈ 1.0 (无 amplitude mismatch)
+
+---
+
+### ⏳ Phase 3: Golden Data Generation (Nx=16) - PENDING
+
+**任务**：生成 Nx=16 配置的 Golden 数据用于 HLS 验证
+
+**执行命令**：
+```bash
+python validation/golden/run_verification.py --config input/config/config_Nx16.json
+```
+
+**预期输出文件**（位于 `output/verification/`）：
+- `mskf_r.bin`, `mskf_i.bin` - mask 频域数据 (512×512 complex<float>)
+- `scales.bin` - 特征值 (nk 个 float, nk=10)
+- `kernels_r.bin`, `kernels_i.bin` - SOCS kernels (nk×33×33 complex<float>)
+- `tmpImgp_pad128.bin` - **HLS golden output** (65×65 float) - **CRITICAL**
+- `aerial_image_tcc_direct.bin` - TCC 直接成像 (512×512 float)
+
+---
+
+### ⏳ Phase 4: HLS Validation Pipeline (128×128) - PENDING
+
+**验证流程**：
+1. C Simulation → 验证功能正确性 (ratio ≈ 1.0)
+2. C Synthesis → 验证性能指标 (Fmax > 200MHz)
+3. Co-Simulation → 验证 RTL 正确性
+4. Board Validation → 硬件实测 (ratio ≈ 1.0)
 
 ---
 

@@ -1,0 +1,83 @@
+{
+    "simulation": {
+        "description": "HLS IP匹配配置 (Nx=4, fftConvX=32, kernel 9x9) - 用于验证HLS算法正确性",
+        "version": "1.0",
+        "purpose": "Reverse validation - 生成与HLS IP参数匹配的Golden数据"
+    },
+    "mask": {
+        "period": {
+            "Lx": 512,
+            "Ly": 512
+        },
+        "size": {
+            "maskSizeX": 256,
+            "maskSizeY": 256
+        },
+        "type": "Import",
+        "lineSpace": {
+            "lineWidth": 128,
+            "spaceWidth": 128,
+            "isHorizontal": false
+        },
+        "inputFile": "input/mask/test_256.bin",
+        "dose": 1.0
+    },
+    "source": {
+        "gridSize": 101,
+        "type": "Annular",
+        "annular": {
+            "innerRadius": 0.6,
+            "outerRadius": 0.9
+        },
+        "dipole": {
+            "radius": 0.5,
+            "offset": 0.3,
+            "onXAxis": true
+        },
+        "crossQuadrupole": {
+            "radius": 0.5,
+            "offset": 0.3
+        },
+        "point": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "inputFile": "input/source/src_test1_size101.bin"
+    },
+    "optics": {
+        "NA": 0.8,
+        "wavelength": 193,
+        "defocus": 0.2
+    },
+    "kernel": {
+        "count": 10,
+        "targetIntensity": 0.225
+    },
+    "output": {
+        "baseDir": "out",
+        "kernelsDir": "out/kernels",
+        "kernelsPngDir": "out/kernels/png",
+        "imageFile": "out/image.bin",
+        "imagePng": "out/image.png",
+        "imageSegmentedPng": "out/image_s.png",
+        "maskPng": "out/mask.png",
+        "sourcePng": "out/source.png",
+        "tccRealPng": "out/tcc_r.png",
+        "tccImagPng": "out/tcc_i.png"
+    },
+    "_derived_params": {
+        "_comment": "以下参数由程序动态计算，仅供参考",
+        "Nx": 4,
+        "Ny": 4,
+        "Nx_formula": "floor(NA * Lx * (1 + outerSigma) / wavelength) = floor(0.8 * 512 * 1.9 / 193) = 4",
+        "kerX": 9,
+        "kerY": 9,
+        "kerX_formula": "2*Nx+1 = 9",
+        "convX": 17,
+        "convY": 17,
+        "convX_formula": "4*Nx+1 = 17",
+        "fftConvX": 32,
+        "fftConvY": 32,
+        "fftConvX_formula": "nextPowerOfTwo(17) = 32"
+    }
+}

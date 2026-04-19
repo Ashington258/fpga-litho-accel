@@ -302,6 +302,12 @@ void embed_kernel_mask_product(
 /**
  * Accumulate intensity from IFFT output
  * Formula: tmpImg[i] += scales[k] * |IFFT_out[i]|^2
+ * 
+ * FFT Scaling Convention (CRITICAL):
+ *   - calcSOCS uses FFTW Complex-to-Complex BACKWARD (fftw_plan_dft_2d)
+ *   - FFTW BACKWARD does NOT multiply by N (unscaled mode)
+ *   - HLS FFT output matches FFTW BACKWARD behavior
+ *   - NO compensation needed - direct intensity calculation
  */
 void accumulate_intensity(
     cmpx_t ifft_output[fftConvY][fftConvX],
@@ -320,6 +326,7 @@ void accumulate_intensity(
             float intensity = re * re + im * im;
             
             // Accumulate with eigenvalue scaling
+            // NO FFT compensation - FFTW BACKWARD produces raw unscaled output
             tmpImg[y][x] += scale * intensity;
         }
     }

@@ -17,18 +17,18 @@
 #include <complex>
 
 // ============================================================================
-// Configuration Parameters (Nx=4, based on current config)
+// Configuration Parameters (Nx=16, matching Golden reference)
 // ============================================================================
 #define Lx 512
 #define Ly 512
-#define Nx 4
-#define Ny 4
-#define convX (4*Nx + 1)  // = 17
-#define convY (4*Ny + 1)  // = 17
-#define fftConvX 32       // nextPowerOfTwo(17)
-#define fftConvY 32
-#define kerX (2*Nx + 1)   // = 9
-#define kerY (2*Ny + 1)   // = 9
+#define Nx 16            // MIGRATED: from 4 to 16 for 128x128 FFT
+#define Ny 16            // MIGRATED: from 4 to 16 for 128x128 FFT
+#define convX (4*Nx + 1)  // = 65 (from 17)
+#define convY (4*Ny + 1)  // = 65 (from 17)
+#define fftConvX 128      // MIGRATED: nextPowerOfTwo(65) (from 32)
+#define fftConvY 128      // MIGRATED: from 32
+#define kerX (2*Nx + 1)   // = 33 (from 9)
+#define kerY (2*Ny + 1)   // = 33 (from 9)
 #define nk 10
 
 // ============================================================================
@@ -41,8 +41,8 @@ const char FFT_OUTPUT_WIDTH = 32;       // Same as input
 const char FFT_TWIDDLE_WIDTH = 16;      // Standard twiddle width
 const char FFT_STATUS_WIDTH = 8;        // CRITICAL: Must be 8 (reference value)
 const char FFT_CHANNELS = 1;            // Single channel
-const int  FFT_LENGTH = 32;             // 32-point FFT
-const char FFT_NFFT_MAX = 5;            // log2(32) = 5
+const int  FFT_LENGTH = 128;            // MIGRATED: 128-point FFT (from 32)
+const char FFT_NFFT_MAX = 7;            // MIGRATED: log2(128) = 7 (from 5)
 const bool FFT_HAS_NFFT = 0;            // Fixed length (not runtime configurable)
 
 // ============================================================================
@@ -83,10 +83,10 @@ typedef std::complex<fixed_fft_out_t> cmpxFixedFFTOut_t;
 //   - Output compensation: scaled mode divides by N² = 1024
 //   - intensity = scale × |HLS_output|^2 × 1024² = scale × |original_IFFT|^2
 #define FFT_INPUT_SCALE_FACTOR 1.0f          // NO scaling - data already in range
-#define FFT_OUTPUT_SCALE_FACTOR 1048576.0f  // N^4 = 32^4 = 1024^2 = 2^20 (output compensation)
+#define FFT_OUTPUT_SCALE_FACTOR 268435456.0f  // MIGRATED: N^4 = 128^4 = 16384^2 = 2^28 (from 32^4)
 
 // ============================================================================
-// FFT Configuration for 32-point FFT (MINIMAL OVERRIDE)
+// FFT Configuration for 128-point FFT (MIGRATED from 32-point)
 // ============================================================================
 // FFT Configuration for 32-point FFT (EXPLICIT OVERRIDE)
 // ============================================================================
@@ -114,7 +114,7 @@ typedef std::complex<fixed_fft_out_t> cmpxFixedFFTOut_t;
 // 5. log2_transform_length = 5 (for 32-point FFT)
 // 6. scaling_options = scaled (for fixed-point FFT)
 // 7. output_ordering = natural_order
-struct fft_config_32_fixed : hls::ip_fft::params_t {
+struct fft_config_128_fixed : hls::ip_fft::params_t {
     // MUST override: input/output width (default=16 doesn't match our 32)
     static const unsigned input_width = FFT_INPUT_WIDTH;        // 32-bit
     static const unsigned output_width = FFT_OUTPUT_WIDTH;      // 32-bit
@@ -128,7 +128,7 @@ struct fft_config_32_fixed : hls::ip_fft::params_t {
     static const unsigned status_width = 8;                     // Default value
     
     // MUST override: transform length
-    static const unsigned log2_transform_length = FFT_NFFT_MAX;  // log2(32) = 5
+    static const unsigned log2_transform_length = FFT_NFFT_MAX;  // MIGRATED: log2(128) = 7 (from 5)
     
     // MUST override: scaling mode (fixed-point requires scaled mode)
     static const unsigned scaling_options = hls::ip_fft::scaled;
@@ -148,8 +148,8 @@ struct fft_config_32_fixed : hls::ip_fft::params_t {
     // Leave as default: phase_factor_width, implementation_options
 };
 
-// Backward compatibility alias (use fixed config)
-typedef fft_config_32_fixed fft_config_32;
+// Backward compatibility alias (use fixed config) - WARNING: deprecated, use fft_config_128_fixed
+typedef fft_config_128_fixed fft_config_32;  // Legacy alias for backward compatibility
 
 // ============================================================================
 // Legacy Compatibility Types
@@ -159,20 +159,20 @@ typedef fft_config_32_fixed fft_config_32;
 typedef cmpxFixedFFT_t cmpxData_t;  // Map to FFT native type
 
 /**
- * Perform 32-point 1D FFT/IFFT
+ * Perform 128-point 1D FFT/IFFT - MIGRATED from 32-point
  * 
  * @param dir: Direction (0=FFT, 1=IFFT)
- * @param in_stream: Input stream (32 complex samples)
- * @param out_stream: Output stream (32 complex samples)
+ * @param in_stream: Input stream (128 complex samples)
+ * @param out_stream: Output stream (128 complex samples)
  */
-void fft_1d_32(
+void fft_1d_128(
     ap_uint<1> dir,                  // 0=forward, 1=inverse
     hls::stream<cmpxData_t>& in_stream,
     hls::stream<cmpxData_t>& out_stream
 );
 
 /**
- * Perform 32×32 2D IFFT using row-column decomposition
+ * Perform 128×128 2D IFFT using row-column decomposition - MIGRATED
  * 
  * Process:
  * 1. Row-wise IFFT on each row
@@ -180,85 +180,85 @@ void fft_1d_32(
  * 3. Column-wise IFFT (now rows after transpose)
  * 4. Transpose again to restore original layout
  * 
- * @param in_matrix: Input 32×32 complex matrix (frequency domain)
- * @param out_matrix: Output 32×32 complex matrix (spatial domain)
+ * @param in_matrix: Input 128×128 complex matrix (frequency domain)
+ * @param out_matrix: Output 128×128 complex matrix (spatial domain)
  */
-void ifft_2d_32x32(
+void ifft_2d_128x128(
     cmpxData_t in_matrix[fftConvY][fftConvX],
     cmpxData_t out_matrix[fftConvY][fftConvX]
 );
 
 /**
- * Transpose a 32×32 complex matrix
+ * Transpose a 128×128 complex matrix - MIGRATED
  * 
  * @param in: Input matrix
  * @param out: Transposed output matrix
  */
-void transpose_32x32(
+void transpose_128x128(
     cmpxData_t in[fftConvY][fftConvX],
     cmpxData_t out[fftConvX][fftConvY]
 );
 
 /**
- * Build padded IFFT input from kernel×mask product
+ * Build padded IFFT input from kernel×mask product - MIGRATED
  * 
  * Embedding strategy (centered padding):
- * - The 9×9 product is placed at center of 32×32 array
- * - Offset: (32-9)/2 = 11 (both x and y)
+ * - The 33×33 product is placed at center of 128×128 array
+ * - Offset: (128-33)/2 = 47 (both x and y) - MIGRATED from 11
  * 
  * @param mskf: Mask spectrum (512×512, via AXI-MM)
- * @param krn_r/krn_i: Single SOCS kernel (9×9)
- * @param padded: Output padded array (32×32)
+ * @param krn_r/krn_i: Single SOCS kernel (33×33) - MIGRATED from 9×9
+ * @param padded: Output padded array (128×128) - MIGRATED from 32×32
  * @param Lxh/Lyh: Mask spectrum center (256, 256)
  */
-void build_padded_ifft_input_32(
+void build_padded_ifft_input_128(
     float* mskf_r,       // Mask spectrum real part
     float* mskf_i,       // Mask spectrum imaginary part
-    float* krn_r,        // Kernel real part (9×9)
-    float* krn_i,        // Kernel imaginary part (9×9)
+    float* krn_r,        // Kernel real part (33×33) - MIGRATED
+    float* krn_i,        // Kernel imaginary part (33×33) - MIGRATED
     cmpxData_t padded[fftConvY][fftConvX],
     int Lxh, int Lyh
 );
 
 /**
- * Extract valid 17×17 region from 32×32 IFFT output (OLD - for reference)
+ * Extract valid 65×65 region from 128×128 IFFT output (OLD - for reference) - MIGRATED
  * 
  * Extraction strategy (center crop):
- * - Extract center 17×17 region from 32×32 output
- * - Offset: (32-17)/2 = 7 (both x and y)
+ * - Extract center 65×65 region from 128×128 output
+ * - Offset: (128-65)/2 = 31 (both x and y) - MIGRATED from 7
  * 
- * @param ifft_out: Full 32×32 IFFT output
- * @param valid: Extracted 17×17 region
+ * @param ifft_out: Full 128×128 IFFT output
+ * @param valid: Extracted 65×65 region
  */
-void extract_valid_17x17(
+void extract_valid_65x65(
     cmpxData_t ifft_out[fftConvY][fftConvX],
     cmpxData_t valid[convY][convX]
 );
 
 /**
- * Accumulate intensity from IFFT result (OLD - for reference)
+ * Accumulate intensity from IFFT result (OLD - for reference) - MIGRATED
  * 
  * Formula: accum[y][x] += scale * (real^2 + imag^2)
  * 
- * @param ifft_valid: Valid IFFT output (17×17 complex)
- * @param accum: Accumulated intensity (17×17 real)
+ * @param ifft_valid: Valid IFFT output (65×65 complex) - MIGRATED
+ * @param accum: Accumulated intensity (65×65 real) - MIGRATED
  * @param scale: Eigenvalue weight for this kernel
  */
-void accumulate_intensity_17x17(
+void accumulate_intensity_65x65(
     cmpxData_t ifft_valid[convY][convX],
     float accum[convY][convX],
     float scale
 );
 
 /**
- * Apply fftshift to move zero-frequency to center (OLD - for reference)
+ * Apply fftshift to move zero-frequency to center (OLD - for reference) - MIGRATED
  * 
- * For 17×17 array: swap quadrants
+ * For 65×65 array: swap quadrants
  * 
  * @param in: Input intensity array
  * @param out: Shifted output array
  */
-void fftshift_17x17(
+void fftshift_65x65(
     float in[convY][convX],
     float out[convY][convX]
 );
@@ -268,32 +268,32 @@ void fftshift_17x17(
 // ============================================================================
 
 /**
- * Accumulate intensity on FULL 32×32 array with FFT scaling compensation
+ * Accumulate intensity on FULL 128×128 array with FFT scaling compensation - MIGRATED
  * 
  * HLS FFT Scaled Mode Compensation:
- * - 32-point 1D IFFT divides by 32 (5 stages, each divides by 2)
- * - 2D IFFT (row-column) divides by 32 × 32 = 1024 total
- * - Intensity = |IFFT|^2, so need to multiply by 1024^2 = 1048576
+ * - 128-point 1D IFFT divides by 128 (7 stages, each divides by 2)
+ * - 2D IFFT (row-column) divides by 128 × 128 = 16384 total - MIGRATED
+ * - Intensity = |IFFT|^2, so need to multiply by 16384^2 = 268435456 - MIGRATED
  * 
  * Formula: accum[y][x] += scale * (re^2 + im^2) * FFT_SCALING_COMPENSATION
  * 
- * @param ifft_out: Full 32×32 IFFT output (scaled by HLS FFT)
- * @param accum: Accumulated intensity on 32×32 array
+ * @param ifft_out: Full 128×128 IFFT output (scaled by HLS FFT) - MIGRATED
+ * @param accum: Accumulated intensity on 128×128 array - MIGRATED
  * @param scale: Eigenvalue weight for this kernel
  */
-void accumulate_intensity_32x32(
+void accumulate_intensity_128x128(
     cmpxData_t ifft_out[fftConvY][fftConvX],
     float accum[fftConvY][fftConvX],
     float scale
 );
 
 // ============================================================================
-// FIXED-POINT FFT Scaling Strategy
+// FIXED-POINT FFT Scaling Strategy - MIGRATED
 // ============================================================================
 // FIXED-POINT FFT uses SCALED mode, which automatically handles scaling:
 // - Scaled mode divides by 2 at each FFT stage
-// - For 32-point FFT: 5 stages, output is divided by 32
-// - For 2D IFFT: output is divided by 32×32 = 1024
+// - For 128-point FFT: 7 stages, output is divided by 128 - MIGRATED
+// - For 2D IFFT: output is divided by 128×128 = 16384 - MIGRATED
 // 
 // CRITICAL: Fixed-point FFT is inherently numerically stable:
 // - No NaN/Inf issues (fixed-point arithmetic is bounded)
@@ -301,38 +301,38 @@ void accumulate_intensity_32x32(
 // - No INPUT_SCALE compensation needed (scaled mode handles range)
 // 
 // Input range: any fixed-point value (bounded by ap_fixed<32,16> range)
-// Output range: input_range / 1024 (automatically scaled)
+// Output range: input_range / 16384 (automatically scaled) - MIGRATED
 // 
 // REMOVED: INPUT_SCALE and FFT_SCALING_COMPENSATION (no longer needed for fixed-point)
 
 /**
- * Apply fftshift on 32×32 array (matching litho.cpp myShift)
+ * Apply fftshift on 128×128 array (matching litho.cpp myShift) - MIGRATED
  * 
  * litho.cpp: myShift(tmpImg, tmpImgp, fftConvX, fftConvY, true, true)
- * - xh = sizeX / 2 = 16, yh = sizeY / 2 = 16
+ * - xh = sizeX / 2 = 64, yh = sizeY / 2 = 64 - MIGRATED from 16
  * - Swap quadrants: each pixel moves to opposite quadrant
  * 
- * @param in: Input 32×32 intensity array
- * @param out: Shifted 32×32 output array
+ * @param in: Input 128×128 intensity array - MIGRATED
+ * @param out: Shifted 128×128 output array - MIGRATED
  */
-void fftshift_32x32(
+void fftshift_128x128(
     float in[fftConvY][fftConvX],
     float out[fftConvY][fftConvX]
 );
 
 /**
- * Extract center 17×17 from 32×32 array after fftshift
+ * Extract center 65×65 from 128×128 array after fftshift - MIGRATED
  * 
  * litho.cpp golden output extraction:
- * - Extract center region from tmpImgp (32×32) -> tmpImgp_center (17×17)
- * - Offset: (32-17)/2 = 7 (both x and y)
+ * - Extract center region from tmpImgp (128×128) -> tmpImgp_center (65×65) - MIGRATED
+ * - Offset: (128-65)/2 = 31 (both x and y) - MIGRATED from 7
  * 
- * @param in_32: Full 32×32 intensity array (after fftshift)
- * @param out_17: Extracted center 17×17 region
+ * @param in_128: Full 128×128 intensity array (after fftshift) - MIGRATED
+ * @param out_65: Extracted center 65×65 region - MIGRATED
  */
-void extract_center_17x17_from_32(
-    float in_32[fftConvY][fftConvX],
-    float out_17[convY][convX]
+void extract_center_65x65_from_128(
+    float in_128[fftConvY][fftConvX],
+    float out_65[convY][convX]
 );
 
 #endif // SOCS_FFT_H
