@@ -119,7 +119,7 @@ struct fft_config_32 : hls::ip_fft::params_t {
 ## Files Modified
 - `/root/project/FPGA-Litho/source/SOCS_HLS/src/socs_fft.h`: FFT config + compensation
 - `/root/project/FPGA-Litho/source/SOCS_HLS/src/socs_fft.cpp`: Denormal flushing logic
-- `/root/project/FPGA-Litho/verification/test_input_scaling.py`: Python verification script
+- `/root/project/FPGA-Litho/validation/golden/test_input_scaling.py`: Python verification script
 
 ## Next Steps
 1. **Immediate**: Proceed to C Synthesis with current configuration

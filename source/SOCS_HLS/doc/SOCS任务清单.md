@@ -23,15 +23,25 @@
 - **Resource Usage**: BRAM 76 (10%), DSP 29 (2%), FF 18,120 (5%), LUT 22,906 (14%)
 - **RTL Files**: 56 Verilog modules generated
 
-### ⚠️ Phase 4: IP Packaging - ISSUE
-- **Problem**: Vivado FFT IP parameter validation error
-  - Error: `number_of_stages_using_block_ram_for_data_and_phase_factors` = 1 (only 0 allowed for 32-point FFT)
-- **Root Cause**: HLS generates FFT config with BRAM stages=1, but Vivado IP requires 0 for N≤32
-- **Status**: RTL fully generated, IP packaging blocked
-- **Workaround Options**:
-  1. Use RTL directly in Vivado (bypass IP packager)
-  2. Modify FFT config to use LUT-based storage
-  3. Manual IP packaging with TCL script
+### ✅ Phase 4: IP Packaging - COMPLETED (2026-04-09)
+- **IP Archive**: `xilinx_com_hls_calc_socs_hls_1_0.zip` successfully created
+- **Location**: `socs_full_comp/hls/impl/ip/`
+- **Contents**: 55 Verilog files, 52 VHDL files, 10 driver files
+- **Subcores**: fadd, fmul, fsub, fpext (floating-point IPs) + xfft (FFT IP)
+- **Note**: Warning about IP name length was non-blocking (Windows path limitation)
+- **Status**: Ready for Vivado integration testing
+
+---
+
+## 🎉 V2.0 HLS FFT IP Development Complete!
+
+All 4 phases of HLS development have been successfully completed:
+1. Fixed-Point FFT Implementation - PASS
+2. C Simulation (v9) - PASS (relative error 0.39%)
+3. C Synthesis - PASS (Fmax ~274 MHz)
+4. IP Packaging - PASS (IP archive created)
+
+**Next Steps**: Vivado integration testing
 
 ---
 
@@ -148,13 +158,13 @@ Host 端后续处理：
 
 ### 关键数据规模
 
-| 数据项 | 方案A尺寸 | 方案B尺寸 | 类型 | 方案A大小 | 方案B大小 | 存储位置 |
-|--------|-----------|-----------|------|-----------|-----------|----------|
-| `mskf` | 512×512 | 512×512 | complex<float> | **2 MB** | **2 MB** | DDR（AXI-MM）|
-| `krns` | 16×9×9 | 16×33×33 | complex<float> | ~1.3 KB | ~70 KB | 本地缓存 |
-| `scales` | 16 | 16 | float | 64 B | 64 B | 本地缓存 |
-| `tmpImgp` | 17×17 | 65×65 | float | **1.1 KB** | **16.9 KB** | BRAM |
-| 临时IFFT缓冲 | 32×32 | 128×128 | complex<float> | ~8 KB | ~128 KB | BRAM（分区）|
+| 数据项       | 方案A尺寸 | 方案B尺寸 | 类型           | 方案A大小  | 方案B大小   | 存储位置      |
+| ------------ | --------- | --------- | -------------- | ---------- | ----------- | ------------- |
+| `mskf`       | 512×512   | 512×512   | complex<float> | **2 MB**   | **2 MB**    | DDR（AXI-MM） |
+| `krns`       | 16×9×9    | 16×33×33  | complex<float> | ~1.3 KB    | ~70 KB      | 本地缓存      |
+| `scales`     | 16        | 16        | float          | 64 B       | 64 B        | 本地缓存      |
+| `tmpImgp`    | 17×17     | 65×65     | float          | **1.1 KB** | **16.9 KB** | BRAM          |
+| 临时IFFT缓冲 | 32×32     | 128×128   | complex<float> | ~8 KB      | ~128 KB     | BRAM（分区）  |
 
 **存储决策**：
 - `mskf` 规模固定（512×512），必须通过 AXI-MM 访问 DDR
@@ -226,7 +236,7 @@ Host 端后续处理：
   - Vitis HLS 2025.2
 
 - [ ] **准备 Golden 数据**
-  - 从 `verification/` 或改写版 CPU reference 提取：
+  - 从 `validation/golden/` 或改写版 CPU reference 提取：
     - `mskf_r.bin`, `mskf_i.bin`（mask频域，512×512）
     - `scales.bin`（特征值，nk=16）
     - `krns_r/i.bin`（SOCS核）
@@ -775,21 +785,21 @@ int main() {
 
 ### A. HLS 实现正确性验收
 
-| 验收项 | 方案A标准 | 方案B标准 |
-|--------|-----------|-----------| 
-| 1D FFT/2D IFFT | 32点 FFT与CPU参考对齐，误差 `1e-5 ~ 1e-4` | 128点 FFT与CPU参考对齐，误差 `1e-5 ~ 1e-4` |
-| `tmpImgp` 精度 | 与 `tmpImgp_pad32.bin`（17×17）误差达标（RMSE < 1e-4）| 与 `tmpImgp_pad128.bin`（65×65）误差达标（RMSE < 1e-4）|
-| C Simulation | PASS | PASS |
-| CoSim | PASS | PASS |
-| RTL 导出 | 成功生成 RTL 包 | 成功生成 RTL 包 |
+| 验收项         | 方案A标准                                              | 方案B标准                                               |
+| -------------- | ------------------------------------------------------ | ------------------------------------------------------- |
+| 1D FFT/2D IFFT | 32点 FFT与CPU参考对齐，误差 `1e-5 ~ 1e-4`              | 128点 FFT与CPU参考对齐，误差 `1e-5 ~ 1e-4`              |
+| `tmpImgp` 精度 | 与 `tmpImgp_pad32.bin`（17×17）误差达标（RMSE < 1e-4） | 与 `tmpImgp_pad128.bin`（65×65）误差达标（RMSE < 1e-4） |
+| C Simulation   | PASS                                                   | PASS                                                    |
+| CoSim          | PASS                                                   | PASS                                                    |
+| RTL 导出       | 成功生成 RTL 包                                        | 成功生成 RTL 包                                         |
 
 ### B. litho.cpp 实现与原始算法对比
 
-| 对比项 | 方案A说明 | 方案B说明 |
-|--------|-----------|-----------|
+| 对比项                            | 方案A说明                                               | 方案B说明                                                |
+| --------------------------------- | ------------------------------------------------------- | -------------------------------------------------------- |
 | litho.cpp vs 原始 klitho_socs.cpp | litho.cpp 已使用 `nextPowerOfTwo(17)=32`，满足 2^N 标准 | litho.cpp 已使用 `nextPowerOfTwo(65)=128`，满足 2^N 标准 |
-| 验收决策 | litho.cpp 当前实现即为改写版，可直接作为 golden | 同样满足 2^N 标准，无需额外改写 |
-| 原始算法评估 | 可选：对比 17×17 vs 理论非填充版本（仅用于学术分析）| 可选：对比 65×65 vs 理论非填充版本（仅用于学术分析）|
+| 验收决策                          | litho.cpp 当前实现即为改写版，可直接作为 golden         | 同样满足 2^N 标准，无需额外改写                          |
+| 原始算法评估                      | 可选：对比 17×17 vs 理论非填充版本（仅用于学术分析）    | 可选：对比 65×65 vs 理论非填充版本（仅用于学术分析）     |
 
 ---
 
@@ -851,17 +861,17 @@ int main() {
 
 ## 进度追踪
 
-| 阶段 | 预计时间 | 状态 | 备注 |
-|------|----------|------|------|
-| 阶段 -1：改写版算法基线确认 | 第0.5周 | ✅ 完成 | litho.cpp已满足2^N标准 |
-| 阶段 0：基础设施 + Golden 数据 | 第1周 | ✅ 完成 | Golden数据已生成 |
-| 阶段 1：1D FFT 验证 | 第2周 | ✅ 完成 | 32点FFT验证通过 |
-| 阶段 2：2D IFFT 验证 | 第3周 | ✅ 完成 | 32×32 2D IFFT实现完成 |
-| 阶段 3：calcSOCS 核心实现 | 第4周 | ✅ 完成 | 核心算法实现完成 |
-| 阶段 4：Top 接口 + Testbench | 第5周 | ✅ 完成 | 完整接口和testbench完成 |
-| 阶段 5：优化 + 综合 | 第6周 | ❌ **主方案失败** | **Co-Sim失败：FFT RTL产生NaN/Inf → 切换定点FFT备用方案** |
-| 阶段 5B：定点FFT重构 | 第6周+ | 🔄 **紧急启动** | **备用方案执行：ap_fixed<32,16>重构** |
-| 阶段 6：FI 集成（可选） | 第7周+ | 待评估 | 后续规划 |
+| 阶段                           | 预计时间 | 状态             | 备注                                                     |
+| ------------------------------ | -------- | ---------------- | -------------------------------------------------------- |
+| 阶段 -1：改写版算法基线确认    | 第0.5周  | ✅ 完成           | litho.cpp已满足2^N标准                                   |
+| 阶段 0：基础设施 + Golden 数据 | 第1周    | ✅ 完成           | Golden数据已生成                                         |
+| 阶段 1：1D FFT 验证            | 第2周    | ✅ 完成           | 32点FFT验证通过                                          |
+| 阶段 2：2D IFFT 验证           | 第3周    | ✅ 完成           | 32×32 2D IFFT实现完成                                    |
+| 阶段 3：calcSOCS 核心实现      | 第4周    | ✅ 完成           | 核心算法实现完成                                         |
+| 阶段 4：Top 接口 + Testbench   | 第5周    | ✅ 完成           | 完整接口和testbench完成                                  |
+| 阶段 5：优化 + 综合            | 第6周    | ❌ **主方案失败** | **Co-Sim失败：FFT RTL产生NaN/Inf → 切换定点FFT备用方案** |
+| 阶段 5B：定点FFT重构           | 第6周+   | 🔄 **紧急启动**   | **备用方案执行：ap_fixed<32,16>重构**                    |
+| 阶段 6：FI 集成（可选）        | 第7周+   | 待评估           | 后续规划                                                 |
 
 ---
 
@@ -1097,12 +1107,12 @@ typedef ap_fixed<24, 12> data_t;  // 12位整数 + 12位小数（范围±2048）
 #### 任务4：性能评估（优先级：中）
 
 - [ ] **对比分析**：
-  | 指标 | 浮点版（失败） | 定点版（预期） |
-  |------|---------------|---------------|
-  | Fmax | 273.97 MHz | ≥200 MHz |
-  | DSP | 38 (3%) | **50-80 (预计增加）** |
-  | 精度 | NaN/Inf失败 | 误差<5% |
-  | 稳定性 | ❌ 失败 | ✅ 稳定 |
+  | 指标   | 浮点版（失败） | 定点版（预期）        |
+  | ------ | -------------- | --------------------- |
+  | Fmax   | 273.97 MHz     | ≥200 MHz              |
+  | DSP    | 38 (3%)        | **50-80 (预计增加）** |
+  | 精度   | NaN/Inf失败    | 误差<5%               |
+  | 稳定性 | ❌ 失败         | ✅ 稳定                |
 
 - [ ] **决策点**：
   - 定点版Co-Sim通过 → 进入Package阶段
@@ -1207,15 +1217,15 @@ vitis-run --mode hls --cosim \
 
 ## 参考资源
 
-| 参考项 | 路径 | 用途 |
-|--------|------|------|
-| **当前 CPU 实现** | `verification/src/litho.cpp` | **实际运行版本**，**17×17 → 32×32 zero-padded IFFT**（已满足 2^N 标准） |
-| 原始 SOCS 参考 | `reference/CPP_reference/Litho-SOCS/klitho_socs.cpp` | 原始算法逻辑 |
-| HLS FFT 参考 | `reference/vitis_hls_ftt的实现/interface_stream/` | hls::fft 模板（注意路径修正） |
-| 命令参考 | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow.md` | vitis-run |
-| **Golden 输入** | `output/verification/mskf_r.bin, mskf_i.bin, scales.bin` | **从 run_verification.py 生成** |
-| **Golden 参考** | `output/verification/aerial_image_tcc_direct.bin` | **TCC 直接成像（理论标准）** |
-| 配置参数 | `input/config/config.json` | 参数定义（**Nx/Ny 动态计算，非固定**） |
+| 参考项            | 路径                                                     | 用途                                                                    |
+| ----------------- | -------------------------------------------------------- | ----------------------------------------------------------------------- |
+| **当前 CPU 实现** | `validation/golden/src/litho.cpp`                        | **实际运行版本**，**17×17 → 32×32 zero-padded IFFT**（已满足 2^N 标准） |
+| 原始 SOCS 参考    | `reference/CPP_reference/Litho-SOCS/klitho_socs.cpp`     | 原始算法逻辑                                                            |
+| HLS FFT 参考      | `reference/vitis_hls_ftt的实现/interface_stream/`        | hls::fft 模板（注意路径修正）                                           |
+| 命令参考          | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow.md`  | vitis-run                                                               |
+| **Golden 输入**   | `output/verification/mskf_r.bin, mskf_i.bin, scales.bin` | **从 run_verification.py 生成**                                         |
+| **Golden 参考**   | `output/verification/aerial_image_tcc_direct.bin`        | **TCC 直接成像（理论标准）**                                            |
+| 配置参数          | `input/config/config.json`                               | 参数定义（**Nx/Ny 动态计算，非固定**）                                  |
 
 ---
 
