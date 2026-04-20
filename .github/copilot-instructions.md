@@ -43,6 +43,116 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS
 - **Vitis HLS FFT 只支持 2 的幂次**，需改写为 128×128 zero-padded IFFT
 - **改写版 CPU reference 尚未实现**，需新编写验证 golden
 
+---
+
+### 📊 存储架构说明（2025-02更新）
+
+**AXI-MM接口DDR架构**：
+
+当前HLS IP已配置**6个独立AXI-MM Master接口**访问外部DDR内存：
+
+```cpp
+// socs_simple.cpp - AXI-MM接口配置（DDR访问）
+#pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 depth=262144 latency=32
+#pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 depth=262144 latency=32
+#pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 depth=10
+#pragma HLS INTERFACE m_axi port=krn_r  offset=slave bundle=gmem3 depth=810
+#pragma HLS INTERFACE m_axi port=krn_i  offset=slave bundle=gmem4 depth=810
+#pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=289
+```
+
+| 接口  | 数据类型            | 尺寸       | DDR地址空间用途   |
+| ----- | ------------------- | ---------- | ----------------- |
+| gmem0 | mskf_r (mask频域实) | 512×512    | 输入mask spectrum |
+| gmem1 | mskf_i (mask频域虚) | 512×512    | 输入mask spectrum |
+| gmem2 | scales (特征值)     | nk=10      | SOCS特征值权重    |
+| gmem3 | krn_r (kernel实)    | nk×9×9=810 | SOCS kernel数据   |
+| gmem4 | krn_i (kernel虚)    | nk×9×9=810 | SOCS kernel数据   |
+| gmem5 | output (输出图像)   | 17×17=289  | 最终空中像输出    |
+
+**内部数组存储策略**：
+
+当前实现中，**内部计算数组仍使用BRAM**（通过RESOURCE pragma指定）：
+
+```cpp
+#pragma HLS RESOURCE variable=fft_input  core=RAM_2P_BRAM  // 32×32 complex
+#pragma HLS RESOURCE variable=fft_output core=RAM_2P_BRAM  // 32×32 complex
+#pragma HLS RESOURCE variable=tmpImg     core=RAM_2P_BRAM  // 32×32 float
+#pragma HLS RESOURCE variable=tmpImgp    core=RAM_2P_BRAM  // 32×32 float
+```
+
+**资源利用率问题（xcku5p-ffvb676-2-e）**：
+
+| 资源类型 | 使用量  | 可用量  | 占用率 | 状态    |
+| -------- | ------- | ------- | ------ | ------- |
+| BRAM     | 1,366   | 960     | 142%   | ❌ 超限 |
+| DSP      | 8,080   | 1,824   | 442%   | ❌ 超限 |
+| FF       | 556,361 | 433,920 | 128%   | ❌ 超限 |
+| LUT      | 647,932 | 216,960 | 298%   | ❌ 超限 |
+
+> **主要DSP消耗源**：`fft_2d_rows`函数使用直接DFT计算（非HLS FFT IP），消耗8,064 DSP
+
+---
+
+### 🔧 FFT优化方案
+
+**问题根源**：当前FFT实现采用直接DFT计算，而非Vitis HLS FFT IP，导致DSP消耗极高。
+
+**推荐优化方案（按优先级排序）**：
+
+#### 方案1：集成HLS FFT IP（强烈推荐）
+
+使用Vitis HLS提供的`hls::fft` IP替换直接DFT：
+
+- **DSP消耗**：32-point FFT仅需约200-400 DSP（降低80%+）
+- **实现路径**：参考 `reference/vitis_hls_ftt的实现/interface_stream/`
+- **配置示例**：
+
+  ```cpp
+  #include "hls_fft.h"
+
+  config_t fft_config;
+  fft_config.setDir(1); // IFFT
+  fft_config.setScaling(FFT_SCALE_SCALED_DYNAMIC);
+
+  hls::fft<config_t>(fft_input, fft_output, fft_config);
+  ```
+
+#### 方案2：使用LUT替代DSP
+
+适用于DSP严重受限但LUT资源充足的场景：
+
+```cpp
+#pragma HLS bind_storage variable=fft_input type=RAM_2P impl=LUTRAM
+```
+
+或在HLS config中设置：
+
+```ini
+FFT_COMPLEX_MULT_TYPE=use_luts
+```
+
+- **DSP消耗**：接近0
+- **代价**：LUT消耗增加约200%
+
+#### 方案3：降低FFT精度（固定点）
+
+将float改为ap_fixed：
+
+```cpp
+typedef ap_fixed<18, 8> fixed_t; // 18位总精度，8位整数部分
+```
+
+- **DSP消耗**：降低约50%
+- **需验证**：精度是否满足光刻计算要求（当前RMSE=1.033e-07）
+
+#### 方案4：减小FFT尺寸
+
+如果数据特性允许：
+
+- 32-point → 16-point：DSP降低约75%
+- 需评估对成像精度的影响
+
 #### 两种推荐的 C 综合（C Synthesis）方式
 
 **方案 1：v++ 一站式命令（推荐用于独立 FFT 组件）**

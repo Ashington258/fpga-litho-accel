@@ -38,8 +38,32 @@ def compile_litho() -> bool:
 
     print("[COMPILE] Building Litho...")
 
-    result = subprocess.run(["make", "clean"], capture_output=True, text=True)
-    result = subprocess.run(["make"], capture_output=True, text=True)
+    # 检测操作系统，选择合适的编译命令
+    if sys.platform == "win32":
+        # Windows: 使用 mingw32-make 和 Makefile.win
+        # 设置 MSYS2 UCRT64 环境
+        msys2_bin = "C:/msys64/ucrt64/bin"
+        env = os.environ.copy()
+        env["PATH"] = msys2_bin + ";" + env.get("PATH", "")
+
+        # 先清理
+        subprocess.run(
+            ["mingw32-make", "-f", "Makefile.win", "clean"],
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        # 编译
+        result = subprocess.run(
+            ["mingw32-make", "-f", "Makefile.win"],
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+    else:
+        # Linux/WSL: 使用标准 make
+        subprocess.run(["make", "clean"], capture_output=True, text=True)
+        result = subprocess.run(["make"], capture_output=True, text=True)
 
     if result.returncode != 0:
         print(f"[ERROR] Compilation failed:\n{result.stderr}")
@@ -56,7 +80,11 @@ def compile_litho() -> bool:
 
 def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
     """运行 Litho 验证程序"""
-    executable = PROJECT_ROOT / "validation/golden/src/litho"
+    # Windows 使用 .exe 后缀
+    if sys.platform == "win32":
+        executable = PROJECT_ROOT / "validation/golden/src/litho.exe"
+    else:
+        executable = PROJECT_ROOT / "validation/golden/src/litho"
 
     args = [str(executable), str(config_path), str(output_dir)]
     if verbose == 2:

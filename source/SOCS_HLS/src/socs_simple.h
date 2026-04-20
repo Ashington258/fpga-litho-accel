@@ -1,29 +1,21 @@
 /**
  * SOCS HLS Simple Implementation Header
  * FPGA-Litho Project
+ * 
+ * Uses unified configuration from socs_config.h
+ * Dynamic Nx/Ny calculation based on optical parameters
  */
 
 #ifndef SOCS_SIMPLE_H
 #define SOCS_SIMPLE_H
 
+#include "socs_config.h"  // Dynamic configuration
 #include <hls_stream.h>
 #include <ap_axi_sdata.h>
 #include <cmath>
 #include <complex>
 
-// Configuration parameters (Nx=4, based on current config)
-#define Lx 512
-#define Ly 512
-#define Nx 4
-#define Ny 4
-#define convX (4*Nx + 1)  // = 17
-#define convY (4*Ny + 1)  // = 17
-#define fftConvX 32       // nextPowerOfTwo(17)
-#define fftConvY 32
-#define kerX (2*Nx + 1)   // = 9
-#define kerY (2*Ny + 1)   // = 9
-#define nk 10
-
+// Use types from socs_config.h
 typedef std::complex<float> complex_float;
 
 /**
