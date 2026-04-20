@@ -17,9 +17,9 @@
 
 本项目包含两个**完全独立**的HLS重构任务，各有独立的TODO、Golden数据和测试脚本：
 
-| 模块     | 任务清单                                                     | 状态         | 说明                |
-| -------- | ------------------------------------------------------------ | ------------ | ------------------- |
-| **TCC**  | [source/TCC_HLS/TCC_TODO.md](source/TCC_HLS/TCC_TODO.md)     | Phase 1 存档 | 等待DDR计算卡       |
+| 模块     | 任务清单                                                     | 状态         | 说明                 |
+| -------- | ------------------------------------------------------------ | ------------ | -------------------- |
+| **TCC**  | [source/TCC_HLS/TCC_TODO.md](source/TCC_HLS/TCC_TODO.md)     | Phase 1 存档 | 等待DDR计算卡        |
 | **SOCS** | [source/SOCS_HLS/SOCS_TODO.md](source/SOCS_HLS/SOCS_TODO.md) | Phase 0 完成 | 源码整理完成，待验证 |
 
 ---

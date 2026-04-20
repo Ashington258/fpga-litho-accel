@@ -9,8 +9,8 @@
             "Ly": 512
         },
         "size": {
-            "maskSizeX": 256,
-            "maskSizeY": 256
+            "maskSizeX": 512,
+            "maskSizeY": 512
         },
         "type": "Import",
         "lineSpace": {
@@ -18,7 +18,7 @@
             "spaceWidth": 128,
             "isHorizontal": false
         },
-        "inputFile": "input/mask/test_256.bin",
+        "inputFile": "input/mask/512x512.bin",
         "dose": 1.0
     },
     "source": {
@@ -41,7 +41,7 @@
             "x": 0.0,
             "y": 0.0
         },
-        "inputFile": "input/source/src_test1_size101.bin"
+        "inputFile": "input/mask/1024x1024.bin"
     },
     "optics": {
         "NA": 0.8,
@@ -49,7 +49,7 @@
         "defocus": 0.2
     },
     "kernel": {
-        "count": 10,
+        "count": 4,
         "targetIntensity": 0.225
     },
     "output": {

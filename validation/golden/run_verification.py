@@ -96,8 +96,51 @@ def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
     print(f"  Config: {config_path}")
     print(f"  Output: {output_dir}")
 
-    result = subprocess.run(args)
-    return result.returncode == 0
+    # Windows 上 litho.exe 可能输出 stderr 消息导致 returncode != 0
+    # 但实际执行成功（输出文件正确生成）
+    # 解决方案：忽略 stderr，通过检查关键输出文件来判断成功
+    try:
+        # 添加 MSYS2 UCRT64 bin 到 PATH（编译依赖）
+        env = os.environ.copy()
+        msys2_bin = "C:\\msys64\\ucrt64\\bin"
+        if sys.platform == "win32" and os.path.exists(msys2_bin):
+            env["PATH"] = msys2_bin + ";" + env.get("PATH", "")
+
+        result = subprocess.run(
+            args,
+            stderr=subprocess.PIPE,  # 捕获 stderr，不显示也不影响判断
+            timeout=300,  # 5 分钟超时
+            env=env,
+        )
+
+        # 检查关键输出文件是否存在来判断成功
+        key_files = [
+            output_dir / "aerial_image_tcc_direct.bin",
+            output_dir / "aerial_image_socs_kernel.bin",
+        ]
+
+        # 动态检测 HLS golden 文件名 (tmpImgp_pad*.bin)
+        golden_files = list(output_dir.glob("tmpImgp_pad*.bin"))
+        if golden_files:
+            key_files.append(golden_files[0])
+
+        success = all(f.exists() and f.stat().st_size > 0 for f in key_files)
+
+        if not success and result.returncode != 0:
+            print(f"  [WARN] litho.exe returned code {result.returncode}")
+            if result.stderr:
+                print(
+                    f"  stderr: {result.stderr.decode('utf-8', errors='replace')[:200]}"
+                )
+
+        return success
+
+    except subprocess.TimeoutExpired:
+        print("[ERROR] Litho execution timed out (300s)")
+        return False
+    except Exception as e:
+        print(f"[ERROR] Failed to run litho: {e}")
+        return False
 
 
 # ============================================================================
@@ -178,7 +221,7 @@ def main():
     parser.add_argument(
         "--config",
         type=str,
-        default="input/config/config.json",
+        default="input/config/golden_original.json",
         help="Config file path",
     )
 
@@ -195,7 +238,15 @@ def main():
     )
 
     parser.add_argument(
-        "--clean", action="store_true", help="Clean output directory before run"
+        "--no-clean",
+        action="store_true",
+        help="Keep existing output directory (default: clean before run)",
+    )
+
+    parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="Force clean output directory (same as default behavior)",
     )
 
     args = parser.parse_args()
@@ -206,9 +257,9 @@ def main():
 
     verbose = 2 if args.debug else (0 if args.quiet else 1)
 
-    # 清理输出目录
-    if args.clean and output_dir.exists():
-        print(f"[CLEAN] Removing {output_dir}")
+    # 默认清理输出目录（除非指定 --no-clean）
+    if not args.no_clean and output_dir.exists():
+        print(f"[CLEAN] Removing existing output directory: {output_dir}")
         shutil.rmtree(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)

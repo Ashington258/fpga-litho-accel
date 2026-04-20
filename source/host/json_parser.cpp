@@ -152,9 +152,78 @@ bool loadConfig(const std::string& configPath, SOCSConfig& config) {
         std::cerr << "Error: Failed to parse optics.NA." << std::endl;
         return false;
     }
+    if (!parseFloat(opticsSection, "wavelength", config.wavelength)) {
+        config.wavelength = 193.0f;  // Default ArF
+    }
     if (!parseFloat(opticsSection, "defocus", config.defocus)) {
-        std::cerr << "Error: Failed to parse optics.defocus." << std::endl;
-        return false;
+        config.defocus = 0.0f;
+    }
+
+    // Parse source section (NEW)
+    std::string sourceSection;
+    if (!extractSection(content, "source", sourceSection)) {
+        std::cerr << "Warning: 'source' section not found, using defaults." << std::endl;
+        config.srcType = "Annular";
+        config.srcSize = 101;
+    } else {
+        if (!parseInt(sourceSection, "gridSize", config.srcSize)) {
+            config.srcSize = 101;
+        }
+        if (!extractJsonString(sourceSection, "type", config.srcType)) {
+            config.srcType = "Annular";
+        }
+        
+        // Parse Annular parameters
+        std::string annularSection;
+        if (extractSection(sourceSection, "annular", annularSection)) {
+            if (!parseFloat(annularSection, "innerRadius", config.annular.innerRadius)) {
+                config.annular.innerRadius = 0.6f;
+            }
+            if (!parseFloat(annularSection, "outerRadius", config.annular.outerRadius)) {
+                config.annular.outerRadius = 0.9f;
+            }
+        }
+        
+        // Parse Dipole parameters
+        std::string dipoleSection;
+        if (extractSection(sourceSection, "dipole", dipoleSection)) {
+            if (!parseFloat(dipoleSection, "radius", config.dipole.radius)) {
+                config.dipole.radius = 0.5f;
+            }
+            if (!parseFloat(dipoleSection, "offset", config.dipole.offset)) {
+                config.dipole.offset = 0.3f;
+            }
+            if (!extractJsonBool(dipoleSection, "onXAxis", config.dipole.onXAxis)) {
+                config.dipole.onXAxis = true;
+            }
+        }
+        
+        // Parse CrossQuadrupole parameters
+        std::string crossQuadSection;
+        if (extractSection(sourceSection, "crossQuadrupole", crossQuadSection)) {
+            if (!parseFloat(crossQuadSection, "radius", config.crossQuadrupole.radius)) {
+                config.crossQuadrupole.radius = 0.5f;
+            }
+            if (!parseFloat(crossQuadSection, "offset", config.crossQuadrupole.offset)) {
+                config.crossQuadrupole.offset = 0.3f;
+            }
+        }
+        
+        // Parse Point parameters
+        std::string pointSection;
+        if (extractSection(sourceSection, "point", pointSection)) {
+            if (!parseFloat(pointSection, "x", config.point.x)) {
+                config.point.x = 0.0f;
+            }
+            if (!parseFloat(pointSection, "y", config.point.y)) {
+                config.point.y = 0.0f;
+            }
+        }
+        
+        // Parse source inputFile (for Import type)
+        if (!extractJsonString(sourceSection, "inputFile", config.sourceInputFile)) {
+            config.sourceInputFile = "";
+        }
     }
 
     std::string kernelSection;
@@ -165,6 +234,28 @@ bool loadConfig(const std::string& configPath, SOCSConfig& config) {
     if (!parseInt(kernelSection, "count", config.nk)) {
         std::cerr << "Error: Failed to parse kernel.count." << std::endl;
         return false;
+    }
+    if (!parseFloat(kernelSection, "targetIntensity", config.targetIntensity)) {
+        config.targetIntensity = 0.225f;
+    }
+
+    // Parse output section (NEW)
+    std::string outputSection;
+    if (extractSection(content, "output", outputSection)) {
+        if (!extractJsonString(outputSection, "outputDir", config.outputDir)) {
+            config.outputDir = "output/verification";
+        }
+    }
+
+    // Parse simulation section for verbose (NEW)
+    std::string simulationSection;
+    if (extractSection(content, "simulation", simulationSection)) {
+        std::string verboseStr;
+        if (extractJsonString(simulationSection, "verbose", verboseStr)) {
+            if (verboseStr == "debug") config.verboseLevel = 2;
+            else if (verboseStr == "quiet") config.verboseLevel = 0;
+            else config.verboseLevel = 1;
+        }
     }
 
     return true;
