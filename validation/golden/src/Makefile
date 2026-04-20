@@ -34,4 +34,4 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(TARGET) *.o common/*.o
+	cmd /c del /f /q $(TARGET) *.o common\*.o 2>nul || echo "Clean done"

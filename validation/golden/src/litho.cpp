@@ -4,6 +4,8 @@
  * Power-of-two padded FFT draft version for HLS-compatible flow.
  */
 
+// Enable M_PI on Windows
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <complex>
 #include <string>
@@ -1227,7 +1229,9 @@ int main(int argc, char* argv[]) {
     const int fftLy = nextPowerOfTwo(physLy);
     const int fftLxy = fftLx * fftLy;
     
-    system(("mkdir -p " + outputDir + "/kernels/png").c_str());
+    // Create output directories (cross-platform)
+    filesystem::create_directories(filesystem::path(outputDir) / "kernels");
+    filesystem::create_directories(filesystem::path(outputDir) / "kernels" / "png");
     
     cout << "\n[CONFIG] Simulation Parameters:" << endl;
     cout << "  Mask Period: " << physLx << " x " << physLy << endl;

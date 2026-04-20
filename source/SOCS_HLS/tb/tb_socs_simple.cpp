@@ -59,18 +59,18 @@ int main() {
     
     // Load input data
     std::cout << "\n[STEP 1] Loading input data..." << std::endl;
-    // CoSim runs in: socs_simple_comp/hls/sim/wrapc/
-    // Data location: SOCS_HLS/data/ (go up 4 levels from wrapc)
-    load_binary_data("../../../../data/mskf_r.bin", mskf_r, Lx * Ly);
-    load_binary_data("../../../../data/mskf_i.bin", mskf_i, Lx * Ly);
-    load_binary_data("../../../../data/scales.bin", scales, nk);
+    // CSim runs in: hls/socs_simple_csim_v4/hls/csim/build/
+    // Data location: SOCS_HLS/data/ (go up 5 levels from build)
+    load_binary_data("../../../../../data/mskf_r.bin", mskf_r, Lx * Ly);
+    load_binary_data("../../../../../data/mskf_i.bin", mskf_i, Lx * Ly);
+    load_binary_data("../../../../../data/scales.bin", scales, nk);
     
     // Load kernels
     for (int k = 0; k < nk; k++) {
         char filename[256];
-        sprintf(filename, "../../../../data/kernels/krn_%d_r.bin", k);
+        sprintf(filename, "../../../../../data/kernels/krn_%d_r.bin", k);
         load_binary_data(filename, &krn_r[k * kerX * kerY], kerX * kerY);
-        sprintf(filename, "../../../../data/kernels/krn_%d_i.bin", k);
+        sprintf(filename, "../../../../../data/kernels/krn_%d_i.bin", k);
         load_binary_data(filename, &krn_i[k * kerX * kerY], kerX * kerY);
     }
     
@@ -91,7 +91,7 @@ int main() {
     
     // Load golden output
     std::cout << "\n[STEP 3] Loading golden output..." << std::endl;
-    load_binary_data("../../../../data/tmpImgp_pad32.bin", golden, convX * convY);
+    load_binary_data("../../../../../data/tmpImgp_pad32.bin", golden, convX * convY);
     
     float golden_min = golden[0], golden_max = golden[0], golden_sum = 0.0f;
     for (int i = 1; i < convX * convY; i++) {

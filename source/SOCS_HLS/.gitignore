@@ -1,6 +1,10 @@
 # Ignore build output directory
 /build
 /export
+/socs_full_comp*
+/socs_simple_comp*
+/socs_simple_synth*
+/hls/socs_simple_csim*
 
 # Ignore object files and dependent files
 .o

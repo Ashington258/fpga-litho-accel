@@ -3,7 +3,7 @@
  * FPGA-Litho Project
  * 
  * Tests real calcSOCS algorithm with FFT integration
- * Current configuration: Nx=4, IFFT 32×32, Output 17×17
+ * Current configuration: Nx=16, IFFT 128×128, Output 65×65 (MIGRATED from Nx=4)
  */
 
 #include <iostream>
@@ -22,16 +22,16 @@ extern void calc_socs_hls(
     float *output
 );
 
-// Configuration
+// Configuration - MIGRATED to Nx=16
 #define Lx 512
 #define Ly 512
-#define Nx 4
-#define Ny 4
-#define convX (4*Nx + 1)  // = 17
-#define convY (4*Ny + 1)  // = 17
-#define kerX (2*Nx + 1)   // = 9
-#define kerY (2*Ny + 1)   // = 9
-#define nk 10
+#define Nx 16
+#define Ny 16
+#define convX (4*Nx + 1)  // = 65
+#define convY (4*Ny + 1)  // = 65
+#define kerX (2*Nx + 1)   // = 33
+#define kerY (2*Ny + 1)   // = 33
+#define nk 4
 
 // Helper function to load binary data
 void load_binary_data(const char* filename, float* data, int size) {
@@ -132,7 +132,7 @@ int main() {
     
     // Load golden output
     std::cout << "\n[STEP 3] Loading golden output..." << std::endl;
-    sprintf(path, "%s/tmpImgp_pad32.bin", data_dir);
+    sprintf(path, "%s/tmpImgp_pad128.bin", data_dir);
     load_binary_data(path, golden, convX * convY);
     
     float golden_min = golden[0], golden_max = golden[0], golden_sum = 0.0f;
