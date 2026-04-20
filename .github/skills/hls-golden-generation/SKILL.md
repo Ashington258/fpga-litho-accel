@@ -14,6 +14,42 @@ description: "WORKFLOW SKILL — Generate HLS golden data for SOCS IP validation
 - **编写reference**: 创建calcSOCS_reference.cpp独立程序
 - **验证数据正确性**: 对比golden与实际HLS输出
 
+---
+
+## ⚠️ 核心约束：配置一致性（强制）
+
+**Golden数据与验证流程必须使用相同配置文件，否则数据无参考价值！**
+
+### 标准化验证命令
+
+```bash
+# 1. Golden生成（指定配置）
+python validation/golden/run_verification.py --config input/config/golden_original.json
+
+# 2. Host预处理（相同配置）
+cd source/host && python run.py --config ../../input/config/golden_original.json --mode full
+
+# 3. 对比验证
+python validation/compare_hls_golden.py --config input/config/golden_original.json
+```
+
+### 配置一致性检查表
+
+| 参数          | Golden | Host | HLS TB | 说明           |
+| ------------- | ------ | ---- | ------ | -------------- |
+| NA            | ✓      | ✓    | ✓      | 光学孔径       |
+| wavelength    | ✓      | ✓    | ✓      | 193nm          |
+| Lx/Ly         | ✓      | ✓    | ✓      | Mask尺寸       |
+| source.type   | ✓      | ✓    | ✓      | Annular/Dipole |
+| σ_inner/outer | ✓      | ✓    | ✓      | 照明参数       |
+| defocus       | ✓      | ✓    | ✓      | 离焦量         |
+
+**推荐配置**: `input/config/golden_original.json`
+
+> **每次验证前必须确认配置一致！**
+
+---
+
 ## 核心约束
 
 **项目路径**: `/root/project/FPGA-Litho`
@@ -22,9 +58,9 @@ description: "WORKFLOW SKILL — Generate HLS golden data for SOCS IP validation
 
 - **Nx, Ny**: 动态计算，当前值为4×4
 - **计算公式**: $N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
-- **配置来源**: `input/config/config.json`
+- **配置来源**: `input/config/golden_original.json`
 - **输出目录**: `output/verification/`
-- **Golden生成脚本**: `validation/golden/run_verification.py`
+- **Golden生成脚本**: `validation/golden/run_verification.py --config <json>`
 
 **Golden数据分类**:
 
@@ -101,8 +137,8 @@ run_in_terminal(command="cd /root/project/FPGA-Litho && python validation/golden
 **正确的验证数据生成命令**：
 
 ```bash
-# ✅ 步骤1：运行验证脚本生成数据
-cd /root/project/FPGA-Litho && python validation/golden/run_verification.py
+# ✅ 步骤1：运行验证脚本生成数据（指定配置文件）
+cd /root/project/FPGA-Litho && python validation/golden/run_verification.py --config input/config/golden_original.json
 
 # ✅ 步骤2：检查生成的文件
 ls -lh /root/project/FPGA-Litho/output/verification/*.bin
@@ -116,7 +152,8 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS && python scripts/verify_golden_data
 
 **⚠️ 注意事项**：
 
-- Python 脚本使用绝对路径执行
+- **配置文件必须一致**：Golden生成、Host预处理、HLS验证必须使用相同JSON
+- Python 脚本使用 `--config` 参数指定配置
 - 所有文件路径使用绝对路径
 - 验证步骤与生成步骤分开执行
 - 使用 `ls`, `cp` 等 Shell 命令时确保路径正确
@@ -144,12 +181,14 @@ python source/SOCS_HLS/scripts/extract_hls_golden_simple.py
 
 **前提**: calcSOCS_reference尚未编写完成
 
-**命令**:
+**命令**（必须指定配置文件）:
 
 ```bash
 cd /root/project/FPGA-Litho
-python validation/golden/run_verification.py
+python validation/golden/run_verification.py --config input/config/golden_original.json
 ```
+
+**⚠️ 配置一致性**: 此配置文件必须与后续Host预处理、HLS验证使用相同文件！
 
 **生成的输入数据**:
 

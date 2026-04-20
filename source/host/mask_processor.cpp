@@ -4,7 +4,22 @@
 #include <iostream>
 #include <fftw3.h>
 
+// Float version of myShift (same as Golden litho.cpp)
 static void myShift(const std::vector<float>& in, std::vector<float>& out, int sizeX, int sizeY, bool shiftTypeX, bool shiftTypeY) {
+    int xh = shiftTypeX ? sizeX / 2 : (sizeX + 1) / 2;
+    int yh = shiftTypeY ? sizeY / 2 : (sizeY + 1) / 2;
+    out.resize(sizeX * sizeY);
+    for (int y = 0; y < sizeY; y++) {
+        for (int x = 0; x < sizeX; x++) {
+            int sx = (x + xh) % sizeX;
+            int sy = (y + yh) % sizeY;
+            out[sy * sizeX + sx] = in[y * sizeX + x];
+        }
+    }
+}
+
+// Complex version of myShift for FFT output (fftshift)
+static void myShiftComplex(const std::vector<std::complex<float>>& in, std::vector<std::complex<float>>& out, int sizeX, int sizeY, bool shiftTypeX, bool shiftTypeY) {
     int xh = shiftTypeX ? sizeX / 2 : (sizeX + 1) / 2;
     int yh = shiftTypeY ? sizeY / 2 : (sizeY + 1) / 2;
     out.resize(sizeX * sizeY);
@@ -40,10 +55,15 @@ bool fftMask(const std::vector<float>& mask, std::vector<std::complex<float>>& m
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
 
+    // Apply FFT
     float scale = 1.0f / static_cast<float>(sizeX * sizeY);
-    maskFreq.resize(sizeX * sizeY);
+    std::vector<std::complex<float>> fftResult(sizeX * sizeY);
     for (int i = 0; i < sizeX * sizeY; ++i) {
-        maskFreq[i] = std::complex<float>(data[i][0] * scale, data[i][1] * scale);
+        fftResult[i] = std::complex<float>(data[i][0] * scale, data[i][1] * scale);
     }
+    
+    // Apply fftshift to move DC component to center (match Golden litho.cpp behavior)
+    myShiftComplex(fftResult, maskFreq, sizeX, sizeY, false, false);
+    
     return true;
 }

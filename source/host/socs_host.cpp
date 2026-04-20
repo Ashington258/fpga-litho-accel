@@ -217,7 +217,33 @@ static int runComputeKernelsMode(int argc, char* argv[]) {
     
     std::cout << "  Computing TCC matrix (size: " << tccSize << " x " << tccSize << ")..." << std::endl;
     
-    calcTCC(tcc, tccSize, source, static_cast<int>(source.size()), outerSigma, config, 1);
+    // srcSize should be the edge length, not total size (101 not 10201)
+    int srcEdgeSize = static_cast<int>(sqrt(static_cast<double>(source.size())));
+    calcTCC(tcc, tccSize, source, srcEdgeSize, outerSigma, config, 1);
+
+    // DEBUG: Save intermediate data for comparison with Golden
+    {
+        // Save source matrix
+        std::vector<float> srcFloat(source.size());
+        for (size_t i = 0; i < source.size(); i++) {
+            srcFloat[i] = static_cast<float>(source[i]);
+        }
+        const std::string srcFile = (fs::path(outputDir) / "source.bin").string();
+        writeFloatArrayToBinary(srcFile, srcFloat);
+        std::cout << "  [DEBUG] Saved source matrix: " << srcFile << std::endl;
+        
+        // Save TCC matrix as complex64
+        std::vector<ComplexF> tccFloat(tcc.size());
+        for (size_t i = 0; i < tcc.size(); i++) {
+            tccFloat[i] = ComplexF(static_cast<float>(tcc[i].real()),
+                                    static_cast<float>(tcc[i].imag()));
+        }
+        const std::string tccFile = (fs::path(outputDir) / "tcc.bin").string();
+        std::ofstream tccStream(tccFile, std::ios::binary);
+        tccStream.write(reinterpret_cast<const char*>(tccFloat.data()), 
+                        tccFloat.size() * sizeof(ComplexF));
+        std::cout << "  [DEBUG] Saved TCC matrix: " << tccFile << std::endl;
+    }
 
     // MODULE 4: Kernel Extractor
     std::vector<std::vector<ComplexD>> kernelsDouble;
@@ -363,7 +389,34 @@ static int runFullPipelineMode(int argc, char* argv[]) {
     std::cout << "  TCC matrix size: " << tccSize << " x " << tccSize << std::endl;
     std::cout << "  outerSigma: " << outerSigma << std::endl;
 
-    calcTCC(tcc, tccSize, source, static_cast<int>(source.size()), outerSigma, config, 1);
+    // srcSize should be the edge length, not total size (101 not 10201)
+    int srcEdgeSize = static_cast<int>(sqrt(static_cast<double>(source.size())));
+    calcTCC(tcc, tccSize, source, srcEdgeSize, outerSigma, config, 1);
+
+    // DEBUG: Save intermediate data for comparison with Golden
+    {
+        // Save source matrix
+        std::vector<float> srcFloat(source.size());
+        for (size_t i = 0; i < source.size(); i++) {
+            srcFloat[i] = static_cast<float>(source[i]);
+        }
+        const std::string srcFile = (fs::path(outputDir) / "source.bin").string();
+        writeFloatArrayToBinary(srcFile, srcFloat);
+        std::cout << "  [DEBUG] Saved source matrix: " << srcFile << std::endl;
+        
+        // Save TCC matrix as complex64 (real and imag separate)
+        std::vector<float> tccReal(tcc.size());
+        std::vector<float> tccImag(tcc.size());
+        for (size_t i = 0; i < tcc.size(); i++) {
+            tccReal[i] = static_cast<float>(tcc[i].real());
+            tccImag[i] = static_cast<float>(tcc[i].imag());
+        }
+        const std::string tccRFile = (fs::path(outputDir) / "tcc_r.bin").string();
+        const std::string tccIFile = (fs::path(outputDir) / "tcc_i.bin").string();
+        writeFloatArrayToBinary(tccRFile, tccReal);
+        writeFloatArrayToBinary(tccIFile, tccImag);
+        std::cout << "  [DEBUG] Saved TCC matrix: " << tccRFile << ", " << tccIFile << std::endl;
+    }
 
     std::cout << "  TCC computation completed." << std::endl;
 

@@ -1,8 +1,8 @@
 # SOCS HLS 任务清单
 
 **最后更新**: 2026-04-20
-**当前状态**: Phase A 预处理模块开发完成 (Linux编译待验证)
-**下一步**: Phase B - IFFT后处理模块实现
+**当前状态**: Phase A Host预处理验证完成 (Windows编译+数值验证PASS)
+**下一步**: Phase 1 - HLS C Synthesis DSP优化验证
 
 ---
 
@@ -46,7 +46,21 @@
 - **修复内容**:
   - ✅ 修复`computeOuterSigma(source)` → `computeOuterSigma(source, config.srcSize)`
   - ✅ 修复`generateSource()` → `createSource()`
-- **编译状态**: ⏳ 待Linux环境编译验证 (需Eigen/FFTW3库)
+- **编译状态**: ✅ Windows编译成功 (FFTW3/Eigen库链接正确)
+
+### 任务 A.7: Host vs Golden数值验证 ✅ (已完成)
+- **目标**: 验证Host预处理计算正确性
+- **验证配置**: `input/config/golden_original.json`
+- **验证结果**:
+  - ✅ FFT匹配: mskf_r/i.bin 最大差异 1.49e-08
+  - ⚠️ TCC差异: ~0.1% (实现模式差异，可接受)
+  - ⚠️ 特征值差异: λ[0]=0.057%, λ[1-3]=0.082-0.092% (可接受)
+- **根因分析**:
+  - Golden: 预计算pupil矩阵 → 存储后使用
+  - Host: 实时计算pupil (lambda函数)
+  - 两者数学等价，浮点累积模式不同
+- **结论**: 差异可接受 (Golden自身允许3.3%截断误差)
+- **诊断脚本**: `validation/diagnose_tcc_difference.py`
 
 ---
 

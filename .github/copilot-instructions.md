@@ -4,21 +4,58 @@
 
 本文件定义了本项目中 **HLS 开发、验证、导出** 的标准化流程（已基于 **Vitis 2025.2** 验证通过）。
 
+---
+
+## ⚠️ 核心约束：Golden 数据验证配置一致性
+
+**重要原则**：Golden 数据与 HLS 验证必须使用**完全相同的配置文件**，否则数据无参考价值。
+
+### 验证流程标准化命令
+
+```bash
+# 步骤1：生成 Golden 数据（使用指定配置）
+cd /root/project/FPGA-Litho && python validation/golden/run_verification.py --config input/config/golden_original.json
+
+# 步骤2：运行 Host 预处理（使用相同配置）
+cd /root/project/FPGA-Litho/source/host && python run.py --config ../../input/config/golden_original.json --mode full
+
+# 步骤3：对比验证
+python validation/compare_hls_golden.py --config input/config/golden_original.json
+```
+
+### 配置一致性检查清单
+
+| 检查项        | Golden (run_verification.py) | Host (run.py)   | HLS TB        |
+| ------------- | ---------------------------- | --------------- | ------------- |
+| 配置文件      | `--config` 参数              | `--config` 参数 | `config_path` |
+| NA            | 必须一致                     | 必须一致        | 必须一致      |
+| wavelength    | 必须一致                     | 必须一致        | 必须一致      |
+| Lx/Ly         | 必须一致                     | 必须一致        | 必须一致      |
+| source type   | 必须一致                     | 必须一致        | 必须一致      |
+| σ_inner/outer | 必须一致                     | 必须一致        | 必须一致      |
+
+**当前推荐配置**: `input/config/golden_original.json`
+
+> **每次验证前，必须确认配置一致性，否则验证结果无效！**
+
+---
+
 ### 1. 参考资源
 
-| 参考项              | 路径                                                                             | 用途                                     |
-| ------------------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
-| **当前 CPU 实现**   | `validation/golden/src/litho.cpp`                                                | **实际运行版本**，使用 65×65 IFFT        |
-| HLS FFT 参考实现    | `reference/vitis_hls_ftt的实现/interface_stream/`                                | `hls::fft` 集成模板（路径已修正）        |
-| BIN 格式规范        | `input/BIN_Format_Specification.md`                                              | 输入数据格式定义                         |
-| 配置参数            | `input/config/config.json`                                                       | 光学参数、尺寸参数（**Nx/Ny 动态计算**） |
-| **Golden 数据生成** | `python validation/golden/run_verification.py`                                   | **生成 mskf_r.bin, scales.bin 等**       |
-| **Golden 参考**     | `output/verification/aerial_image_tcc_direct.bin`                                | **TCC 直接成像（理论标准）**             |
-| 任务清单            | `source/SOCS_HLS/SOCS_TODO.md`                                                   | 详细任务分解与进度追踪                   |
-| HLS Config 示例     | `reference/tcl脚本设计参考/hls_config_fft.cfg`                                   | `v++` / `vitis-run` 配置文件模板         |
-| TCL 综合脚本示例    | `reference/tcl脚本设计参考/run_csynth_fft.tcl`                                   | TCL 驱动的综合流程模板                   |
-| 命令与流程参考      | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md` | `vitis-run` 命令、TCL 板级验证流程       |
-| TCL 脚本模板        | `reference/tcl脚本设计参考/Example_Tcl_Command_Script.tcl`                       | JTAG-to-AXI 操作模板                     |
+| 参考项              | 路径                                                                             | 用途                               |
+| ------------------- | -------------------------------------------------------------------------------- | ---------------------------------- |
+| **当前 CPU 实现**   | `validation/golden/src/litho.cpp`                                                | **实际运行版本**，使用 65×65 IFFT  |
+| HLS FFT 参考实现    | `reference/vitis_hls_ftt的实现/interface_stream/`                                | `hls::fft` 集成模板（路径已修正）  |
+| BIN 格式规范        | `input/BIN_Format_Specification.md`                                              | 输入数据格式定义                   |
+| **标准配置文件**    | `input/config/golden_original.json`                                              | **验证用统一配置**                 |
+| **Golden 数据生成** | `python validation/golden/run_verification.py --config <json>`                   | **生成 mskf_r.bin, scales.bin 等** |
+| **Host 预处理**     | `source/host/run.py --config <json>`                                             | **FPGA输入数据生成**               |
+| **Golden 参考**     | `output/verification/aerial_image_tcc_direct.bin`                                | **TCC 直接成像（理论标准）**       |
+| 任务清单            | `source/SOCS_HLS/SOCS_TODO.md`                                                   | 详细任务分解与进度追踪             |
+| HLS Config 示例     | `reference/tcl脚本设计参考/hls_config_fft.cfg`                                   | `v++` / `vitis-run` 配置文件模板   |
+| TCL 综合脚本示例    | `reference/tcl脚本设计参考/run_csynth_fft.tcl`                                   | TCL 驱动的综合流程模板             |
+| 命令与流程参考      | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md` | `vitis-run` 命令、TCL 板级验证流程 |
+| TCL 脚本模板        | `reference/tcl脚本设计参考/Example_Tcl_Command_Script.tcl`                       | JTAG-to-AXI 操作模板               |
 
 ### 2. 严格控制的 HLS 命令规范（已验证）
 
