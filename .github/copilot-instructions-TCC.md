@@ -26,17 +26,22 @@
 **必须使用 `vitis-run`，禁止使用旧版 `vitis_hls` 或 `vivado_hls`**：
 
 ```bash
-# C 仿真
+# C 仿真（必须指定 --csim 参数）
 vitis-run --mode hls --csim --config script/config/hls_config.cfg --work_dir hls_litho_proj
 
-# C 综合（推荐 TCL 驱动）
+# C 综合（推荐 TCL 驱动，必须指定 --tcl 参数）
 vitis-run --mode hls --tcl --input_file script/run_csynth.tcl --work_dir hls_litho_proj
 
-# CoSim
+# CoSim（必须指定 --cosim 参数）
 vitis-run --mode hls --cosim --config script/config/hls_config.cfg --work_dir hls_litho_proj
 
-# IP 导出
+# IP 导出（必须指定 --package 参数）
 vitis-run --mode hls --package --config script/config/hls_config.cfg --work_dir hls_litho_proj
+```
+
+**⚠️ 关键约束**：`--mode hls` 必须与操作类型参数配合使用（--csim/--cosim/--package/--tcl），否则会报错：
+```
+ERROR: Option --mode hls should be specified with one of the following options [--csim | --cosim | --impl | --package | --tcl | --itcl]
 ```
 
 ### TCL 验证流程（板级）
