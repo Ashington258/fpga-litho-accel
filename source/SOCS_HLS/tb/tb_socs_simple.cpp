@@ -163,6 +163,17 @@ int main() {
         std::cout << "TEST RESULT: PASS" << std::endl;
         std::cout << "  ✓ Algorithm implementation verified" << std::endl;
         std::cout << "  ✓ Output matches golden within tolerance" << std::endl;
+        
+        // Save HLS output for visualization scripts
+        std::cout << "\n[STEP 7] Saving HLS output for analysis..." << std::endl;
+        std::ofstream out_file("../../../../../data/hls_output.bin", std::ios::binary);
+        if (out_file.is_open()) {
+            out_file.write(reinterpret_cast<char*>(output), convX * convY * sizeof(float));
+            out_file.close();
+            std::cout << "  ✓ HLS output saved to: data/hls_output.bin" << std::endl;
+        } else {
+            std::cout << "  ⚠️  Failed to save HLS output" << std::endl;
+        }
     } else {
         std::cout << "TEST RESULT: FAIL" << std::endl;
         std::cout << "  ⚠️  Output does not match golden" << std::endl;

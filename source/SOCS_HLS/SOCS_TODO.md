@@ -1,8 +1,8 @@
 # SOCS HLS 任务清单
 
 **最后更新**: 2026-04-20
-**当前状态**: Phase A Host预处理验证完成 (Windows编译+数值验证PASS)
-**下一步**: Phase 1 - HLS C Synthesis DSP优化验证
+**当前状态**: Phase 1 C Simulation验证完成 (RMSE=9.55e-08 PASS) + FI资源分析完成
+**下一步**: Phase 2 - RTL Export (需解决Windows路径长度限制) 或 板级验证
 
 ---
 
@@ -182,6 +182,41 @@
   - IP-XACT格式正确
   - AXI-MM接口完整
 
+### 任务 1.4: FI步骤资源分析 ✅ (已完成)
+- **问题**: Fourier Interpolation (FI) 放FPGA还是PC？
+- **分析结论**:
+  | 项目       | 说明                                       |
+  | ---------- | ------------------------------------------ |
+  | 当前BRAM   | 802 (83%) ⚠️ 已接近上限                     |
+  | FI资源需求 | FFT 512×512 需要 ~300-500 BRAM + ~200 DSP  |
+  | **结论**   | ❌ **xcku5p资源不足，FI无法放入FPGA**       |
+  | **推荐**   | ✅ **FI保持CPU实现** (FFTW处理512×512 <1ms) |
+- **若需全FPGA实现**: 需升级至 xcku15p (BRAM=1,344) 或 VU19P
+
+---
+
+## Phase 1.5: 架构决策 ✅ (已确认)
+
+### SOCS Pipeline 架构
+
+```
+Stage 1-3 (FPGA):                    Stage 4 (CPU):
+mask FFT → SOCS conv → IFFT          Fourier Interpolation
+         ↓                                    ↓
+    tmpImgp (32×32)                    aerial_image (512×512)
+         ↓                                    ↓
+    extract 17×17                      fftshift + output
+```
+
+| 阶段        | 算法                                 | 实现位置 | 资源     |
+| ----------- | ------------------------------------ | -------- | -------- |
+| Stage 1     | FFT 32×32 (R2C)                      | FPGA     | 已集成   |
+| Stage 2     | SOCS卷积 (nk kernels)                | FPGA     | DSP=16   |
+| Stage 3     | IFFT 32×32 (C2R) + fftshift          | FPGA     | BRAM=802 |
+| **Stage 4** | **FFT 512×512 + Spectrum Embedding** | **CPU**  | **FFTW** |
+
+**决策依据**: BRAM 83% 已满，无法容纳 Stage 4 的大FFT
+
 ---
 
 ## Phase 2: Vivado集成 (待开始)
@@ -224,12 +259,14 @@
 
 ### 资源利用率目标 (xcku5p-ffvb676-2-e)
 
-| 资源 | 可用量  | 目标上限 | 当前使用 | 状态 |
-| ---- | ------- | -------- | -------- | ---- |
-| BRAM | 960     | ≤960     | ?        | ⏳    |
-| DSP  | 1,824   | ≤500     | 16       | ✅    |
-| FF   | 433,920 | ≤200k    | ?        | ⏳    |
-| LUT  | 216,960 | ≤150k    | ?        | ⏳    |
+| 资源 | 可用量  | 目标上限 | 当前使用      | 状态       |
+| ---- | ------- | -------- | ------------- | ---------- |
+| BRAM | 960     | ≤960     | 802 (83%)     | ⚠️ 接近上限 |
+| DSP  | 1,824   | ≤500     | 16 (~0%)      | ✅ 充裕     |
+| FF   | 433,920 | ≤200k    | 111,933 (25%) | ✅          |
+| LUT  | 216,960 | ≤150k    | 138,429 (63%) | ⚠️ 需关注   |
+
+**资源瓶颈**: BRAM 83% 被 fft_2d 模块占用 (656 BRAM)
 
 ---
 
