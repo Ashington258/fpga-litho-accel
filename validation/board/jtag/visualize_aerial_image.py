@@ -199,7 +199,7 @@ def main():
     )
     parser.add_argument(
         "--output",
-        default="aerial_image_output.hex",
+        default="validation/board/jtag/aerial_image_output.hex",
         help="HLS output HEX file from Vivado",
     )
     parser.add_argument(
