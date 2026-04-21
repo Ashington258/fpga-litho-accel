@@ -85,7 +85,7 @@ create_hw_axi_txn start_txn [get_hw_axis hw_axi_1] \
   -type write
 
 # 执行写事务
-run_hw_axi_txn start_txn
+run_hw_axi start_txn
 ```
 
 **关键参数**:
@@ -113,7 +113,7 @@ proc wait_for_ap_done {axi_master base_addr timeout_ms} {
           -address [expr {$base_addr + $done_offset}] \
           -len 1 \
           -type read
-        run_hw_axi_txn status_txn
+        run_hw_axi status_txn
 
         # 检查ap_done位
         set status [get_property DATA $status_txn]
