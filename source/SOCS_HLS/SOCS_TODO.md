@@ -1,8 +1,44 @@
 # SOCS HLS 任务清单
 
-**最后更新**: 2026-04-20
-**当前状态**: Phase 1 C Simulation验证完成 (RMSE=9.55e-08 PASS) + FI资源分析完成
-**下一步**: Phase 2 - RTL Export (需解决Windows路径长度限制) 或 板级验证
+**最后更新**: 2026-04-21
+**当前状态**: Phase 1 C Simulation验证完成 (RMSE=9.55e-08 PASS) + CoSim v4验证完成 (RMSE=9.55e-08 PASS) + Git清理完成
+**下一步**: Phase 2 - 板级验证数据信任链条验证
+
+---
+
+## Phase 2: 板级验证数据信任链条 ⏳ (待验证)
+
+### 任务 2.0: 数据注入信任链条验证设计 ⏳
+**核心问题**：如何确保BIN→HEX→DDR→HLS数据正确性？
+
+**信任链条**：
+```
+BIN → HEX转换 → DDR写入 → HLS读取 → 计算输出
+   ↓           ↓          ↓          ↓
+ 格式正确？   效果一致？   格式匹配？   输出正确？
+```
+
+### 任务 2.1: BIN→HEX格式正确性验证 ⏳ (待验证)
+- **验证目标**: 确保bin_to_hex_for_ddr.py转换无损
+- **验证方法**: 逆向转换对比 (BIN→HEX→BIN)
+- **验收标准**: RMSE = 0.0 (完全一致)
+- **验证脚本**: `validation/board/jtag/verify_bin_hex_conversion.py`
+
+### 任务 2.2: DDR写入效果一致性验证 ⏳ (待验证)
+- **验证目标**: 确保JTAG写入的HEX数据与BIN效果一致
+- **验证方法**: DDR回读对比写入数据
+- **验收标准**: DDR回读数据与期望HEX完全匹配
+- **验证脚本**: `validation/board/jtag/verify_ddr_write.tcl`
+
+### 任务 2.3: HLS数据格式正确性验证 ⏳ (待验证)
+- **验证目标**: 确保HLS IP正确解析DDR数据并输出正确结果
+- **验证方法**: HLS输出 vs Golden参考对比
+- **验收标准**: RMSE < 1e-6 (与Golden一致)
+- **验证脚本**: `validation/board/jtag/verify_hls_output.py`
+
+### 任务 2.4: 完整信任链条自动化验证 ⏳ (待创建)
+- **目标**: 创建一站式验证脚本，覆盖所有信任环节
+- **验证脚本**: `validation/board/jtag/verify_trust_chain.py`
 
 ---
 

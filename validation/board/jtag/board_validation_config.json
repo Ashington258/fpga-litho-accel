@@ -1,0 +1,39 @@
+{
+    "description": "板级验证数据注入信任链条配置",
+    "version": "1.0",
+    
+    "bin_files": {
+        "mskf_r": "e:\\fpga-litho-accel\\output\\verification\\mskf_r.bin",
+        "mskf_i": "e:\\fpga-litho-accel\\output\\verification\\mskf_i.bin",
+        "scales": "e:\\fpga-litho-accel\\output\\verification\\scales.bin",
+        "krn_r": "e:\\fpga-litho-accel\\output\\verification\\kernels\\kernel_r_0.bin",
+        "krn_i": "e:\\fpga-litho-accel\\output\\verification\\kernels\\kernel_i_0.bin"
+    },
+    
+    "golden_file": "e:\\fpga-litho-accel\\output\\verification\\aerial_image_tcc_direct.bin",
+    
+    "hls_output_len": 289,
+    
+    "ddr_addresses": {
+        "mskf_r": "0x40000000",
+        "mskf_i": "0x42000000",
+        "scales": "0x44000000",
+        "krn_r": "0x44400000",
+        "krn_i": "0x44800000",
+        "output": "0x44840000"
+    },
+    
+    "verification_standards": {
+        "bin_hex_rmse_threshold": 1e-10,
+        "ddr_write_pass_threshold": 0,
+        "hls_output_rmse_threshold": 1e-6,
+        "hls_output_relative_threshold": 0.01
+    },
+    
+    "notes": [
+        "环节2 (DDR写入) 需要在Vivado Tcl Console中手动运行 verify_ddr_write.tcl",
+        "环节3 (HLS输出) 需要先在Vivado中运行DDR回读脚本，生成 ddr_read_output.txt",
+        "当前HLS输出尺寸为17×17=289（基于Nx=4配置）",
+        "Golden文件尺寸为512×512=262144（需截取对应尺寸对比）"
+    ]
+}
