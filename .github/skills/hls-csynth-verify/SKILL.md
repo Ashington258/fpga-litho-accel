@@ -171,6 +171,79 @@ cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --cosim --config sc
 
 ---
 
+## ⚠️ 2026-04-22重要更新：优化方案与配置迁移
+
+### 用户要求的三大优化方案
+
+#### ⭐ 方案1：集成hls::fft替代直接DFT（最高优先级）
+
+**参考实现**：`reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
+
+**预期效果**：
+- **DSP消耗**：从8,064降至~1,600（降低80%+）
+- **Latency**：从O(N²)降至O(N log N)，降低10倍+
+- **Fmax**：从273MHz提升至300MHz+
+
+**实现步骤**：
+1. 定义FFT配置结构体：
+   ```cpp
+   struct fft_config_2048_t {
+       static const unsigned FFT_NFFT_MAX = 7;  // log2(128)
+       static const unsigned FFT_LENGTH = 128;
+       static const bool FFT_HAS_NFFT = false;
+       static const bool FFT_HAS_OUT_RDY = true;
+   };
+   ```
+2. 替换`fft_1d_direct_2048()`为stream-based `hls::fft`
+3. 添加DATAFLOW pragma和stream pipeline
+4. 验证精度（RMSE < 1e-5）
+
+**验收标准**：
+- DSP < 1,600 (88%占用率)
+- C仿真时间 < 60s
+- RMSE < 1e-6
+
+#### ⭐ 方案2：Kernel并行化（用户要求）
+
+**当前状态**：nk=10顺序循环处理
+
+**优化目标**：使用DATAFLOW pragma实现kernel并行
+
+**预期效果**：吞吐量提升接近10倍
+
+**实现示例**：
+```cpp
+for (int k = 0; k < nk; k++) {
+    #pragma HLS UNROLL factor=2  // 限制并行度
+    
+    embed_kernel_stream(k, fft_in_stream[k]);
+    fft_2d_stream(fft_in_stream[k], fft_out_stream[k], true);
+    accumulate_stream(fft_out_stream[k], tmpImg_stream[k], scales[k]);
+}
+```
+
+#### ⭐ 方案3：适配golden_1024.json配置
+
+**新配置参数**：
+- Lx/Ly: 1024×1024
+- NA: 0.8
+- wavelength: 193nm
+- σ_outer: 0.9
+- nk: 10
+
+**Nx计算**：Nx = floor(0.8×1024×1.9/193) ≈ 8
+
+**对应尺寸**：
+- kerX: 17
+- FFT尺寸: 32×32
+
+**验证流程**：
+```bash
+python validation/golden/run_verification.py --config input/config/golden_1024.json
+```
+
+---
+
 ## 执行流程
 
 ### 步骤 0: 源代码准备检查（新增）

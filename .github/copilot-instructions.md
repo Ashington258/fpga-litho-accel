@@ -34,7 +34,9 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 | source type   | 必须一致                     | 必须一致        | 必须一致      |
 | σ_inner/outer | 必须一致                     | 必须一致        | 必须一致      |
 
-**当前推荐配置**: `input/config/golden_original.json`
+**推荐配置（按优先级）**:
+1. **新架构目标**: `input/config/golden_1024.json` (Lx=1024, Nx≈8)
+2. **原标准配置**: `input/config/golden_original.json` (Lx=512, Nx≈4)
 
 > **每次验证前，必须确认配置一致性，否则验证结果无效！**
 
@@ -71,14 +73,18 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 
 - **Nx, Ny 不是配置参数**，而是根据光学参数动态计算
 - **计算公式**：$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
-- **当前配置实际值**：Nx ≈ 4（基于 NA=0.8, Lx=512, λ=193, σ≈0.9）
-- **HLS 目标配置**：需将 NA 或 Lx 调大以使 Nx=16（例如 NA=1.2 或 Lx=1536）
 
-**IFFT 尺寸改写需求**：
+**配置对比（2026-04-22更新）**：
 
-- **litho.cpp 当前使用 65×65 IFFT（当 Nx=16）**
-- **Vitis HLS FFT 只支持 2 的幂次**，需改写为 128×128 zero-padded IFFT
-- **改写版 CPU reference 尚未实现**，需新编写验证 golden
+| 配置文件        | Lx   | NA  | λ   | σ_outer | Nx计算 | 实际Nx | FFT尺寸 |
+|---------------|------|-----|-----|---------|--------|--------|---------|
+| golden_original | 512  | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×512×1.9}{193}\rfloor$ | **4**  | 32×32   |
+| golden_1024   | 1024 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1024×1.9}{193}\rfloor$ | **8**  | 32×32   |
+| config_Nx16   | 1536 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1536×1.9}{193}\rfloor$ | **12** | 128×128 |
+
+**新架构目标**：
+- **golden_1024配置**：Lx=1024 → Nx≈8，FFT尺寸32×32（资源消耗低）
+- **优势**：分辨率提升4倍，FFT复杂度仅为128×128的1/16
 
 ---
 
@@ -152,31 +158,145 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 
 ---
 
-### 🔧 FFT优化方案
+### 🔧 FFT优化方案（2026-04-22更新）
 
-**问题根源**：当前FFT实现采用直接DFT计算，而非Vitis HLS FFT IP，导致DSP消耗极高。
+**问题根源**：当前FFT实现采用直接DFT计算，而非Vitis HLS FFT IP，导致DSP消耗极高（8,064 DSP，442%占用率）。
+
+**⚠️ 最新验证结果**：C仿真输出全为0，需先解决数据流问题。
 
 **推荐优化方案（按优先级排序）**：
 
-#### 方案1：集成HLS FFT IP（强烈推荐）
+#### ⭐ 方案1：集成HLS FFT IP（最高优先级，用户要求）
 
-使用Vitis HLS提供的`hls::fft` IP替换直接DFT：
+**参考实现**：`reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
 
-- **DSP消耗**：32-point FFT仅需约200-400 DSP（降低80%+）
-- **实现路径**：参考 `reference/vitis_hls_ftt的实现/interface_stream/`
-- **配置示例**：
+**预期效果**：
+- **DSP消耗**：从8,064降至~1,600（降低80%+，88%占用率）
+- **Latency**：从O(N²)降至O(N log N)，C仿真从454s降至~45s（降低10倍+）
+- **Fmax**：从273MHz提升至300MHz+
 
-  ```cpp
-  #include "hls_fft.h"
+**实现步骤**：
+1. 定义FFT配置结构体：
+   ```cpp
+   struct fft_config_2048_t {
+       static const unsigned FFT_NFFT_MAX = 7;  // log2(128)
+       static const unsigned FFT_LENGTH = 128;  // Fixed 128-point
+       static const bool FFT_HAS_NFFT = false;
+       static const bool FFT_HAS_OUT_RDY = true;
+   };
+   ```
 
-  config_t fft_config;
-  fft_config.setDir(1); // IFFT
-  fft_config.setScaling(FFT_SCALE_SCALED_DYNAMIC);
+2. 替换`fft_1d_direct_2048()`为stream-based `hls::fft`：
+   ```cpp
+   void fft_1d_hls_2048(
+       hls::stream<cmpx_2048_t> &in_stream,
+       hls::stream<cmpx_2048_t> &out_stream,
+       bool is_inverse
+   ) {
+       #pragma HLS DATAFLOW
+       #pragma HLS STREAM variable=in_stream depth=128
+       #pragma HLS STREAM variable=out_stream depth=128
+       
+       hls::fft<fft_config_2048_t>(in_stream, out_stream, is_inverse ? 1 : 0);
+   }
+   ```
 
-  hls::fft<config_t>(fft_input, fft_output, fft_config);
-  ```
+3. 重构`fft_2d_full_2048()`使用stream pipeline：
+   ```cpp
+   void fft_2d_stream_2048(
+       cmpx_2048_t input[128][128],
+       cmpx_2048_t output[128][128],
+       bool is_inverse
+   ) {
+       #pragma HLS DATAFLOW
+       
+       // Row FFT with stream
+       hls::stream<cmpx_2048_t> row_stream("row_stream");
+       hls::stream<cmpx_2048_t> col_stream("col_stream");
+       
+       // Pipeline stages
+       fft_rows_stream(input, row_stream, is_inverse);
+       transpose_stream(row_stream, col_stream);
+       fft_cols_stream(col_stream, output, is_inverse);
+   }
+   ```
 
-#### 方案2：使用LUT替代DSP
+**验证要求**：
+- RMSE < 1e-5（对比FFTW）
+- DSP占用率 < 90%
+- C仿真时间 < 60s
+
+#### ⭐ 方案2：Kernel并行化（用户要求）
+
+**当前状态**：nk=10顺序循环处理，每个kernel需~45s（C仿真）
+
+**优化目标**：
+- 使用DATAFLOW pragma实现kernel并行处理
+- 创建多个FFT实例并行处理不同kernel
+
+**预期效果**：
+- **吞吐量提升**：接近10倍
+- **Latency降低**：从10×45s降至~45s（理论值）
+
+**实现示例**：
+```cpp
+void calc_socs_parallel_2048(...) {
+    #pragma HLS DATAFLOW
+    
+    // 并行处理10个kernel
+    for (int k = 0; k < nk; k++) {
+        #pragma HLS UNROLL factor=2  // 限制并行度避免资源超限
+        
+        // 每个kernel独立流水线
+        embed_kernel_stream(k, fft_in_stream[k]);
+        fft_2d_stream(fft_in_stream[k], fft_out_stream[k], true);
+        accumulate_stream(fft_out_stream[k], tmpImg_stream[k], scales[k]);
+    }
+    
+    // 最终合并
+    merge_intensity(tmpImg_stream, output);
+}
+```
+
+**实现挑战**：
+- **BRAM资源**：需要10份tmpImg缓冲（10×128×128×4B = 640KB，超限）
+- **DDR带宽**：并行读取10个kernel数据（需AXI burst优化）
+- **折衷方案**：UNROLL factor=2（2个kernel并行），降低资源压力
+
+#### ⭐ 方案3：适配golden_1024.json配置（用户要求）
+
+**新配置参数**（`input/config/golden_1024.json`）：
+- **Lx/Ly**: 1024×1024（相比512提升4倍分辨率）
+- **NA**: 0.8
+- **wavelength**: 193nm
+- **σ_outer**: 0.9
+- **nk**: 10
+
+**Nx动态计算**：
+$$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor = \lfloor \frac{0.8 \times 1024 \times 1.9}{193} \rfloor \approx 8$$
+
+**对应尺寸**：
+- **kerX**: 2×Nx+1 = 17
+- **convX**: 4×Nx+1 = 33
+- **FFT尺寸**: 32×32（满足2^5要求，相比128×128降低16倍）
+
+**优势**：
+- FFT尺寸降低（32×32 vs 128×128），资源消耗显著减少
+- 分辨率提升（1024×1024 mask），成像质量更好
+
+**验证流程**：
+```bash
+# 生成golden数据
+python validation/golden/run_verification.py --config input/config/golden_1024.json
+
+# 预期输出文件
+# - mskf_r/i.bin: 1024×1024×4B = 4MB（相比512×512提升4倍）
+# - scales.bin: nk×4B = 40B
+# - kernels_r/i: nk×17×17×4B = 11.56KB
+# - tmpImgp_pad32.bin: 33×33×4B = 4.35KB
+```
+
+#### 方案4：使用LUT替代DSP（备选）
 
 适用于DSP严重受限但LUT资源充足的场景：
 
@@ -184,16 +304,10 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 #pragma HLS bind_storage variable=fft_input type=RAM_2P impl=LUTRAM
 ```
 
-或在HLS config中设置：
-
-```ini
-FFT_COMPLEX_MULT_TYPE=use_luts
-```
-
 - **DSP消耗**：接近0
 - **代价**：LUT消耗增加约200%
 
-#### 方案3：降低FFT精度（固定点）
+#### 方案5：降低FFT精度（固定点）（备选）
 
 将float改为ap_fixed：
 
@@ -203,13 +317,6 @@ typedef ap_fixed<18, 8> fixed_t; // 18位总精度，8位整数部分
 
 - **DSP消耗**：降低约50%
 - **需验证**：精度是否满足光刻计算要求（当前RMSE=1.033e-07）
-
-#### 方案4：减小FFT尺寸
-
-如果数据特性允许：
-
-- 32-point → 16-point：DSP降低约75%
-- 需评估对成像精度的影响
 
 #### 两种推荐的 C 综合（C Synthesis）方式
 
