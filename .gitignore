@@ -397,3 +397,11 @@ output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_tmp_shifted_RAM_AUTO_1R1W_memcore.v
 output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls_tmp_shifted_RAM_AUTO_1R1W.vhd
 output/SOCS_IP/hdl/vhdl/calc_socs_simple_hls.vhd
 output/SOCS_IP/xgui/calc_socs_simple_hls_v1_0.tcl
+
+# HLS synthesis intermediate directories
+fft_128_test*/
+fft_ref_test*/
+fft_synth_*/
+fft_synth_v*/
+*_test_v*/
+
