@@ -16,7 +16,9 @@ description: "WORKFLOW SKILL — Execute complete Vitis HLS validation pipeline:
 
 ## 核心约束
 
-**项目路径**: `/root/project/FPGA-Litho/source/SOCS_HLS`
+**项目路径**: `e:\fpga-litho-accel\source\SOCS_HLS`
+
+**开发环境**: Windows 10/11 + Vivado/Vitis 2025.2
 
 **关键约束**:
 
@@ -95,36 +97,26 @@ sleep 10
 echo "任务完成"                    # 应使用 && 或 ; 拼接
 ```
 
-### ✅ 正确格式规范
+### ✅ 正确格式规范（Windows PowerShell）
 
 **单行命令**：
 
-```bash
+```powershell
 # ✅ 正确：简单命令（无引号冲突）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && ls -la
+cd e:\fpga-litho-accel\source\SOCS_HLS; ls
 
 # ✅ 正确：使用英文引号
 echo "Starting C Simulation..."
-
-# ✅ 正确：避免中文引号，使用转义或变量
-message="C Simulation started" && echo "$message"
 ```
 
 **多行命令**：
 
-```bash
-# ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && \
-vitis-run --mode hls --csim --config script/config/hls_config.cfg && \
-echo "C Simulation completed"
-
-# ✅ 正确：使用 ; 拼接（无论成功与否都继续）
-cd /root/project/FPGA-Litho/source/SOCS_HLS ; \
-ls -la ; \
-pwd
+```powershell
+# ✅ 正确：使用 ; 拼接
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --csim --config script/config/hls_config.cfg; echo "C Simulation completed"
 
 # ✅ 正确：复杂命令建议使用 run_in_terminal 工具
-run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth.tcl")
+# run_in_terminal工具会自动处理命令执行
 ```
 
 ### 🔑 关键原则
@@ -135,25 +127,25 @@ run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-ru
 4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行 shell 命令
 5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
 
-### 📝 HLS 全流程验证命令规范
+### 📝 HLS 全流程验证命令规范（Windows PowerShell）
 
 **正确的完整验证流程命令**：
 
-```bash
+```powershell
 # ✅ 步骤1：C Simulation
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
 
 # ✅ 步骤2：C Synthesis（方案1：v++）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 
 # ✅ 步骤2：C Synthesis（方案2：vitis-run + TCL）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
 
 # ✅ 步骤3：Co-Simulation
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 
 # ✅ 步骤4：Package/Export IP
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --package --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --package --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 ```
 
 **⚠️ 注意事项**：
@@ -186,8 +178,8 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --package --
 
 **如果需要重新生成**:
 
-```bash
-cd /root/project/FPGA-Litho
+```powershell
+cd e:\fpga-litho-accel
 python validation/golden/run_verification.py
 # 生成位置: output/verification/
 # 需手动复制到 source/SOCS_HLS/data/
@@ -238,18 +230,16 @@ load_binary_data("../../../../../data/tmpImgp_pad32.bin", golden, 289);
 **如果使用绝对路径**（推荐用于避免混淆）:
 
 ```cpp
-load_binary_data("/root/project/FPGA-Litho/source/SOCS_HLS/data/mskf_r.bin", mskf_r, Lx*Ly);
+load_binary_data("e:/fpga-litho-accel/source/SOCS_HLS/data/mskf_r.bin", mskf_r, Lx*Ly);
 ```
 
 #### 1.3 执行C Simulation
 
 **命令**:
 
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls --csim \
-    --config script/config/hls_config_kernel.cfg \
-    --work_dir hls/kernel_csim
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+vitis-run --mode hls --csim --config script/config/hls_config_kernel.cfg --work_dir hls/kernel_csim
 ```
 
 **预期输出**:
@@ -306,19 +296,16 @@ void kernel_function(
 
 **推荐方式1: 使用v++命令** (快速):
 
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-v++ -c --mode hls \
-    --config script/config/hls_config_kernel.cfg \
-    --work_dir hls/kernel_csynth
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+v++ -c --mode hls --config script/config/hls_config_kernel.cfg --work_dir hls/kernel_csynth
 ```
 
 **推荐方式2: 使用TCL脚本** (详细控制):
 
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls \
-    --tcl script/run_csynth.tcl
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+vitis-run --mode hls --tcl script/run_csynth.tcl
 ```
 
 **⚠️ 注意**:
@@ -373,11 +360,9 @@ cat hls/kernel_csynth/hls/.autopilot/db/kernel_function.verbose.rpt | grep -A 20
 
 **命令**:
 
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls --cosim \
-    --config script/config/hls_config_kernel.cfg \
-    --work_dir hls/kernel_csynth  # 使用已有的synthesis工作目录
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+vitis-run --mode hls --cosim --config script/config/hls_config_kernel.cfg --work_dir hls/kernel_csynth
 ```
 
 **⚠️ 注意**:
@@ -411,12 +396,9 @@ vitis-run --mode hls --cosim \
 
 **命令**:
 
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls --package \
-    --config script/config/hls_config_kernel.cfg \
-    --work_dir hls/kernel_csynth \
-    --package_output_format rtl  # 指定输出格式
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+vitis-run --mode hls --package --config script/config/hls_config_kernel.cfg --work_dir hls/kernel_csynth --package_output_format rtl
 ```
 
 **输出格式选择**:
@@ -434,8 +416,8 @@ vitis-run --mode hls --package \
 
 **检查生成的文件**:
 
-```bash
-ls -lh hls/kernel_csynth/*.zip
+```powershell
+ls hls/kernel_csynth/*.zip
 unzip -l kernel_function.zip | head -20
 ```
 
@@ -484,24 +466,20 @@ unzip -l kernel_function.zip | head -20
 
 ```bash
 # Step 0: Golden数据准备（已完成）
-cd /root/project/FPGA-Litho
+cd powershell
+# Step 0: Golden数据准备（已完成）
+cd e:\fpga-litho-accel
 python validation/golden/run_verification.py
-mkdir -p source/SOCS_HLS/data/kernels
-cp output/verification/*.bin source/SOCS_HLS/data/
-cp output/verification/kernels/*.bin source/SOCS_HLS/data/kernels/
+mkdir source\SOCS_HLS\data\kernels
+copy output\verification\*.bin source\SOCS_HLS\data\
+copy output\verification\kernels\*.bin source\SOCS_HLS\data\kernels\
 
 # Step 1: C Simulation
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls --csim \
-    --config script/config/hls_config_socs.cfg \
-    --work_dir hls/socs_csim
+cd e:\fpga-litho-accel\source\SOCS_HLS
+vitis-run --mode hls --csim --config script/config/hls_config_socs.cfg --work_dir hls/socs_csim
 
 # Step 2: C Synthesis（需先添加depth参数到源代码）
-v++ -c --mode hls \
-    --config script/config/hls_config_socs.cfg \
-    --work_dir hls/socs_csynth
-
-# Step 3: Co-Simulation（使用synthesis工作目录）
+v++ -c --mode hls --config script/config/hls_config_socs.cfgtep 3: Co-Simulation（使用synthesis工作目录）
 vitis-run --mode hls --cosim \
     --config script/config/hls_config_socs.cfg \
     --work_dir hls/socs_csynth

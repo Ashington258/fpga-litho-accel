@@ -90,8 +90,8 @@ float intensity = scale * (re * re + im * im) * FFT_SCALE_COMP;
 
 ### 4.1 C Simulation Test
 
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
 vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg
 ```
 

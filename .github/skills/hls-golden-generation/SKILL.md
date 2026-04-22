@@ -52,7 +52,9 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 
 ## 核心约束
 
-**项目路径**: `/root/project/FPGA-Litho`
+**项目路径**: `e:\fpga-litho-accel`
+
+**开发环境**: Windows 10/11 + Vivado/Vitis 2025.2
 
 **关键参数（当前配置）**:
 
@@ -95,33 +97,23 @@ echo "生成完成"                    # 应使用 && 或 ; 拼接
 
 ```bash
 # ✅ 正确：简单命令（无引号冲突）
-cd /root/project/FPGA-Litho && python validation/golden/run_verification.py
+cd e:\fpga-litho-accel && python validation/golden/run_verification.py
 
 # ✅ 正确：使用英文引号
 echo "Starting Golden data generation..."
 
-# ✅ 正确：避免中文引号，使用转义或变量
-message="Golden data generation started" && echo "$message"
-
 # ✅ 正确：检查文件存在性
-ls -lh /root/project/FPGA-Litho/output/verification/mskf_r.bin
+ls e:\fpga-litho-accel\output\verification\mskf_r.bin
 ```
 
 **多行命令**：
 
-```bash
-# ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
-cd /root/project/FPGA-Litho && \
-python validation/golden/run_verification.py && \
-echo "Golden data generation completed"
-
-# ✅ 正确：使用 ; 拼接（无论成功与否都继续）
-cd /root/project/FPGA-Litho ; \
-ls -la output/verification/ ; \
-python validation/golden/run_verification.py
+```powershell
+# ✅ 正确：使用 ; 拼接
+cd e:\fpga-litho-accel; python validation/golden/run_verification.py; echo "Golden data generation completed"
 
 # ✅ 正确：复杂命令建议使用 run_in_terminal 工具
-run_in_terminal(command="cd /root/project/FPGA-Litho && python validation/golden/run_verification.py")
+# run_in_terminal工具会自动处理命令执行
 ```
 
 ### 🔑 关键原则
@@ -132,22 +124,22 @@ run_in_terminal(command="cd /root/project/FPGA-Litho && python validation/golden
 4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行 shell 命令
 5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
 
-### 📝 Golden 数据生成命令规范
+### 📝 Golden 数据生成命令规范（Windows PowerShell）
 
 **正确的验证数据生成命令**：
 
-```bash
+```powershell
 # ✅ 步骤1：运行验证脚本生成数据（指定配置文件）
-cd /root/project/FPGA-Litho && python validation/golden/run_verification.py --config input/config/golden_original.json
+cd e:\fpga-litho-accel; python validation/golden/run_verification.py --config input/config/golden_original.json
 
 # ✅ 步骤2：检查生成的文件
-ls -lh /root/project/FPGA-Litho/output/verification/*.bin
+ls e:\fpga-litho-accel\output\verification\*.bin
 
 # ✅ 步骤3：复制数据到HLS项目目录
-cp /root/project/FPGA-Litho/output/verification/mskf_r.bin /root/project/FPGA-Litho/source/SOCS_HLS/data/
+copy e:\fpga-litho-accel\output\verification\mskf_r.bin e:\fpga-litho-accel\source\SOCS_HLS\data\
 
 # ✅ 步骤4：验证数据完整性
-cd /root/project/FPGA-Litho/source/SOCS_HLS && python scripts/verify_golden_data.py
+cd e:\fpga-litho-accel\source\SOCS_HLS; python scripts/verify_golden_data.py
 ```
 
 **⚠️ 注意事项**：
@@ -166,8 +158,8 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS && python scripts/verify_golden_data
 
 **命令**:
 
-```bash
-cd /root/project/FPGA-Litho
+```powershell
+cd e:\fpga-litho-accel
 python source/SOCS_HLS/scripts/extract_hls_golden_simple.py
 ```
 
@@ -183,8 +175,8 @@ python source/SOCS_HLS/scripts/extract_hls_golden_simple.py
 
 **命令**（必须指定配置文件）:
 
-```bash
-cd /root/project/FPGA-Litho
+```powershell
+cd e:\fpga-litho-accel
 python validation/golden/run_verification.py --config input/config/golden_original.json
 ```
 
@@ -295,8 +287,8 @@ void calcSOCS_reference() {
 
 **编译和运行**:
 
-```bash
-cd /root/project/FPGA-Litho/validation/golden/src
+```powershell
+cd e:\fpga-litho-accel\validation\golden\src
 
 # 编译（如果Makefile已配置）
 make calcSOCS_reference

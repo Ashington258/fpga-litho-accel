@@ -63,8 +63,8 @@
 ## 快速开始
 
 ### 验证入口 (统一)
-```bash
-cd /root/project/FPGA-Litho
+```powershell
+cd e:\fpga-litho-accel
 python verify.py                      # 默认验证
 python verify.py --clean              # 清理重新验证
 python validation/golden/run_verification.py --debug  # 调试模式
@@ -83,14 +83,14 @@ python validation/golden/run_verification.py --debug  # 调试模式
 
 ### TCC模块
 ```bash
-cd /root/project/FPGA-Litho/source/TCC_HLS
+cd e:\fpga-litho-accel\source\TCC_HLS
 cat TCC_TODO.md          # 查看任务
 make csim                # 运行C仿真
 ```
 
 ### SOCS模块
 ```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
+cd e:\fpga-litho-accel\source\SOCS_HLS
 cat SOCS_TODO.md         # 查看任务
 python generate_golden.py  # 生成Golden数据
 make csim                # 运行C仿真

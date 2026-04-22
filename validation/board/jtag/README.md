@@ -22,21 +22,46 @@
 | HLS 计算输出    | ⏳    | 17×17 空中像（289 floats）      |
 | 输出 vs Golden  | ⏳    | 对比 tmpImgp_pad32.bin 参考输出 |
 
-## 📁 文件说明
+## 📁 目录结构
 
 ```
 validation/board/jtag/
-├── full_validation_with_test_data.tcl   # 硬件验证脚本（测试模式）
-├── run_full_validation_with_golden.tcl  # 功能验证脚本（真实数据）⭐ NEW
-├── generate_all_load_scripts.py         # 批量生成 DDR 加载脚本 ⭐ NEW
-├── visualize_aerial_image.py            # 输出可视化与对比分析 ⭐ NEW
-├── bin_to_hex_for_ddr.py                # Python工具：BIN→TCL hex转换
-└── README.md                            # 本文档
+├── README.md                            # 本文档
+├── config/
+│   └── board_validation_config.json     # 板级验证配置
+├── scripts/
+│   ├── tcl/
+│   │   ├── load/                        # DDR数据加载脚本
+│   │   │   ├── load_scales.tcl          # 特征值加载（1 batch）
+│   │   │   ├── load_krn_r.tcl           # kernel实部加载（7 batches）
+│   │   │   ├── load_krn_i.tcl           # kernel虚部加载（7 batches）
+│   │   │   ├── load_mskf_r.tcl          # mask频域实部（2048 batches）
+│   │   │   └ load_mskf_i.tcl          # mask频域虚部（2048 batches）
+│   │   ├── verify/                      # 验证脚本
+│   │   │   └── verify_ddr_write.tcl     # DDR写入验证（含[lreverse]修复）
+│   │   ├── run/                         # 执行脚本
+│   │   │   ├── full_validation_with_test_data.tcl  # 硬件验证（测试模式）
+│   │   │   └── run_full_validation_with_golden.tcl # 功能验证（真实数据）
+│   ├── python/
+│   │   ├── generate_all_load_scripts.py # 批量生成DDR加载脚本
+│   │   ├── fix_lreverse_batch.py        # ⭐ 批量修复[lreverse]问题
+│   │   ├── bin_to_hex_for_ddr.py        # BIN→TCL hex转换
+│   │   ├── hex_to_bin.py                # HEX→BIN转换
+│   │   ├── visualize_aerial_image.py    # 输出可视化与对比分析
+│   │   ├── verify_hls_output.py         # HLS输出验证
+│   │   ├── verify_trust_chain.py        # 验证链完整性检查
+│   │   └── analyze_magnitude.py         # 数据幅度分析
+├── output/
+│   ├── aerial_image_comparison.png      # 输出对比图
+│   └── aerial_image_output.hex          # HLS输出hex数据
+├── logs/
+│   ├── error_report.txt                 # 错误报告
+│   └── hs_err_pid*.log                  # JVM崩溃日志
 ```
 
-**新增功能**：
-- `generate_all_load_scripts.py`: 批量生成所有输入数据的加载脚本
-- `run_full_validation_with_golden.tcl`: 完整功能验证流程（7步）
+**关键工具**：
+- `fix_lreverse_batch.py`: 批量修复TCL脚本中的JTAG-to-AXI反向写入问题 ⭐ **推荐先用此工具修复大文件**
+- `generate_all_load_scripts.py`: 从BIN文件生成DDR加载TCL脚本
 - `visualize_aerial_image.py`: 输出可视化与误差分析
 
 ## 📊 地址映射

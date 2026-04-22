@@ -76,38 +76,8 @@
 // ============================================================================
 // Following Vitis reference: interface_stream/fft_top.h pattern
 // Use fixed-point for DSP optimization (80%+ reduction)
-//
-// CRITICAL: Only define FFT IP config during C Synthesis (__SYNTHESIS__ macro)
-// C Simulation will use pure DFT implementation in socs_simple.cpp
-// This avoids stream API issues during C Simulation
 
-// ============================================================================
-// Global FFT Type Configuration (Required for both C Simulation and C Synthesis)
-// ============================================================================
-// CRITICAL: These macros must be defined BEFORE any conditional compilation blocks
-// They are used in type definitions (fft_data_t/cmpx_fft_t) which are shared
-
-#define FFT_USE_FLOAT      1   // ENABLE float FFT (LUT mode for DSP-free)
-#define FFT_INPUT_WIDTH    32  // Bit width for fixed-point FFT (if FFT_USE_FLOAT=0)
-
-// ============================================================================
-// FFT Data Types (Shared by C Simulation and C Synthesis)
-// ============================================================================
-// C Simulation uses fft_data_t/cmpx_fft_t in fft_1d_direct function
-// C Synthesis uses them in HLS FFT IP instantiation
-
-#if FFT_USE_FLOAT
-typedef float                                             fft_data_t;
-#else
-typedef ap_fixed<FFT_INPUT_WIDTH, 1>                    fft_data_t;  // UNUSED (bit-width mismatch)
-#endif
-typedef std::complex<fft_data_t>                        cmpx_fft_t;
-
-// ============================================================================
-// FFT IP-Specific Configuration (Only for C Synthesis)
-// ============================================================================
-#ifdef __SYNTHESIS__  // HLS FFT IP configuration (only for C Synthesis)
-
+#define FFT_INPUT_WIDTH   32
 #define FFT_OUTPUT_WIDTH  32
 #define FFT_TWIDDLE_WIDTH 24
 #define FFT_CHANNELS      1
@@ -126,12 +96,16 @@ typedef std::complex<fft_data_t>                        cmpx_fft_t;
 // Architecture: pipelined streaming (best throughput)
 #define FFT_ARCH          hls::ip_fft::pipelined_streaming_io
 
-#endif  // __SYNTHESIS__ (FFT IP config parameters)
-
-// ============================================================================
-// FFT IP Configuration Struct (Only for C Synthesis)
-// ============================================================================
-#ifdef __SYNTHESIS__  // FFT IP struct (only for C Synthesis)
+// Fixed-point FFT has bit-width alignment issues (FFT IP expects ap_fixed<40, 1>)
+// Use FLOAT FFT + LUT-based computation instead (DSP-free, avoids type mismatch)
+// This approach maintains precision (RMSE < 1e-5) while eliminating DSP usage
+#define FFT_USE_FLOAT     1  // ENABLE float FFT (LUT mode will handle DSP reduction)
+#if FFT_USE_FLOAT
+typedef float                                             fft_data_t;
+#else
+typedef ap_fixed<FFT_INPUT_WIDTH, 1>                    fft_data_t;  // UNUSED (bit-width mismatch)
+#endif
+typedef std::complex<fft_data_t>                        cmpx_fft_t;
 
 // FFT config struct (Vitis stream API pattern)
 struct fft_config_socs : hls::ip_fft::params_t {
@@ -154,8 +128,6 @@ struct fft_config_socs : hls::ip_fft::params_t {
 
 typedef hls::ip_fft::config_t<fft_config_socs>  fft_config_t;
 typedef hls::ip_fft::status_t<fft_config_socs>  fft_status_t;
-
-#endif  // __SYNTHESIS__ (FFT IP config for C Synthesis only)
 
 // ============================================================================
 // Runtime Parameter Structure (for Host → IP communication)

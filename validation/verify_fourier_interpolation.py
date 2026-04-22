@@ -17,6 +17,32 @@ matplotlib.use("Agg")
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
+def my_shift(arr, shift_type_x=False, shift_type_y=False):
+    """
+    Match litho.cpp myShift behavior exactly.
+    
+    Args:
+        shift_type_x: False → xh = (sizeX + 1) / 2, True → xh = sizeX / 2
+        shift_type_y: False → yh = (sizeY + 1) / 2, True → yh = sizeY / 2
+    
+    For 32x32 (even size):
+        - False: offset = 17 (litho.cpp uses (size+1)/2 for shiftType=False)
+        - True: offset = 16
+    """
+    rows, cols = arr.shape
+    xh = cols // 2 if shift_type_x else (cols + 1) // 2
+    yh = rows // 2 if shift_type_y else (rows + 1) // 2
+    
+    # Create output array
+    out = np.zeros_like(arr)
+    for y in range(rows):
+        for x in range(cols):
+            sx = (x + xh) % cols
+            sy = (y + yh) % rows
+            out[sy, sx] = arr[y, x]
+    return out
+
+
 def fftshift_2d(arr):
     """Shift zero-frequency to center (equivalent to numpy fftshift)"""
     rows, cols = arr.shape
@@ -24,14 +50,18 @@ def fftshift_2d(arr):
 
 
 def ifftshift_2d(arr):
-    """Inverse of fftshift (move zero-frequency back to corner)"""
+    """Inverse of fftshift - but DOES NOT match litho.cpp myShift for even sizes!"""
     rows, cols = arr.shape
     return np.roll(np.roll(arr, -rows // 2, axis=0), -cols // 2, axis=1)
 
 
 def fourier_interpolation_numpy(input_img, output_size):
     """
-    Fourier Interpolation using numpy FFT.
+    Fourier Interpolation using numpy FFT - MATCHING litho.cpp FI behavior.
+
+    Key insight: numpy fft2 produces FULL spectrum (Nx×Ny complex), while
+    FFTW R2C produces half-spectrum (Nx×(Ny/2+1) complex). This requires
+    different spectrum embedding for numpy.
 
     Args:
         input_img: 2D array (in_sizeX x in_sizeY)
@@ -43,40 +73,63 @@ def fourier_interpolation_numpy(input_img, output_size):
     in_sizeX, in_sizeY = input_img.shape
     out_sizeX, out_sizeY = output_size
 
-    # Step 1: ifftshift to move zero-frequency to corner for FFT
-    shifted_in = ifftshift_2d(input_img)
+    # Step 1: Use ifftshift to move zero-frequency to corner for FFT
+    # tmpImgp is already fftshifted (DC at center), so ifftshift reverses it
+    shifted_in = np.fft.ifftshift(input_img)
 
-    # Step 2: Forward FFT (R2C equivalent using numpy)
+    # Step 2: Forward FFT (numpy produces full spectrum)
     spectrum = np.fft.fft2(shifted_in)
     spectrum /= in_sizeX * in_sizeY  # Normalize
 
-    # Step 3: Embed spectrum into larger output size
-    # Copy low-frequency content (center region)
-    in_wt = in_sizeX // 2 + 1  # Width of input half-spectrum
-    out_wt = out_sizeX // 2 + 1  # Width of output half-spectrum
+    # Step 3: Embed full spectrum into larger output size
+    # numpy fft2 full spectrum layout for Nx×Ny (even sizes):
+    #   [0,0] = DC (lowest frequency)
+    #   [0..Ny/2, 0..Nx/2] = positive-positive quadrant
+    #   [0..Ny/2, Nx/2+1..Nx-1] = positive-negative quadrant (x negative)
+    #   [Ny/2+1..Ny-1, 0..Nx/2] = negative-positive quadrant (y negative)
+    #   [Ny/2+1..Ny-1, Nx/2+1..Nx-1] = negative-negative quadrant
+    #
+    # For upsampling to out_sizeX×out_sizeY:
+    #   - Copy each quadrant to corresponding position in output spectrum
+    #   - Positive frequencies stay at top-left region
+    #   - Negative frequencies shift to bottom-right corners
 
-    # Create output spectrum (zeros)
     output_spectrum = np.zeros((out_sizeY, out_sizeX), dtype=np.complex128)
 
-    # Copy positive frequency region (top half, including DC)
-    posFreqRows = in_sizeY // 2 + 1
-    for y in range(posFreqRows):
-        for x in range(min(in_wt, out_wt)):
+    half_x_in = in_sizeX // 2  # 16 for 32
+    half_y_in = in_sizeY // 2  # 16 for 32
+    dif_x = out_sizeX - in_sizeX  # 480 for 512-32
+    dif_y = out_sizeY - in_sizeY  # 480 for 512-32
+
+    # Positive-positive quadrant: [0..half_y, 0..half_x] → same position
+    for y in range(half_y_in + 1):  # 0..16
+        for x in range(half_x_in + 1):  # 0..16
             output_spectrum[y, x] = spectrum[y, x]
 
-    # Copy negative frequency region (bottom half) with offset
-    difY = out_sizeY - in_sizeY
-    for y in range(posFreqRows, in_sizeY):
-        out_y = y + difY
-        for x in range(min(in_wt, out_wt)):
-            if out_y < out_sizeY:
-                output_spectrum[out_y, x] = spectrum[y, x]
+    # Positive-negative quadrant (x negative): [0..half_y, half_x+1..end] → shifted right
+    for y in range(half_y_in + 1):  # 0..16
+        for x in range(half_x_in + 1, in_sizeX):  # 17..31
+            out_x = x + dif_x  # 497..511
+            output_spectrum[y, out_x] = spectrum[y, x]
+
+    # Negative-positive quadrant (y negative): [half_y+1..end, 0..half_x] → shifted down
+    for y in range(half_y_in + 1, in_sizeY):  # 17..31
+        for x in range(half_x_in + 1):  # 0..16
+            out_y = y + dif_y  # 497..511
+            output_spectrum[out_y, x] = spectrum[y, x]
+
+    # Negative-negative quadrant: [half_y+1..end, half_x+1..end] → shifted both
+    for y in range(half_y_in + 1, in_sizeY):  # 17..31
+        for x in range(half_x_in + 1, in_sizeX):  # 17..31
+            out_y = y + dif_y  # 497..511
+            out_x = x + dif_x  # 497..511
+            output_spectrum[out_y, out_x] = spectrum[y, x]
 
     # Step 4: Inverse FFT to get output image
     output_img = np.fft.ifft2(output_spectrum).real * (out_sizeX * out_sizeY)
 
-    # Step 5: fftshift to restore zero-frequency to center
-    output_img = fftshift_2d(output_img)
+    # Step 5: Use fftshift to restore zero-frequency to center
+    output_img = np.fft.fftshift(output_img)
 
     return output_img
 
@@ -86,25 +139,32 @@ def main():
     print("Fourier Interpolation (FI) Validation")
     print("=" * 60)
 
-    # Load tmpImgp (HLS IP output, 17x17)
-    # Note: This is already extracted center region from 32x32
+    # Load full 32x32 tmpImgp (generated with --debug flag)
+    # This is the CORRECT input for FI, NOT zero-padded 17x17!
+    full_32_path = PROJECT_ROOT / "output/verification/tmpImgp_full_32.bin"
+    
+    if not full_32_path.exists():
+        print(f"\n❌ ERROR: {full_32_path} not found!")
+        print("   Please run: python validation/golden/run_verification.py --debug")
+        return
+    
+    tmpimgp_32 = np.fromfile(full_32_path, dtype=np.float32).reshape(32, 32)
+    
+    # Also load 17x17 for reference (HLS golden output)
     tmpimgp_17 = np.fromfile(
-        PROJECT_ROOT / "source/SOCS_HLS/data/tmpImgp_pad32.bin", dtype=np.float32
+        PROJECT_ROOT / "output/verification/tmpImgp_pad32.bin", dtype=np.float32
     ).reshape(17, 17)
 
-    # We need the full 32x32 tmpImgp for FI
-    # Let's reconstruct it by zero-padding 17x17 to 32x32 center
-    tmpimgp_32 = np.zeros((32, 32), dtype=np.float64)
-    offset = (32 - 17) // 2
-    tmpimgp_32[offset : offset + 17, offset : offset + 17] = tmpimgp_17
-
+    # Verify that 17x17 is the center extraction of 32x32
+    offset = (32 - 17) // 2  # Should be 7
+    extracted = tmpimgp_32[offset:offset+17, offset:offset+17]
+    extraction_diff = np.max(np.abs(extracted - tmpimgp_17))
+    
     print(f"\n[Input]")
-    print(
-        f"  tmpImgp (17x17): shape={tmpimgp_17.shape}, range=[{tmpimgp_17.min():.6f}, {tmpimgp_17.max():.6f}]"
-    )
-    print(
-        f"  Reconstructed tmpImgp (32x32): range=[{tmpimgp_32.min():.6f}, {tmpimgp_32.max():.6f}]"
-    )
+    print(f"  Full tmpImgp (32x32): shape={tmpimgp_32.shape}, range=[{tmpimgp_32.min():.6f}, {tmpimgp_32.max():.6f}]")
+    print(f"  Center tmpImgp (17x17): range=[{tmpimgp_17.min():.6f}, {tmpimgp_17.max():.6f}]")
+    print(f"  Center extraction offset: ({offset}, {offset})")
+    print(f"  Extraction verification: max_diff={extraction_diff:.6e} {'✅' if extraction_diff < 1e-6 else '❌'}")
 
     # Apply Fourier Interpolation: 32x32 → 512x512
     print(f"\n[FI Processing]")

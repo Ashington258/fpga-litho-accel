@@ -13,8 +13,10 @@ set BASE_ADDR 0x44000000
 # Batch 0: 10 words
 set addr_0 [format "0x%08X" [expr {$BASE_ADDR + 0}]]
 set data_0 "40B84D95_401E5152_401E5152_3F3F8012_3F255DA9_3E98F0D4_3E98F0D4_3E29BB8A_3E15D802_3DB0F1CB"
+set data_0_list [split $data_0 "_"]
+set data_0_reversed [join [lreverse $data_0_list] "_"]
 catch {delete_hw_axi_txn [get_hw_axi_txns wr_scales_data_0]}
-create_hw_axi_txn wr_scales_data_0 $axi_if -address $addr_0 -data $data_0 -len 10 -type write
+create_hw_axi_txn wr_scales_data_0 $axi_if -address $addr_0 -data $data_0_reversed -len 10 -type write
 run_hw_axi [get_hw_axi_txns wr_scales_data_0]
 puts "进度: Batch 0 / 1"
 

@@ -1,6 +1,6 @@
 # FPGA-Litho SOCS_HLS 全局约束与工作流程指南
 
-**项目路径**：`/root/project/FPGA-Litho/source/SOCS_HLS`
+**项目路径**：`e:\fpga-litho-accel\source\SOCS_HLS`
 
 本文件定义了本项目中 **HLS 开发、验证、导出** 的标准化流程（已基于 **Vitis 2025.2** 验证通过）。
 
@@ -14,10 +14,10 @@
 
 ```bash
 # 步骤1：生成 Golden 数据（使用指定配置）
-cd /root/project/FPGA-Litho && python validation/golden/run_verification.py --config input/config/golden_original.json
+cd e:\fpga-litho-accel && python validation/golden/run_verification.py --config input/config/golden_original.json
 
 # 步骤2：运行 Host 预处理（使用相同配置）
-cd /root/project/FPGA-Litho/source/host && python run.py --config ../../input/config/golden_original.json --mode full
+cd e:\fpga-litho-accel\source\host && python run.py --config ../../input/config/golden_original.json --mode full
 
 # 步骤3：对比验证
 python validation/compare_hls_golden.py --config input/config/golden_original.json
@@ -62,7 +62,7 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 **推荐工作目录**（所有命令均在此目录下执行）：
 
 ```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
+cd e:\fpga-litho-accel\source\SOCS_HLS
 ```
 
 ### ⚠️ 关键约束说明
@@ -128,6 +128,27 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS
 | LUT      | 647,932 | 216,960 | 298%   | ❌ 超限 |
 
 > **主要DSP消耗源**：`fft_2d_rows`函数使用直接DFT计算（非HLS FFT IP），消耗8,064 DSP
+
+---
+
+### 🖥️ 环境配置说明（2026-04-21更新）
+
+**实际开发环境**: **Windows 10/11 + Vivado/Vitis 2025.2**
+
+**重要说明**: 本项目在**Windows环境**下开发和验证，无需切换到Linux环境。
+
+**硬件验证状态**:
+
+- **2026-04-19**: 硬件验证通过（DDR + HLS IP 正常）
+- JTAG连接: localhost:3121
+- 目标器件: `xcku3p-ffvb676-2-e` (全局约束中xcku5p为旧版本，请使用xcku3p)
+
+**Vivado TCL Console注意事项**:
+
+1. 命令格式: `run_hw_axi [get_hw_axi_txns <txn>]` (新版格式)
+2. 地址必须为十六进制: `format "0x%08X"`
+3. MAX_BURST_LEN: 128 (JTAG-to-AXI限制)
+4. JTAG-to-AXI burst特性: 数据会反序写入内存，需反序写入抵消
 
 ---
 
@@ -284,8 +305,8 @@ run_hw_axi_txn rd_txn
 
 **生成测试数据**（从实际配置参数）：
 
-```bash
-cd /root/project/FPGA-Litho
+```powershell
+cd e:\fpga-litho-accel
 python validation/golden/run_verification.py
 ```
 
@@ -302,6 +323,8 @@ python validation/golden/run_verification.py
 ### 5. Toolcall 命令规范（⚠️ 必须严格遵守）
 
 **背景**：本次项目开发中发现 toolcall 报错，原因在于 Shell 命令格式错误。
+
+**环境**: Windows PowerShell（非Linux Bash）
 
 #### ⚠️ 禁止的错误格式
 
@@ -322,9 +345,9 @@ echo "任务完成"                    # 应使用 && 或 ; 拼接
 
 **单行命令**：
 
-```bash
+```powershell
 # ✅ 正确：简单命令（无引号冲突）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && ls -la
+cd e:\fpga-litho-accel\source\SOCS_HLS; ls
 
 # ✅ 正确：使用英文引号
 echo "Starting C Synthesis..."
@@ -335,19 +358,12 @@ message="C Synthesis started" && echo "$message"
 
 **多行命令**：
 
-```bash
-# ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && \
-v++ -c --mode hls --config script/config/hls_config.cfg && \
-echo "C Synthesis completed"
-
-# ✅ 正确：使用 ; 拼接（无论成功与否都继续）
-cd /root/project/FPGA-Litho/source/SOCS_HLS ; \
-ls -la ; \
-pwd
+```powershell
+# ✅ 正确：使用 ; 拼接
+cd e:\fpga-litho-accel\source\SOCS_HLS; v++ -c --mode hls --config script/config/hls_config.cfg; echo "C Synthesis completed"
 
 # ✅ 正确：复杂命令建议使用 run_in_terminal 工具
-run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth.tcl")
+# run_in_terminal工具会自动处理命令执行
 ```
 
 #### 🔑 关键原则
@@ -360,20 +376,20 @@ run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-ru
 
 #### 📝 HLS 命令专用规范
 
-**正确的 HLS 综合命令**：
+**正确的 HLS 综合命令**（Windows PowerShell）：
 
-```bash
+```powershell
 # ✅ 方案1：v++ 一站式命令
-cd /root/project/FPGA-Litho/source/SOCS_HLS && v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 
 # ✅ 方案2：vitis-run + TCL
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
 
 # ✅ 方案3：C 仿真（使用 --csim 参数）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
 
 # ✅ 方案4：Co-Simulation（使用 --cosim 参数）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 ```
 
 **⚠️ 注意事项**：

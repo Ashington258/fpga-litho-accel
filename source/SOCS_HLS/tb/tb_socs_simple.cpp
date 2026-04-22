@@ -1,9 +1,10 @@
 /**
- * Testbench for SOCS HLS Simple Implementation
+ * Testbench for SOCS HLS Simple Implementation - Full Output Version
  * FPGA-Litho Project
  * 
  * Tests data loading, AXI-MM interfaces, and output generation
- * Current configuration: Nx=4, IFFT 32×32, Output 17×17
+ * Current configuration: Nx=4, IFFT 32×32
+ * Output: FULL 32×32 (for FI validation) + CENTER 17×17 (for compatibility)
  */
 
 #include <iostream>
@@ -11,14 +12,15 @@
 #include <cmath>
 #include <cstring>
 
-// Forward declaration of HLS function
+// Forward declaration of HLS function (dual output)
 extern void calc_socs_simple_hls(
     float *mskf_r,
     float *mskf_i,
     float *scales,
     float *krn_r,
     float *krn_i,
-    float *output
+    float *output_full,    // 32×32 output for FI
+    float *output_center   // 17×17 center output
 );
 
 // Configuration
@@ -30,7 +32,9 @@ extern void calc_socs_simple_hls(
 #define convY (4*Ny + 1)  // = 17
 #define kerX (2*Nx + 1)   // = 9
 #define kerY (2*Ny + 1)   // = 9
-#define nk 10
+#define fftConvX 32      // FFT padded size
+#define fftConvY 32
+#define nk 4             // FIXED: Match actual scales.bin length (was 10, caused garbage data read)
 
 // Helper function to load binary data
 void load_binary_data(const char* filename, float* data, int size) {
@@ -54,8 +58,14 @@ int main() {
     float *scales = new float[nk];
     float *krn_r = new float[nk * kerX * kerY];
     float *krn_i = new float[nk * kerX * kerY];
-    float *output = new float[convX * convY];
-    float *golden = new float[convX * convY];
+    
+    // Dual output buffers
+    float *output_full = new float[fftConvX * fftConvY];     // 32×32 for FI validation
+    float *output_center = new float[convX * convY];         // 17×17 for compatibility
+    
+    // Golden references
+    float *golden_full = new float[fftConvX * fftConvY];     // 32×32 full tmpImgp
+    float *golden_center = new float[convX * convY];         // 17×17 center
     
     // Load input data
     std::cout << "\n[STEP 1] Loading input data..." << std::endl;
@@ -89,95 +99,133 @@ int main() {
     std::cout << "  Eigenvalue 0: " << scales[0] << std::endl;
     std::cout << "  Kernel 0 first element: " << krn_r[0] << std::endl;
     
-    // Load golden output
-    std::cout << "\n[STEP 3] Loading golden output..." << std::endl;
-    load_binary_data("../../../../data/tmpImgp_pad32.bin", golden, convX * convY);
+    // Load golden outputs
+    std::cout << "\n[STEP 3] Loading golden outputs..." << std::endl;
     
-    float golden_min = golden[0], golden_max = golden[0], golden_sum = 0.0f;
-    for (int i = 1; i < convX * convY; i++) {
-        if (golden[i] < golden_min) golden_min = golden[i];
-        if (golden[i] > golden_max) golden_max = golden[i];
-        golden_sum += golden[i];
+    // Load 32×32 full golden (for FI validation)
+    load_binary_data("../../../../data/tmpImgp_full_32.bin", golden_full, fftConvX * fftConvY);
+    
+    float golden_full_min = golden_full[0], golden_full_max = golden_full[0];
+    float golden_full_sum = 0.0f;
+    for (int i = 1; i < fftConvX * fftConvY; i++) {
+        if (golden_full[i] < golden_full_min) golden_full_min = golden_full[i];
+        if (golden_full[i] > golden_full_max) golden_full_max = golden_full[i];
+        golden_full_sum += golden_full[i];
     }
-    std::cout << "  Golden range: [" << golden_min << ", " << golden_max << "]" << std::endl;
-    std::cout << "  Golden mean: " << golden_sum / (convX * convY) << std::endl;
-    std::cout << "  Golden size: " << convX << "×" << convY << " = " << convX * convY << std::endl;
+    std::cout << "  Golden 32×32 range: [" << golden_full_min << ", " << golden_full_max << "]" << std::endl;
+    std::cout << "  Golden 32×32 mean: " << golden_full_sum / (fftConvX * fftConvY) << std::endl;
     
-    // Call HLS kernel
+    // Load 17×17 center golden (for compatibility check)
+    load_binary_data("../../../../data/tmpImgp_pad32.bin", golden_center, convX * convY);
+    
+    float golden_center_min = golden_center[0], golden_center_max = golden_center[0];
+    float golden_center_sum = 0.0f;
+    for (int i = 1; i < convX * convY; i++) {
+        if (golden_center[i] < golden_center_min) golden_center_min = golden_center[i];
+        if (golden_center[i] > golden_center_max) golden_center_max = golden_center[i];
+        golden_center_sum += golden_center[i];
+    }
+    std::cout << "  Golden 17×17 range: [" << golden_center_min << ", " << golden_center_max << "]" << std::endl;
+    std::cout << "  Golden 17×17 mean: " << golden_center_sum / (convX * convY) << std::endl;
+    
+    // Call HLS kernel (dual output)
     std::cout << "\n[STEP 4] Running HLS kernel..." << std::endl;
-    calc_socs_simple_hls(mskf_r, mskf_i, scales, krn_r, krn_i, output);
+    calc_socs_simple_hls(mskf_r, mskf_i, scales, krn_r, krn_i, output_full, output_center);
     std::cout << "  ✓ HLS kernel execution completed" << std::endl;
     
-    // Check output statistics
-    std::cout << "\n[STEP 5] Output statistics..." << std::endl;
-    float output_min = output[0], output_max = output[0], output_sum = 0.0f;
-    for (int i = 1; i < convX * convY; i++) {
-        if (output[i] < output_min) output_min = output[i];
-        if (output[i] > output_max) output_max = output[i];
-        output_sum += output[i];
+    // Check 32×32 full output statistics
+    std::cout << "\n[STEP 5] Output statistics (32×32 full)..." << std::endl;
+    float full_min = output_full[0], full_max = output_full[0], full_sum = 0.0f;
+    for (int i = 1; i < fftConvX * fftConvY; i++) {
+        if (output_full[i] < full_min) full_min = output_full[i];
+        if (output_full[i] > full_max) full_max = output_full[i];
+        full_sum += output_full[i];
     }
-    std::cout << "  Output range: [" << output_min << ", " << output_max << "]" << std::endl;
-    std::cout << "  Output mean: " << output_sum / (convX * convY) << std::endl;
+    std::cout << "  Output 32×32 range: [" << full_min << ", " << full_max << "]" << std::endl;
+    std::cout << "  Output 32×32 mean: " << full_sum / (fftConvX * fftConvY) << std::endl;
     
-    // Compare output with golden
-    std::cout << "\n[STEP 6] Comparing with golden output..." << std::endl;
+    // Compare 32×32 full output with golden
+    std::cout << "\n[STEP 6] Comparing 32×32 full output with golden..." << std::endl;
     
-    float rmse = 0.0f;
-    float max_error = 0.0f;
-    float rel_error_sum = 0.0f;
-    int error_count = 0;
-    const float tolerance = 1e-3f;  // Tolerance threshold
+    float rmse_full = 0.0f;
+    float max_error_full = 0.0f;
     
-    for (int i = 0; i < convX * convY; i++) {
-        float error = std::abs(output[i] - golden[i]);
-        rmse += error * error;
-        if (error > max_error) max_error = error;
-        
-        // Relative error (avoid division by zero)
-        if (std::abs(golden[i]) > 1e-6f) {
-            float rel_error = error / std::abs(golden[i]);
-            rel_error_sum += rel_error;
-            if (rel_error > 0.01f) error_count++;  // > 1% error
-        }
+    for (int i = 0; i < fftConvX * fftConvY; i++) {
+        float error = std::abs(output_full[i] - golden_full[i]);
+        rmse_full += error * error;
+        if (error > max_error_full) max_error_full = error;
         
         // Print first few errors for debugging
         if (i < 5) {
-            std::cout << "  [" << i << "] Output: " << output[i] 
-                      << ", Golden: " << golden[i] 
+            std::cout << "  [" << i << "] Output: " << output_full[i] 
+                      << ", Golden: " << golden_full[i] 
                       << ", Error: " << error << std::endl;
         }
     }
     
-    rmse = std::sqrt(rmse / (convX * convY));
-    float avg_rel_error = rel_error_sum / (convX * convY);
+    rmse_full = std::sqrt(rmse_full / (fftConvX * fftConvY));
+    std::cout << "\n  32×32 RMSE: " << rmse_full << std::endl;
+    std::cout << "  32×32 Max error: " << max_error_full << std::endl;
     
-    std::cout << "\n  RMSE: " << rmse << std::endl;
-    std::cout << "  Max error: " << max_error << std::endl;
-    std::cout << "  Avg relative error: " << avg_rel_error * 100 << "%" << std::endl;
-    std::cout << "  Points with >1% error: " << error_count << " / " << convX * convY << std::endl;
+    // Compare 17×17 center output with golden
+    std::cout << "\n[STEP 7] Comparing 17×17 center output with golden..." << std::endl;
+    
+    float rmse_center = 0.0f;
+    float max_error_center = 0.0f;
+    
+    for (int i = 0; i < convX * convY; i++) {
+        float error = std::abs(output_center[i] - golden_center[i]);
+        rmse_center += error * error;
+        if (error > max_error_center) max_error_center = error;
+        
+        // Print first few errors for debugging
+        if (i < 5) {
+            std::cout << "  [" << i << "] Output: " << output_center[i] 
+                      << ", Golden: " << golden_center[i] 
+                      << ", Error: " << error << std::endl;
+        }
+    }
+    
+    rmse_center = std::sqrt(rmse_center / (convX * convY));
+    std::cout << "\n  17×17 RMSE: " << rmse_center << std::endl;
+    std::cout << "  17×17 Max error: " << max_error_center << std::endl;
     
     // Validation result
     std::cout << "\n========================================" << std::endl;
-    bool passed = (rmse < tolerance) && (avg_rel_error < 0.01f);
-    if (passed) {
+    const float tolerance = 1e-5f;  // Tolerance for full 32×32 (FI requirement)
+    
+    bool passed_full = (rmse_full < tolerance);
+    bool passed_center = (rmse_center < 1e-3f);  // Relaxed tolerance for center
+    
+    // Save HLS outputs regardless of test result (for diagnosis)
+    std::cout << "\n[STEP 8] Saving HLS outputs..." << std::endl;
+    std::ofstream out_full("../../../../data/hls_output_full_32.bin", std::ios::binary);
+    if (out_full.is_open()) {
+        out_full.write(reinterpret_cast<char*>(output_full), fftConvX * fftConvY * sizeof(float));
+        out_full.close();
+        std::cout << "  ✓ 32×32 full output saved to: data/hls_output_full_32.bin" << std::endl;
+    }
+    
+    std::ofstream out_center("../../../../data/hls_output_center_17.bin", std::ios::binary);
+    if (out_center.is_open()) {
+        out_center.write(reinterpret_cast<char*>(output_center), convX * convY * sizeof(float));
+        out_center.close();
+        std::cout << "  ✓ 17×17 center output saved to: data/hls_output_center_17.bin" << std::endl;
+    }
+    
+    if (passed_full && passed_center) {
         std::cout << "TEST RESULT: PASS" << std::endl;
-        std::cout << "  ✓ Algorithm implementation verified" << std::endl;
-        std::cout << "  ✓ Output matches golden within tolerance" << std::endl;
-        
-        // Save HLS output for visualization scripts
-        std::cout << "\n[STEP 7] Saving HLS output for analysis..." << std::endl;
-        std::ofstream out_file("../../../../data/hls_output.bin", std::ios::binary);
-        if (out_file.is_open()) {
-            out_file.write(reinterpret_cast<char*>(output), convX * convY * sizeof(float));
-            out_file.close();
-            std::cout << "  ✓ HLS output saved to: data/hls_output.bin" << std::endl;
-        } else {
-            std::cout << "  ⚠️  Failed to save HLS output" << std::endl;
-        }
+        std::cout << "  ✓ 32×32 full output verified (RMSE: " << rmse_full << ")" << std::endl;
+        std::cout << "  ✓ 17×17 center output verified (RMSE: " << rmse_center << ")" << std::endl;
+        std::cout << "  ✓ Ready for FI validation with full 32×32 spectrum" << std::endl;
     } else {
         std::cout << "TEST RESULT: FAIL" << std::endl;
-        std::cout << "  ⚠️  Output does not match golden" << std::endl;
-        std::cout << "  ⚠️  Need to debug algorithm implementation" << std::endl;
+        if (!passed_full) {
+            std::cout << "  ⚠️ 32×32 full output mismatch (RMSE: " << rmse_full << ")" << std::endl;
+        }
+        if (!passed_center) {
+            std::cout << "  ⚠️ 17×17 center output mismatch (RMSE: " << rmse_center << ")" << std::endl;
+        }
     }
     std::cout << "========================================" << std::endl;
     
@@ -187,8 +235,10 @@ int main() {
     delete[] scales;
     delete[] krn_r;
     delete[] krn_i;
-    delete[] output;
-    delete[] golden;
+    delete[] output_full;
+    delete[] output_center;
+    delete[] golden_full;
+    delete[] golden_center;
     
     return 0;
 }

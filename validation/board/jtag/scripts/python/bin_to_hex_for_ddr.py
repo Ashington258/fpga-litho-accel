@@ -83,17 +83,22 @@ def generate_tcl_script(floats, output_path, base_address, var_name="data"):
         # 计算地址
         batch_addr = base_address + start_idx * 4
 
-        # 写入 TCL 命令
+        # 写入 TCL 命令（含 [lreverse] 修复 JTAG-to-AXI 反向写入问题）
         tcl_content.append(f"# Batch {batch_idx}: {len(batch_floats)} words")
         tcl_content.append(
             f'set addr_{batch_idx} [format "0x%08X" [expr {{$BASE_ADDR + {batch_idx * MAX_BURST_LEN * 4}}}]]'
         )
         tcl_content.append(f'set data_{batch_idx} "{hex_string}"')
+        # ⭐ JTAG-to-AXI 反向写入修复：必须反转数据顺序
+        tcl_content.append(f'set data_{batch_idx}_list [split $data_{batch_idx} "_"]')
+        tcl_content.append(
+            f'set data_{batch_idx}_reversed [join [lreverse $data_{batch_idx}_list] "_"]'
+        )
         tcl_content.append(
             f"catch {{delete_hw_axi_txn [get_hw_axi_txns wr_{var_name}_{batch_idx}]}}"
         )
         tcl_content.append(
-            f"create_hw_axi_txn wr_{var_name}_{batch_idx} $axi_if -address $addr_{batch_idx} -data $data_{batch_idx} -len {len(batch_floats)} -type write"
+            f"create_hw_axi_txn wr_{var_name}_{batch_idx} $axi_if -address $addr_{batch_idx} -data $data_{batch_idx}_reversed -len {len(batch_floats)} -type write"
         )
         tcl_content.append(f"run_hw_axi [get_hw_axi_txns wr_{var_name}_{batch_idx}]")
 

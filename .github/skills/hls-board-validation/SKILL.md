@@ -18,9 +18,10 @@ description: "WORKFLOW SKILL — Execute board-level validation using JTAG-to-AX
 
 **硬件环境**:
 
-- Vivado Hardware Manager
+- Vivado Hardware Manager（Windows环境可用）
 - JTAG连接 (localhost:3121)
-- 目标器件: `xcku3p-ffvb676-2-e`
+- 目标器件: `xcku3p-ffvb676-2-e` (⚠️ 注意：全局约束中xcku5p为旧版本)
+- **验证状态**: 2026-04-19 硬件验证通过（DDR + HLS IP 正常）
 
 **项目约束**:
 
@@ -83,9 +84,8 @@ create_hw_axi_txn start_txn [get_hw_axis hw_axi_1] \
   -data 0x00000001 \
   -len 1 \
   -type write
-
-# 执行写事务
-run_hw_axi start_txn
+（⚠️ 注意：使用新版命令格式）
+run_hw_axi [get_hw_axi_txns start_txn]
 ```
 
 **关键参数**:
@@ -94,7 +94,12 @@ run_hw_axi start_txn
 - **数据**: `0x00000001` - 写ap_start寄存器(bit[0]=1)
 - **长度**: 1 (单个32-bit写操作)
 
-**注意**: 地址需根据实际综合报告调整
+**重要说明**:
+
+- 命令格式: `run_hw_axi [get_hw_axi_txns <txn>]` (新版格式，2026-04-19验证)
+- JTAG-to-AXI burst特性: 数据会反序写入内存，需反序写入抵消
+- MAX_BURST_LEN: 128 (JTAG-to-AXI限制)
+  **注意**: 地址需根据实际综合报告调整
 
 ### 步骤 4: 等待ap_done (轮询+超时保护)
 
@@ -232,12 +237,12 @@ program_hw_devices [get_hw_devices]
 
 **Shell 命令与 TCL 命令分离**：
 
-```bash
+```powershell
 # ✅ 正确：Shell 命令使用英文引号
-cd /root/project/FPGA-Litho && ls -la vivado_bd/
+cd e:\fpga-litho-accel; ls vivado_bd/
 
-# ✅ 正确：启动 Vivado Hardware Manager
-vivado -mode tcl && connect_hw_server -url localhost:3121
+# ✅ 正确：启动 Vivado Hardware Manager（在Vivado安装目录下）
+vivado -mode tcl
 ```
 
 ### 🔑 关键原则
@@ -248,19 +253,19 @@ vivado -mode tcl && connect_hw_server -url localhost:3121
 4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行命令
 5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
 
-### 📝 HLS 板级验证命令规范
+### 📝 HLS 板级验证命令规范（Windows）
 
 **正确的 Vivado Hardware Manager 启动方式**：
 
-```bash
-# ✅ 方案1：启动 Vivado GUI
-cd /root/project/FPGA-Litho && vivado &
+```powershell
+# ✅ 方案1：启动 Vivado GUI（通过开始菜单或桌面快捷方式）
+# 在Windows中直接运行vivado.exe即可
 
-# ✅ 方案2：启动 Vivado TCL 模式
-cd /root/project/FPGA-Litho && vivado -mode tcl
+# ✅ 方案2：启动 Vivado TCL 模式（需要在Vivado安装目录）
+vivado -mode tcl
 
 # ✅ 方案3：使用 run_in_terminal 工具
-run_in_terminal(command="cd /root/project/FPGA-Litho && vivado -mode tcl")
+# run_in_terminal工具会自动处理命令执行
 ```
 
 **⚠️ 注意事项**：

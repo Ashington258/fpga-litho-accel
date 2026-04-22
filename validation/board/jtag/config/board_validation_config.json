@@ -6,8 +6,8 @@
         "mskf_r": "e:\\fpga-litho-accel\\output\\verification\\mskf_r.bin",
         "mskf_i": "e:\\fpga-litho-accel\\output\\verification\\mskf_i.bin",
         "scales": "e:\\fpga-litho-accel\\output\\verification\\scales.bin",
-        "krn_r": "e:\\fpga-litho-accel\\output\\verification\\kernels\\kernel_r_0.bin",
-        "krn_i": "e:\\fpga-litho-accel\\output\\verification\\kernels\\kernel_i_0.bin"
+        "krn_r": "e:\\fpga-litho-accel\\output\\verification\\kernels\\krn_0_r.bin",
+        "krn_i": "e:\\fpga-litho-accel\\output\\verification\\kernels\\krn_0_i.bin"
     },
     
     "golden_file": "e:\\fpga-litho-accel\\output\\verification\\aerial_image_tcc_direct.bin",

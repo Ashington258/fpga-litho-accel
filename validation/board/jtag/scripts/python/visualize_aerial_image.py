@@ -10,6 +10,12 @@ SOCS HLS 输出可视化与对比分析
 
 使用方法：
   python visualize_aerial_image.py [--output aerial_image_output.hex] [--golden tmpImgp_pad32.bin]
+
+注意：
+  本脚本仅对比 17×17 tmpImgp 输出。
+  如需完整的 17×17 → 512×512 Fourier Interpolation 可视化，
+  请使用 visualize_aerial_image_full.py 脚本：
+  python visualize_aerial_image_full.py [--output aerial_image_output.hex]
 """
 
 import argparse
@@ -40,7 +46,14 @@ def hex_to_float(hex_str):
 
 
 def read_hex_file(hex_path):
-    """读取 Vivado 输出的 HEX 文件"""
+    """读取 Vivado 输出的 HEX 文件
+    
+    注意：由于 JTAG-to-AXI Master 在每次 burst 传输时反序数据，
+    HEX 文件中的数据是按 batch 反序存储的。需要应用 per-batch reverse
+    才能匹配 Golden 参考的正确顺序。
+    
+    Batch 结构：128 + 128 + 33 = 289 values
+    """
     with open(hex_path, "r") as f:
         content = f.read()
 
@@ -51,7 +64,18 @@ def read_hex_file(hex_path):
         if not line.startswith("#") and line.strip():
             hex_data += line.strip()
 
-    return hex_to_float(hex_data)
+    raw_data = hex_to_float(hex_data)
+    
+    # 应用 per-batch reverse 以匹配 Golden 顺序
+    # JTAG-to-AXI 的 burst 特性：每个 batch 内数据反序
+    if len(raw_data) >= 289:
+        batch1 = raw_data[:128][::-1]   # 反序 batch 1
+        batch2 = raw_data[128:256][::-1] # 反序 batch 2
+        batch3 = raw_data[256:289][::-1] # 反序 batch 3
+        corrected_data = np.concatenate([batch1, batch2, batch3])
+        return corrected_data
+    else:
+        return raw_data
 
 
 def read_bin_file(bin_path):
@@ -199,7 +223,7 @@ def main():
     )
     parser.add_argument(
         "--output",
-        default="validation/board/jtag/aerial_image_output.hex",
+        default="validation/board/jtag/scripts/tcl/run/aerial_image_output.hex",
         help="HLS output HEX file from Vivado",
     )
     parser.add_argument(

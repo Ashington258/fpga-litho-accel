@@ -77,6 +77,9 @@ source/*/logs/
 source/SOCS_HLS/fft_2d_forward_32*/
 source/SOCS_HLS/socs_axilite_final/
 source/SOCS_HLS/socs_full_csynth_final2/
+source/SOCS_HLS/socs_simple_csynth_final/
+source/SOCS_HLS/socs_simple_synth_float_lut_v2/
+socs_simple_synth_float_lut_v2/
 source/SOCS_HLS/data/kernels/
 
 # 根目录HLS工作目录
@@ -89,6 +92,12 @@ hls/
 *.db
 *.adb
 *.ipynb
+
+# 错误报告和临时文件
+error_report.txt
+error_report_full.txt
+dfx_runtime.txt
+tcl_log.txt
 
 # HLS仿真产物
 csim/build/

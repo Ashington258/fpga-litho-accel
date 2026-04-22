@@ -1,6 +1,6 @@
 ---
 name: hls-csynth-verify
-description: 'WORKFLOW SKILL — Execute Vitis HLS C Synthesis and verify results. USE FOR: running v++ or vitis-run synthesis; checking Fmax/Latency metrics; proposing optimizations when targets not met; iterative refinement until metrics achieved. Ideal for FFT/SOCS high-performance kernels with Vitis 2025.2. DO NOT USE FOR: Vivado RTL synthesis; software simulation; board testing.'
+description: "WORKFLOW SKILL — Execute Vitis HLS C Synthesis and verify results. USE FOR: running v++ or vitis-run synthesis; checking Fmax/Latency metrics; proposing optimizations when targets not met; iterative refinement until metrics achieved. Ideal for FFT/SOCS high-performance kernels with Vitis 2025.2. DO NOT USE FOR: Vivado RTL synthesis; software simulation; board testing."
 ---
 
 # Vitis HLS C Synthesis Verification Skill (Improved)
@@ -8,6 +8,7 @@ description: 'WORKFLOW SKILL — Execute Vitis HLS C Synthesis and verify result
 ## 适用场景
 
 当用户需要执行以下任务时使用此skill:
+
 - **执行C综合**: 使用v++或vitis-run进行HLS综合
 - **验证性能指标**: 检查Fmax、Latency、资源利用率
 - **性能优化**: 当指标未达标时提出优化建议并迭代
@@ -15,9 +16,10 @@ description: 'WORKFLOW SKILL — Execute Vitis HLS C Synthesis and verify result
 
 ## 核心约束
 
-**项目路径**: `/root/project/FPGA-Litho/source/SOCS_HLS`
+**项目路径**: `e:\fpga-litho-accel\source\SOCS_HLS`
 
 **关键约束**:
+
 1. **Nx/Ny动态计算**: $N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
 2. **当前配置实际值**: **Nx=4, Ny=4**（基于NA=0.8, Lx=512, λ=193, σ=0.9）
 3. **IFFT尺寸改写**: 已满足2^N标准（17×17→32×32 zero-padded）
@@ -31,10 +33,11 @@ description: 'WORKFLOW SKILL — Execute Vitis HLS C Synthesis and verify result
 **实践中发现**: AXI-MM接口必须添加 `depth=<size>` 参数，否则无法执行Co-Simulation。
 
 **正确配置示例**:
+
 ```cpp
 void calc_socs_hls(
     float *mskf_r,      // AXI-MM: Mask spectrum real
-    float *mskf_i,      // AXI-MM: Mask spectrum imaginary  
+    float *mskf_i,      // AXI-MM: Mask spectrum imaginary
     float *scales,      // AXI-MM: Eigenvalues
     float *krn_r,       // AXI-MM: Kernels real
     float *krn_i,       // AXI-MM: Kernels imaginary
@@ -47,14 +50,15 @@ void calc_socs_hls(
     #pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 depth=10*9*9
     #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 depth=10*9*9
     #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=17*17
-    
+
     #pragma HLS INTERFACE s_axilite port=return bundle=control
-    
+
     // ... kernel implementation ...
 }
 ```
 
 **depth参数规则**:
+
 1. 使用编译时常量或宏定义（如 `depth=Lx*Ly`）
 2. 对于动态大小数组，使用最大可能的depth值
 3. depth值必须 ≥ 实际访问的最大深度
@@ -63,6 +67,7 @@ void calc_socs_hls(
 ### 配置文件格式要求
 
 **正确格式**（无 `[package]` section）:
+
 ```ini
 # HLS配置文件正确格式
 part = xcku3p-ffvb676-2-e
@@ -81,6 +86,7 @@ tb.file = ../../tb/tb_kernel.cpp
 ```
 
 **⚠️ 常见错误**:
+
 ```ini
 # ❌ 错误格式 - 不要添加[package] section
 [package]
@@ -108,34 +114,26 @@ sleep 10
 echo "任务完成"                    # 应使用 && 或 ; 拼接
 ```
 
-### ✅ 正确格式规范
+### ✅ 正确格式规范（Windows PowerShell）
 
 **单行命令**：
-```bash
+
+```powershell
 # ✅ 正确：简单命令（无引号冲突）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && ls -la
+cd e:\fpga-litho-accel\source\SOCS_HLS; ls
 
 # ✅ 正确：使用英文引号
 echo "Starting C Synthesis..."
-
-# ✅ 正确：避免中文引号，使用转义或变量
-message="C Synthesis started" && echo "$message"
 ```
 
 **多行命令**：
-```bash
-# ✅ 正确：使用 && 拼接（前一个成功才执行下一个）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && \
-v++ -c --mode hls --config script/config/hls_config.cfg && \
-echo "C Synthesis completed"
 
-# ✅ 正确：使用 ; 拼接（无论成功与否都继续）
-cd /root/project/FPGA-Litho/source/SOCS_HLS ; \
-ls -la ; \
-pwd
+```powershell
+# ✅ 正确：使用 ; 拼接
+cd e:\fpga-litho-accel\source\SOCS_HLS; v++ -c --mode hls --config script/config/hls_config.cfg; echo "C Synthesis completed"
 
 # ✅ 正确：复杂命令建议使用 run_in_terminal 工具
-run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth.tcl")
+# run_in_terminal工具会自动处理命令执行
 ```
 
 ### 🔑 关键原则
@@ -146,24 +144,26 @@ run_in_terminal(command="cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-ru
 4. **命令完整性**：每个 toolcall 命令必须是完整、可执行的单行 shell 命令
 5. **路径使用绝对路径**：toolcall 中避免使用相对路径，推荐使用绝对路径
 
-### 📝 HLS 命令专用规范
+### 📝 HLS 命令专用规范（Windows）
 
 **正确的 HLS 综合命令**：
-```bash
+
+```powershell
 # ✅ 方案1：v++ 一站式命令
-cd /root/project/FPGA-Litho/source/SOCS_HLS && v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; v++ -c --mode hls --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 
 # ✅ 方案2：vitis-run + TCL
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --tcl script/run_csynth_socs_full.tcl
 
 # ✅ 方案3：C 仿真（使用 --csim 参数）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg --work_dir hls/socs_full_csim
 
 # ✅ 方案4：Co-Simulation（使用 --cosim 参数）
-cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
+cd e:\fpga-litho-accel\source\SOCS_HLS; vitis-run --mode hls --cosim --config script/config/hls_config_socs_full.cfg --work_dir socs_full_comp
 ```
 
 **⚠️ 注意事项**：
+
 - **不要使用** `vitis-run --csynth`（此命令不存在）
 - **不要使用** `vitis-run --synth`（此命令不存在）
 - C综合的正确方式是：`v++ -c` 或 `vitis-run --tcl` + `csynth_design` TCL 命令
@@ -176,18 +176,21 @@ cd /root/project/FPGA-Litho/source/SOCS_HLS && vitis-run --mode hls --cosim --co
 ### 步骤 0: 源代码准备检查（新增）
 
 **检查AXI-MM接口配置**:
+
 ```bash
 # 检查是否添加了depth参数
 grep -n "INTERFACE m_axi" src/*.cpp
 ```
 
 **预期输出**（正确配置）:
+
 ```cpp
 #pragma HLS INTERFACE m_axi port=data_array offset=slave bundle=gmem0 depth=512*512
 #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem1 depth=289
 ```
 
 **如果发现缺失depth参数**:
+
 - 自动提示添加depth参数
 - 提供正确格式示例
 - 建议修改并重新执行
@@ -195,21 +198,21 @@ grep -n "INTERFACE m_axi" src/*.cpp
 ### 步骤 1: 选择执行方式
 
 **方案1 (推荐)**: `v++` 一站式命令 - 快速、直观,适合独立FFT组件
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-v++ -c --mode hls \
-    --config script/config/hls_config_kernel.cfg \
-    --work_dir hls/kernel_csynth
+
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+v++ -c --mode hls --config script/config/hls_config_kernel.cfg --work_dir hls/kernel_csynth
 ```
 
 **方案2**: `vitis-run + TCL` - 适合复杂项目、多步流程控制
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-vitis-run --mode hls \
-    --tcl script/run_csynth.tcl
+
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+vitis-run --mode hls --tcl script/run_csynth.tcl
 ```
 
-**⚠️ 注意**: 
+**⚠️ 注意**:
+
 - **不要使用** `vitis-run --csynth` 命令（不存在）
 - 正确方式是 `v++ -c` 或 `vitis-run --tcl`
 - 如果修改了源代码（如添加depth），必须重新执行综合
@@ -219,14 +222,14 @@ vitis-run --mode hls \
 #### 方案A（当前配置 Nx=4） - 32×32 IFFT
 
 **命令**:
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-v++ -c --mode hls \
-    --config script/config/hls_config_socs.cfg \
-    --work_dir hls/socs_csynth
+
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+v++ -c --mode hls --config script/config/hls_config_socs.cfg --work_dir hls/socs_csynth
 ```
 
 **预期结果**（基于实际测试）:
+
 - **Estimated Fmax**: 274 MHz (超过目标4 MHz) ✅
 - **Latency**: 1275 cycles (极佳) ✅
 - **Interval**: 1276 cycles
@@ -235,16 +238,16 @@ v++ -c --mode hls \
 #### 方案B（目标配置 Nx=16） - 128×128 IFFT
 
 **需要修改配置**:
+
 - 修改 `input/config/config.json`: `NA=1.2` 或 `Lx=1536`
 - 重新生成Golden数据
 - 修改源代码中的Nx参数
 
 **命令**:
-```bash
-cd /root/project/FPGA-Litho/source/SOCS_HLS
-v++ -c --mode hls \
-    --config script/config/hls_config_socs.cfg \
-    --work_dir hls/socs_csynth_128
+
+```powershell
+cd e:\fpga-litho-accel\source\SOCS_HLS
+v++ -c --mode hls --config script/config/hls_config_socs.cfg --work_dir hls/socs_csynth_128
 ```
 
 ### 步骤 3: 解析综合报告
@@ -252,12 +255,14 @@ v++ -c --mode hls \
 #### 3.1 提取关键性能指标
 
 **Timing性能提取**:
-```bash
+
+```powershell
 # 从verbose报告中提取timing信息
 cat hls/kernel_csynth/hls/.autopilot/db/kernel_function.verbose.rpt | grep -A 20 "Timing"
 ```
 
 **预期输出**:
+
 ```
 +--------+---------+----------+------------+
 |  Clock |  Target | Estimated| Uncertainty|
@@ -266,18 +271,21 @@ cat hls/kernel_csynth/hls/.autopilot/db/kernel_function.verbose.rpt | grep -A 20
 +--------+---------+----------+------------+
 ```
 
-**计算Fmax**: 
+**计算Fmax**:
+
 ```
 Estimated Clock = 3.650 ns
 Fmax = 1 / 3.650 ns = 274 MHz
 ```
 
 **Latency性能提取**:
+
 ```bash
 cat hls/kernel_csynth/hls/.autopilot/db/kernel_function.verbose.rpt | grep -A 20 "Latency"
 ```
 
 **预期输出**:
+
 ```
 +---------+---------+----------+----------+------+------+---------+
 |  Latency (cycles) |  Latency (absolute) |   Interval  | Pipeline|
@@ -291,15 +299,16 @@ cat hls/kernel_csynth/hls/.autopilot/db/kernel_function.verbose.rpt | grep -A 20
 
 **基于实际测试结果的基准**:
 
-| 指标 | 目标值 | 实测基准 | 如何计算 |
-|------|--------|---------|---------|
-| **Estimated Fmax** | ≥ 270 MHz | **274 MHz** | `1 / Estimated Clock (ns)` |
-| **Latency** | < 10M cycles | **1275 cycles** | 直接从报告读取 |
-| **Interval** | 合理值 | 1276 cycles | 直接从报告读取 |
-| **Pipeline Type** | 优化 | "no"或"yes" | 检查Pipeline列 |
-| **RTL包大小** | 合理 | 88KB | `ls -lh *.zip` |
+| 指标               | 目标值       | 实测基准        | 如何计算                   |
+| ------------------ | ------------ | --------------- | -------------------------- |
+| **Estimated Fmax** | ≥ 270 MHz    | **274 MHz**     | `1 / Estimated Clock (ns)` |
+| **Latency**        | < 10M cycles | **1275 cycles** | 直接从报告读取             |
+| **Interval**       | 合理值       | 1276 cycles     | 直接从报告读取             |
+| **Pipeline Type**  | 优化         | "no"或"yes"     | 检查Pipeline列             |
+| **RTL包大小**      | 合理         | 88KB            | `ls -lh *.zip`             |
 
 **性能等级判定**:
+
 - ✅ **优秀**: Fmax ≥ 274 MHz, Latency < 5000 cycles
 - ✅ **达标**: Fmax ≥ 270 MHz, Latency < 10M cycles
 - ⚠️ **需优化**: Fmax < 270 MHz 或 Latency > 10M cycles
@@ -307,14 +316,16 @@ cat hls/kernel_csynth/hls/.autopilot/db/kernel_function.verbose.rpt | grep -A 20
 #### 3.3 资源利用率检查
 
 **检查生成的IP核**:
+
 ```bash
 ls -lh hls/kernel_csynth/*.zip
 unzip -l kernel_function.zip | grep "hdl/ip"
 ```
 
 **预期浮点运算IP核**:
+
 - `fadd_32ns_32ns_32_8_full_dsp_1_ip.xci`: 加法器（8 DSP）
-- `fmul_32ns_32ns_32_5_max_dsp_1_ip.xci`: 乘法器（5 DSP）  
+- `fmul_32ns_32ns_32_5_max_dsp_1_ip.xci`: 乘法器（5 DSP）
 - `fdiv_32ns_32ns_32_16_no_dsp_1_ip.xci`: 除法器（16 cycles latency）
 - `sitofp_32ns_32_6_no_dsp_1_ip.xci`: 整数转浮点
 
@@ -322,23 +333,24 @@ unzip -l kernel_function.zip | grep "hdl/ip"
 
 #### 验收标准检查清单
 
-| 检查项 | 标准 | 如何验证 |
-|--------|------|---------|
-| **Fmax达标** | ≥ 270 MHz | `Estimated Clock ≤ 3.70 ns` |
-| **Latency合理** | < 10M cycles | 报告中 `Latency (cycles)` |
-| **depth参数配置** | 所有AXI-MM接口 | 检查源代码pragma |
-| **RTL生成完整** | 包含Verilog + IP核 | 检查zip包内容 |
-| **无critical warnings** | 无严重警告 | 检查 `hls_compile.rpt` |
-| **Nx/Ny一致** | 符合项目配置 | 检查源代码宏定义 |
+| 检查项                  | 标准               | 如何验证                    |
+| ----------------------- | ------------------ | --------------------------- |
+| **Fmax达标**            | ≥ 270 MHz          | `Estimated Clock ≤ 3.70 ns` |
+| **Latency合理**         | < 10M cycles       | 报告中 `Latency (cycles)`   |
+| **depth参数配置**       | 所有AXI-MM接口     | 检查源代码pragma            |
+| **RTL生成完整**         | 包含Verilog + IP核 | 检查zip包内容               |
+| **无critical warnings** | 无严重警告         | 检查 `hls_compile.rpt`      |
+| **Nx/Ny一致**           | 符合项目配置       | 检查源代码宏定义            |
 
 #### 优化策略（如果未达标）
 
 **1. 流水线优化**:
+
 ```cpp
 // 对计算密集循环应用pipeline
 for (int k = 0; k < nk; k++) {
     #pragma HLS PIPELINE II=1  // 目标II=1,最大化吞吐
-    
+
     // 频域点乘
     for (int i = 0; i < fftConvX * fftConvY; i++) {
         spectrum[i] = mskf[i] * krn[k][i];
@@ -347,6 +359,7 @@ for (int k = 0; k < nk; k++) {
 ```
 
 **2. 数组分区**:
+
 ```cpp
 // 对频繁访问的buffer分区提升带宽
 float spectrum[32*32];
@@ -358,21 +371,23 @@ float transpose_buffer[32][32];
 ```
 
 **3. 循环展开**:
+
 ```cpp
 // 对点乘、累加等计算密集循环展开
 for (int i = 0; i < 9*9; i++) {
     #pragma HLS UNROLL factor=3  // 展开3倍
-    
+
     result += kernel[i] * spectrum[i];
 }
 ```
 
 **4. Dataflow优化**:
+
 ```cpp
 // 多个独立阶段使用dataflow
 void calc_socs_hls(...) {
     #pragma HLS DATAFLOW
-    
+
     stage1_frequency_multiply(...);  // 频域点乘
     stage2_ifft_execute(...);        // IFFT执行
     stage3_intensity_accumulate(...); // 强度累加
@@ -383,6 +398,7 @@ void calc_socs_hls(...) {
 #### 优化迭代流程
 
 **标准优化循环**:
+
 1. 分析性能瓶颈 → 确定优化目标
 2. 应用单一优化pragma → 重新综合
 3. 对比前后性能 → 验证改进效果
@@ -390,6 +406,7 @@ void calc_socs_hls(...) {
 5. 重复步骤1-4直到达标
 
 **优化效果评估**:
+
 - 每次优化后必须重新执行C Synthesis
 - 记录优化前后性能对比
 - 避免过度优化导致资源激增
@@ -402,6 +419,7 @@ void calc_socs_hls(...) {
 ### 必要输出文件
 
 **成功生成的文件列表**:
+
 ```
 hls/kernel_csynth/
 ├── kernel_function.zip          # ⭐ RTL包（核心输出）
@@ -432,6 +450,7 @@ hls/kernel_csynth/
 ### 成功验收检查
 
 **必须满足的条件**:
+
 - ✅ 存在 `kernel_function.zip` 文件
 - ✅ zip包内包含 `hdl/verilog/*.v` 文件
 - ✅ zip包内包含 `hdl/ip/*.xci` 文件
@@ -446,22 +465,22 @@ hls/kernel_csynth/
 
 ### 综合失败快速诊断
 
-| 错误类型 | 典型错误信息 | 根本原因 | 解决方案 |
-|---------|-------------|---------|---------|
-| **配置解析错误** | `unrecognised option 'package.xxx'` | 配置文件包含 `[package]` section | 删除 `[package]` section |
-| **AXI-MM depth缺失** | `depth specification required` | AXI-MM接口缺少depth参数 | 添加 `depth=<size>` pragma |
-| **头文件找不到** | `fatal error: 'xxx.h' file not found` | 头文件未添加到syn.file | 在配置文件添加 `syn.file = ../../src/xxx.h` |
-| **函数未定义** | `undefined reference to 'xxx'` | syn.top与实际函数名不一致 | 检查并修正syn.top配置 |
-| **编译失败** | `compilation error(s)` | 源代码语法错误 | 检查C++语法和HLS pragma语法 |
+| 错误类型             | 典型错误信息                          | 根本原因                         | 解决方案                                    |
+| -------------------- | ------------------------------------- | -------------------------------- | ------------------------------------------- |
+| **配置解析错误**     | `unrecognised option 'package.xxx'`   | 配置文件包含 `[package]` section | 删除 `[package]` section                    |
+| **AXI-MM depth缺失** | `depth specification required`        | AXI-MM接口缺少depth参数          | 添加 `depth=<size>` pragma                  |
+| **头文件找不到**     | `fatal error: 'xxx.h' file not found` | 头文件未添加到syn.file           | 在配置文件添加 `syn.file = ../../src/xxx.h` |
+| **函数未定义**       | `undefined reference to 'xxx'`        | syn.top与实际函数名不一致        | 检查并修正syn.top配置                       |
+| **编译失败**         | `compilation error(s)`                | 源代码语法错误                   | 检查C++语法和HLS pragma语法                 |
 
 ### 性能未达标诊断
 
-| 问题现象 | 可能原因 | 优化策略 |
-|---------|---------|---------|
-| **Fmax < 270 MHz** | 逻辑路径过长、时序违例 | Pipeline优化、逻辑简化 |
-| **Latency过高** | 循环未优化、数据依赖 | 循环展开、数组分区 |
-| **资源激增** | 过度展开、重复逻辑 | 控制展开factor、资源平衡 |
-| **II过大** | 循环依赖、资源冲突 | Dataflow、数组分区 |
+| 问题现象           | 可能原因               | 优化策略                 |
+| ------------------ | ---------------------- | ------------------------ |
+| **Fmax < 270 MHz** | 逻辑路径过长、时序违例 | Pipeline优化、逻辑简化   |
+| **Latency过高**    | 循环未优化、数据依赖   | 循环展开、数组分区       |
+| **资源激增**       | 过度展开、重复逻辑     | 控制展开factor、资源平衡 |
+| **II过大**         | 循环依赖、资源冲突     | Dataflow、数组分区       |
 
 ---
 
@@ -473,6 +492,7 @@ hls/kernel_csynth/
 **配置**: Nx=4, IFFT 32×32, Output 17×17
 
 **实测性能指标**:
+
 ```
 Timing:
   Target Clock: 5.00 ns (200 MHz)
@@ -501,6 +521,7 @@ Latency:
 ### 综合成功后的下一步
 
 1. **执行Co-Simulation验证**:
+
    ```bash
    vitis-run --mode hls --cosim \
        --config script/config/hls_config_kernel.cfg \
@@ -508,6 +529,7 @@ Latency:
    ```
 
 2. **执行Package导出**（可选）:
+
    ```bash
    vitis-run --mode hls --package \
        --config script/config/hls_config_kernel.cfg \
@@ -527,6 +549,7 @@ Latency:
 ### 实践验证的配置示例
 
 **正确配置文件**: `script/config/hls_config_socs.cfg`
+
 ```ini
 part = xcku3p-ffvb676-2-e
 
@@ -542,11 +565,13 @@ tb.file = ../../tb/tb_socs_simple.cpp
 ```
 
 **正确源代码**: `src/socs_simple.cpp`
+
 - 包含所有AXI-MM接口的depth参数
 - 正确配置6个AXI-MM + 1个AXI-Lite接口
 - 使用Pipeline优化循环
 
 **完整测试报告**: `HLS_VALIDATION_WORKFLOW_COMPLETE_REPORT.md`
+
 - 包含详细的性能指标
 - 包含常见问题和解决方案
 - 包含完整流程验证结果

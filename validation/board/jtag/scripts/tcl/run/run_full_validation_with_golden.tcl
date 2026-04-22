@@ -29,20 +29,21 @@ set DDR_OUTPUT      0x44840000
 puts "\n=== Step 1: Load Real Golden Data to DDR ==="
 
 # 加载所有输入数据（每个文件包含写入逻辑）
+# 注意：路径相对于 scripts/tcl/run/ 目录，需要指向 ../load/
 puts "\n>>> Loading mskf_r..."
-source load_mskf_r.tcl
+source ../load/load_mskf_r.tcl
 
 puts "\n>>> Loading mskf_i..."
-source load_mskf_i.tcl
+source ../load/load_mskf_i.tcl
 
 puts "\n>>> Loading scales..."
-source load_scales.tcl
+source ../load/load_scales.tcl
 
 puts "\n>>> Loading kernels (krn_r)..."
-source load_krn_r.tcl
+source ../load/load_krn_r.tcl
 
 puts "\n>>> Loading kernels (krn_i)..."
-source load_krn_i.tcl
+source ../load/load_krn_i.tcl
 
 puts "\n✅ All Golden data loaded to DDR"
 
@@ -163,30 +164,50 @@ puts "\n=== Step 5: Read Output Data (17×17 Aerial Image) ==="
 
 puts "\n>>> Reading output from DDR @ 0x44840000..."
 
+# ⚠️ 关键修复：JTAG-to-AXI 读取数据反序，需要 lreverse 后处理
+# 与写入时的 lreverse 预处理类似，读取需要反向操作
+
 # Batch 1: 128 words (地址偏移 0)
 catch {delete_hw_axi_txn [get_hw_axi_txns rd_out_1]}
 create_hw_axi_txn rd_out_1 $axi_if -address $DDR_OUTPUT -len 128 -type read
 run_hw_axi [get_hw_axi_txns rd_out_1]
-set output_batch1 [get_property DATA [get_hw_axi_txns rd_out_1]]
+set output_batch1_raw [get_property DATA [get_hw_axi_txns rd_out_1]]
+
+# 应用 lreverse：将反序数据恢复正常顺序
+set output_batch1_list [split $output_batch1_raw "_"]
+set output_batch1_reversed [join [lreverse $output_batch1_list] "_"]
+puts ">>> Batch 1: Applied lreverse (128 words)"
 
 # Batch 2: 128 words (地址偏移 128×4 = 512 bytes = 0x200)
 catch {delete_hw_axi_txn [get_hw_axi_txns rd_out_2]}
 create_hw_axi_txn rd_out_2 $axi_if -address [format "0x%08X" [expr {$DDR_OUTPUT + 0x200}]] -len 128 -type read
 run_hw_axi [get_hw_axi_txns rd_out_2]
-set output_batch2 [get_property DATA [get_hw_axi_txns rd_out_2]]
+set output_batch2_raw [get_property DATA [get_hw_axi_txns rd_out_2]]
+
+# 应用 lreverse
+set output_batch2_list [split $output_batch2_raw "_"]
+set output_batch2_reversed [join [lreverse $output_batch2_list] "_"]
+puts ">>> Batch 2: Applied lreverse (128 words)"
 
 # Batch 3: 33 words (地址偏移 256×4 = 1024 bytes = 0x400)
 catch {delete_hw_axi_txn [get_hw_axi_txns rd_out_3]}
 create_hw_axi_txn rd_out_3 $axi_if -address [format "0x%08X" [expr {$DDR_OUTPUT + 0x400}]] -len 33 -type read
 run_hw_axi [get_hw_axi_txns rd_out_3]
-set output_batch3 [get_property DATA [get_hw_axi_txns rd_out_3]]
+set output_batch3_raw [get_property DATA [get_hw_axi_txns rd_out_3]]
 
-puts ">>> Output batch 1 (first 128 words): [string range $output_batch1 0 50]..."
-puts ">>> Output batch 2 (mid 128 words):    [string range $output_batch2 0 50]..."
-puts ">>> Output batch 3 (last 33 words):    [string range $output_batch3 0 50]..."
+# 应用 lreverse
+set output_batch3_list [split $output_batch3_raw "_"]
+set output_batch3_reversed [join [lreverse $output_batch3_list] "_"]
+puts ">>> Batch 3: Applied lreverse (33 words)"
 
-# 合并完整输出
-set output_full "${output_batch1}${output_batch2}${output_batch3}"
+puts ">>> Output batch 1 (first 128 words): [string range $output_batch1_reversed 0 50]..."
+puts ">>> Output batch 2 (mid 128 words):    [string range $output_batch2_reversed 0 50]..."
+puts ">>> Output batch 3 (last 33 words):    [string range $output_batch3_reversed 0 50]..."
+
+# 合并完整输出（使用修正后的批次）⚠️ 必须添加下划线分隔符，避免batch粘连
+set output_full "${output_batch1_reversed}_${output_batch2_reversed}_${output_batch3_reversed}"
+puts "✅ Total: 289 words with lreverse correction applied"
+puts ">>> Total hex length: [string length $output_full] characters"
 
 puts "\n=== Step 6: Save Output to HEX File ==="
 

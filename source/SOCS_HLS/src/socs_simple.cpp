@@ -36,7 +36,9 @@
 
 // Number of kernels (from SOCS decomposition)
 // nk is typically 4-10 depending on sigma ratio
-#define nk 10  // Max kernels (runtime configurable via Host)
+// FIXED: Match actual scales.bin length (golden_original.json generates nk=4)
+// This prevents reading garbage data beyond scales array bounds
+#define nk 4  // Number of kernels (runtime configurable via Host)
 
 // FFT types for direct FFTW-compatible precision (from socs_config.h)
 // fft_data_t = float
@@ -389,11 +391,12 @@ void extract_center_region(
  * 
  * Inputs (via AXI-MM):
  *   - mskf_r, mskf_i: Mask spectrum (Lx×Ly = 512×512)
- *   - scales: Eigenvalues (nk = 10)
- *   - krn_r, krn_i: SOCS kernels (nk × kerX × kerY = 10×9×9)
+ *   - scales: Eigenvalues (nk = 4)
+ *   - krn_r, krn_i: SOCS kernels (nk × kerX × kerY = 4×9×9)
  * 
  * Output (via AXI-MM):
- *   - output: tmpImgp (convX×convY = 17×17)
+ *   - output: tmpImgp FULL (fftConvX×fftConvY = 32×32) - for FI validation
+ *   - output_center: tmpImgp center (convX×convY = 17×17) - optional
  */
 void calc_socs_simple_hls(
     float *mskf_r,      // AXI-MM: Mask spectrum real (512×512)
@@ -401,7 +404,8 @@ void calc_socs_simple_hls(
     float *scales,      // AXI-MM: Eigenvalues (10)
     float *krn_r,       // AXI-MM: Kernels real (10×9×9)
     float *krn_i,       // AXI-MM: Kernels imaginary
-    float *output       // AXI-MM: Output tmpImgp (17×17)
+    float *output_full, // AXI-MM: Output tmpImgp FULL (32×32) for FI validation
+    float *output_center // AXI-MM: Output tmpImgp center (17×17) optional
 ) {
     // ==================== AXI-MM Interface Configuration ====================
     // Each interface has independent bundle for separate AXI Master ports
@@ -421,7 +425,10 @@ void calc_socs_simple_hls(
     #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 \
         depth=810 latency=16 num_read_outstanding=4 max_read_burst_length=16
     
-    #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 \
+    #pragma HLS INTERFACE m_axi port=output_full offset=slave bundle=gmem5 \
+        depth=1024 latency=8 num_write_outstanding=2 max_write_burst_length=16
+    
+    #pragma HLS INTERFACE m_axi port=output_center offset=slave bundle=gmem6 \
         depth=289 latency=8 num_write_outstanding=2 max_write_burst_length=8
     
     #pragma HLS INTERFACE s_axilite port=return bundle=control
@@ -495,15 +502,24 @@ void calc_socs_simple_hls(
     // Step 4: FFT shift (move zero-frequency to center)
     fftshift_2d(tmpImg, tmpImgp);
     
-    // Step 5: Extract center 17×17 region
+    // Step 5: Write FULL 32×32 output to AXI-MM (for FI validation)
+    // This is the critical output needed for Fourier Interpolation
+    for (int y = 0; y < fftConvY; y++) {
+        for (int x = 0; x < fftConvX; x++) {
+            #pragma HLS PIPELINE II=1
+            int idx = y * fftConvX + x;
+            output_full[idx] = tmpImgp[y][x];
+        }
+    }
+    
+    // Step 6: Extract and write center 17×17 region (optional, for compatibility)
     extract_center_region(tmpImgp, output_local);
     
-    // Step 6: Write output to AXI-MM
     for (int y = 0; y < convY; y++) {
         for (int x = 0; x < convX; x++) {
             #pragma HLS PIPELINE II=1
             int idx = y * convX + x;
-            output[idx] = output_local[y][x];
+            output_center[idx] = output_local[y][x];
         }
     }
 }

@@ -168,21 +168,21 @@ rel_diff = |SOCS_mean - TCC_mean| / TCC_mean = 0.0407
 
 ### 5.1 存储格式
 
-| 数据类型 | 格式 | 字节序 | 存储 |
-|----------|------|--------|------|
-| float | IEEE 754 single | Little-endian | Binary, row-major |
-| complex | [real, imag] pairs | Little-endian | Binary, interleaved |
+| 数据类型 | 格式               | 字节序        | 存储                |
+| -------- | ------------------ | ------------- | ------------------- |
+| float    | IEEE 754 single    | Little-endian | Binary, row-major   |
+| complex  | [real, imag] pairs | Little-endian | Binary, interleaved |
 
 ### 5.2 尺寸约定
 
-| 符号 | 当前值 | 说明 |
-|------|--------|------|
-| Lx, Ly | 512 | Mask物理尺寸 |
-| Nx, Ny | 4 | 动态计算参数 |
-| convX, convY | 17 | 物理卷积输出 (4×Nx+1) |
-| fftConvX, fftConvY | 32 | IFFT执行尺寸 (nextPowerOfTwo) |
-| kerX, kerY | 9 | SOCS核尺寸 (2×Nx+1) |
-| nk | 10 | SOCS核数量 |
+| 符号               | 当前值 | 说明                          |
+| ------------------ | ------ | ----------------------------- |
+| Lx, Ly             | 512    | Mask物理尺寸                  |
+| Nx, Ny             | 4      | 动态计算参数                  |
+| convX, convY       | 17     | 物理卷积输出 (4×Nx+1)         |
+| fftConvX, fftConvY | 32     | IFFT执行尺寸 (nextPowerOfTwo) |
+| kerX, kerY         | 9      | SOCS核尺寸 (2×Nx+1)           |
+| nk                 | 10     | SOCS核数量                    |
 
 ---
 
@@ -219,7 +219,7 @@ rel_diff = |SOCS_mean - TCC_mean| / TCC_mean = 0.0407
 ### 7.1 Verification输出（原始位置）
 
 ```
-/root/project/FPGA-Litho/output/verification/
+e:\fpga-litho-accel\output\verification\
 ├── mskf_r.bin                    # 输入：Mask频域实部
 ├── mskf_i.bin                    # 输入：Mask频域虚部
 ├── scales.bin                    # 输入：特征值权重
@@ -237,7 +237,7 @@ rel_diff = |SOCS_mean - TCC_mean| / TCC_mean = 0.0407
 ### 7.2 HLS项目数据（复制目标）
 
 ```
-/root/project/FPGA-Litho/source/SOCS_HLS/data/
+e:\fpga-litho-accel\source\SOCS_HLS\data\
 ├── mskf_r.bin                    # 从verification复制
 ├── mskf_i.bin
 ├── scales.bin
@@ -315,13 +315,13 @@ int by = offY + ky;  // Embed at center
 ### 10.1 立即可执行
 
 1. **复制golden到HLS项目**:
-   ```bash
-   cd /root/project/FPGA-Litho
-   mkdir -p source/SOCS_HLS/data/kernels
-   cp output/verification/mskf_*.bin source/SOCS_HLS/data/
-   cp output/verification/scales.bin source/SOCS_HLS/data/
-   cp output/verification/tmpImgp_pad32.bin source/SOCS_HLS/data/
-   cp output/verification/kernels/*.bin source/SOCS_HLS/data/kernels/
+   ```powershell
+   cd e:\fpga-litho-accel
+   mkdir source\SOCS_HLS\data\kernels
+   copy output\verification\mskf_*.bin source\SOCS_HLS\data\
+   copy output\verification\scales.bin source\SOCS_HLS\data\
+   copy output\verification\tmpImgp_pad32.bin source\SOCS_HLS\data\
+   copy output\verification\kernels\*.bin source\SOCS_HLS\data\kernels\
    ```
 
 2. **开始HLS开发**:

@@ -8,14 +8,14 @@
 
 ## 参考资源
 
-| 参考项 | 路径 | 用途 |
-|--------|------|------|
-| CPU 算法参考 | `reference/CPP_reference/Litho-TCC/` | calcTCC、FFT、calcImage、calcKernels 算法逻辑 |
-| HLS FFT 参考 | `reference/vitis_hls_ftt的实现/interface_stream/` | hls::fft 集成模板 |
-| 命令参考 | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md` | vitis-run 命令、TCL验证流程 |
-| TCL 脚本模板 | `reference/tcl脚本设计参考/Example_Tcl_Command_Script.tcl` | JTAG-to-AXI 操作模板 |
-| BIN 格式规范 | `input/BIN_Format_Specification.md` | 输入数据格式定义 |
-| 配置参数 | `input/config/config.json` | 光学参数、尺寸参数定义 |
+| 参考项       | 路径                                                                             | 用途                                          |
+| ------------ | -------------------------------------------------------------------------------- | --------------------------------------------- |
+| CPU 算法参考 | `reference/CPP_reference/Litho-TCC/`                                             | calcTCC、FFT、calcImage、calcKernels 算法逻辑 |
+| HLS FFT 参考 | `reference/vitis_hls_ftt的实现/interface_stream/`                                | hls::fft 集成模板                             |
+| 命令参考     | `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md` | vitis-run 命令、TCL验证流程                   |
+| TCL 脚本模板 | `reference/tcl脚本设计参考/Example_Tcl_Command_Script.tcl`                       | JTAG-to-AXI 操作模板                          |
+| BIN 格式规范 | `input/BIN_Format_Specification.md`                                              | 输入数据格式定义                              |
+| 配置参数     | `input/config/config.json`                                                       | 光学参数、尺寸参数定义                        |
 
 ---
 
@@ -127,11 +127,11 @@ output/
 
 ## 模块划分（当前重构范围：Phase 0-4）
 
-| 模块 | 执行位置 | 说明 |
-|------|----------|------|
-| calcTCC | FPGA (HLS) | 四层循环，核心性能瓶颈 |
-| FFT (r2c/c2r) | FPGA (HLS) | 替换 fftw3 → hls::fft |
-| calcImage | FPGA (HLS) | 频域卷积 → 空中像输出 |
+| 模块            | 执行位置   | 说明                           |
+| --------------- | ---------- | ------------------------------ |
+| calcTCC         | FPGA (HLS) | 四层循环，核心性能瓶颈         |
+| FFT (r2c/c2r)   | FPGA (HLS) | 替换 fftw3 → hls::fft          |
+| calcImage       | FPGA (HLS) | 频域卷积 → 空中像输出          |
 | **calcKernels** | **不重构** | Host 端从 TCC 矩阵计算 SOCS 核 |
 
 **⚠️ 注意**：当前阶段只重构 FPGA 端 TCC 模块，calcKernels 保留 Host 端执行（LAPACK zheevr_）。
@@ -140,12 +140,12 @@ output/
 
 ## 接口设计规范（模块化，便于后期更换）
 
-| 接口类型 | 当前实现 | 后期升级路径 | 更改点 |
-|----------|----------|--------------|--------|
-| 参数配置 | AXI-Lite 寄存器 | JTAG/PCIe Host 写寄存器 | 只改 Vivado BD 连线 |
-| 数据输入 | JTAG → BRAM → AXI-Stream | PCIe DMA → AXI-Stream | Vivado BD 替换 IP 核 |
-| 存储接口 | AXI-Master → BRAM | AXI-Master → DDR (MIG) | Vivado BD 连线 |
-| 数据输出 | JTAG 读 BRAM | PCIe DMA 接收 | Vivado BD 替换 IP 核 |
+| 接口类型 | 当前实现                 | 后期升级路径            | 更改点               |
+| -------- | ------------------------ | ----------------------- | -------------------- |
+| 参数配置 | AXI-Lite 寄存器          | JTAG/PCIe Host 写寄存器 | 只改 Vivado BD 连线  |
+| 数据输入 | JTAG → BRAM → AXI-Stream | PCIe DMA → AXI-Stream   | Vivado BD 替换 IP 核 |
+| 存储接口 | AXI-Master → BRAM        | AXI-Master → DDR (MIG)  | Vivado BD 连线       |
+| 数据输出 | JTAG 读 BRAM             | PCIe DMA 接收           | Vivado BD 替换 IP 核 |
 
 ```cpp
 void tcc_top(
@@ -174,15 +174,15 @@ void tcc_top(
 
 ### 运行命令
 
-```bash
+```powershell
 # 方式1: 直接运行已编译的exe（推荐）
-cd /root/project/FPGA-Litho
+cd e:\fpga-litho-accel
 python run_reference_test.py
 
-# 方式2: 重新编译后运行
-cd reference/CPP_reference/Litho-TCC
-make clean && make
-cd /root/project/FPGA-Litho
+# 方式2: 重新编译后运行（如需修改代码）
+cd reference\CPP_reference\Litho-TCC
+make clean; make
+cd e:\fpga-litho-accel
 python run_reference_test.py
 ```
 
@@ -232,13 +232,13 @@ PERFORMANCE SUMMARY (Module Breakdown):
 - x87 FPU 与 IEEE-754 硬件实现差异
 
 **推荐验证方法**：
-| 验证项 | 容差标准 | 说明 |
-|--------|----------|------|
-| TCC Mean | 相对误差 < 1e-5 | TCC 矩阵均值（实部） |
-| TCC StdDev | 相对误差 < 1e-5 | TCC 矩阵标准差 |
-| Image Mean | 相对误差 < 1e-5 | 空中像均值 |
-| Image StdDev | 相对误差 < 1e-5 | 空中像标准差 |
-| Image Max/Min | 相对误差 < 1e-5 | 空中像极值 |
+| 验证项        | 容差标准        | 说明                 |
+| ------------- | --------------- | -------------------- |
+| TCC Mean      | 相对误差 < 1e-5 | TCC 矩阵均值（实部） |
+| TCC StdDev    | 相对误差 < 1e-5 | TCC 矩阵标准差       |
+| Image Mean    | 相对误差 < 1e-5 | 空中像均值           |
+| Image StdDev  | 相对误差 < 1e-5 | 空中像标准差         |
+| Image Max/Min | 相对误差 < 1e-5 | 空中像极值           |
 
 ### 中间数据样本
 
@@ -263,11 +263,11 @@ Aerial Image Samples (center region):
 
 ## 验收标准
 
-| 验收项 | 标准 |
-|--------|------|
-| C 仿真 | 输出与 CPU 参考误差 < 1e-5 |
-| CoSim | PASS |
-| IP 导出 | 生成 `solution1/impl/export/rtl/` |
+| 验收项   | 标准                              |
+| -------- | --------------------------------- |
+| C 仿真   | 输出与 CPU 参考误差 < 1e-5        |
+| CoSim    | PASS                              |
+| IP 导出  | 生成 `solution1/impl/export/rtl/` |
 | 板级测试 | JTAG 加载 → 计算 → 输出与参考一致 |
 
 ---
@@ -350,19 +350,19 @@ $$
 
 ### BRAM 容量约束
 
-| 资源 | 数量 | 总容量 |
-|------|------|--------|
-| BRAM (KU3P) | 216 | 960KB |
+| 资源        | 数量 | 总容量 |
+| ----------- | ---- | ------ |
+| BRAM (KU3P) | 216  | 960KB  |
 
 **关键约束**: TCC矩阵最小配置需要 **2.2GB** → **必须使用DDR存储**
 
 ### 配置方案
 
-| 配置 | Lx×Ly | srcSize | Nx×Ny | tccSize | 存储策略 |
-|------|-------|---------|-------|---------|----------|
-| **最小(CoSim)** | 128×128 | 33 | 64×64 | 16641 | DDR+分块 |
-| **中等** | 256×256 | 51 | 128×128 | 66049 | DDR+分块 |
-| **实际** | 2048×2048 | 101 | 1024×1024 | 4M | DDR+On-the-fly |
+| 配置            | Lx×Ly     | srcSize | Nx×Ny     | tccSize | 存储策略       |
+| --------------- | --------- | ------- | --------- | ------- | -------------- |
+| **最小(CoSim)** | 128×128   | 33      | 64×64     | 16641   | DDR+分块       |
+| **中等**        | 256×256   | 51      | 128×128   | 66049   | DDR+分块       |
+| **实际**        | 2048×2048 | 101     | 1024×1024 | 4M      | DDR+On-the-fly |
 
 ### HLS 固定数组示例
 

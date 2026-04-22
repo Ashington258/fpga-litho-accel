@@ -4,15 +4,15 @@ This directory contains the C++ host-side preprocessing tool for the SOCS HLS fl
 
 ## Build
 
-```bash
-cd /root/project/FPGA-Litho/source/host
+```powershell
+cd e:\fpga-litho-accel\source\host
 make
 ```
 
 ## Run
 
-```bash
-cd /root/project/FPGA-Litho/source/host
+```powershell
+cd e:\fpga-litho-accel\source\host
 ./socs_host ../../input/config/config.json ../../output/reference/kernels output/host_output
 ```
 
