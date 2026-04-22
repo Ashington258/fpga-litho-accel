@@ -1,0 +1,67 @@
+{
+    "simulation": {
+        "description": "光刻仿真配置文件",
+        "version": "1.0"
+    },
+    "mask": {
+        "period": {
+            "Lx": 1024,
+            "Ly": 1024
+        },
+        "size": {
+            "maskSizeX": 1024,
+            "maskSizeY": 1024
+        },
+        "type": "Import",
+        "lineSpace": {
+            "lineWidth": 128,
+            "spaceWidth": 128,
+            "isHorizontal": false
+        },
+        "inputFile": "input/mask/1024x1024.bin",
+        "dose": 1.0
+    },
+    "source": {
+        "gridSize": 101,
+        "type": "Annular",
+        "annular": {
+            "innerRadius": 0.6,
+            "outerRadius": 0.9
+        },
+        "dipole": {
+            "radius": 0.5,
+            "offset": 0.3,
+            "onXAxis": true
+        },
+        "crossQuadrupole": {
+            "radius": 0.5,
+            "offset": 0.3
+        },
+        "point": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "inputFile": "input/mask/1024x1024.bin"
+    },
+    "optics": {
+        "NA": 0.8,
+        "wavelength": 193,
+        "defocus": 0.2
+    },
+    "kernel": {
+        "count": 10,
+        "targetIntensity": 0.225
+    },
+    "output": {
+        "baseDir": "out",
+        "kernelsDir": "out/kernels",
+        "kernelsPngDir": "out/kernels/png",
+        "imageFile": "out/image.bin",
+        "imagePng": "out/image.png",
+        "imageSegmentedPng": "out/image_s.png",
+        "maskPng": "out/mask.png",
+        "sourcePng": "out/source.png",
+        "tccRealPng": "out/tcc_r.png",
+        "tccImagPng": "out/tcc_i.png"
+    }
+}
