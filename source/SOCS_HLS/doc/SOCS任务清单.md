@@ -1,35 +1,294 @@
 # SOCS HLS 重构 TODO
 
-## 当前状态 (2026-04-07)
+## 当前状态 (2026-04-22)
 
-### ✅ Phase 1: Fixed-Point FFT Implementation (32×32) - COMPLETED
-- Fixed-point types: `ap_fixed<32, 1>` (Q1.31 format)
-- FFT config fixes: `input_width=32, output_width=32, config_width=8`
-- Input scaling removed (no saturation issues)
+### ✅ v1.0.0: Nx=4 (32×32 FFT) - 已验证并发布
 
-### ✅ Phase 2: C Simulation (32×32) - COMPLETED (v9)
-- **v6-v8 FAILURES**: Output ~10⁶× too large due to incorrect scaling formula
-- **Root Cause**: HLS FFT uses UNSCALED mode despite `scaling_options = scaled` config
-- **v9 Fix**: Removed N⁴ compensation factor from intensity calculation
-- **v9 Result**: 
-  - Output range: [0.00235701, 0.146997] ✓ Matches golden
-  - Relative error: 0.39% ✓ (< 5% tolerance)
-  - RMSE: 0.000173677
-  - **TEST RESULT: PASS**
+**Git 标签**: `v1.0.0-nx4-validated` (commit: cdc2055)
 
-### ✅ Phase 3: C Synthesis (32×32) - COMPLETED (RTL generated)
-- **Estimated Fmax**: 273.97 MHz ✓ (> 200 MHz target)
-- **Total Latency**: 201,833 cycles (~1ms @ 200MHz)
-- **Resource Usage**: BRAM 76 (10%), DSP 29 (2%), FF 18,120 (5%), LUT 22,906 (14%)
-- **RTL Files**: 56 Verilog modules generated
+**验证结果**：
+- C Simulation: RMSE=1.188e-07 ✅
+- C Synthesis: Fmax=273.97 MHz, BRAM=794 (110%), DSP=100 (7%) ✅
+- Co-Simulation: 跳过 (BRAM资源超限)
+- IP Package: `calc_socs_simple_hls.zip` (1.8M) ✅
 
-### ✅ Phase 4: IP Packaging (32×32) - COMPLETED (2026-04-09)
-- **IP Archive**: `xilinx_com_hls_calc_socs_hls_1_0.zip` successfully created
-- **Location**: `socs_full_comp/hls/impl/ip/`
-- **Contents**: 55 Verilog files, 52 VHDL files, 10 driver files
-- **Subcores**: fadd, fmul, fsub, fpext (floating-point IPs) + xfft (FFT IP)
-- **Note**: Warning about IP name length was non-blocking (Windows path limitation)
-- **Status**: Ready for Vivado integration testing
+**保护分支**: `main` + `v1.0.0-nx4-validated`
+
+---
+
+## 🚀 v2.0.0: 2048 架构开发 (当前分支: feature/2048-architecture)
+
+**设计目标**：
+1. 解决 Nx=16 (128×128 FFT) 的 BRAM 资源瓶颈（预测占用 1105% → 优化至 21%）
+2. 实现单一 IP 支持所有 Nx 参数（Nx=2~24），无需重新编译
+
+**设计文档**: `doc/2048x2048扩展架构设计.md`
+
+**关键技术方案**：
+- **DDR 缓存架构**：将 FFT 中间数组推到 DDR，仅保留小块 Ping-Pong BRAM 缓存
+- **Padding 策略**：小 Nx 数据 zero-padding 到 128×128，输出动态提取
+
+---
+
+## 📋 2048 架构完整 TODO
+
+### Phase 1: DDR 缓存架构实现 ⏳
+
+#### 1.1 HLS 接口修改
+- [ ] 新增 `fft_buf_ddr` AXI-MM Master 接口 (gmem6)
+  ```cpp
+  #pragma HLS INTERFACE m_axi port=fft_buf_ddr offset=slave bundle=gmem6 depth=131072 latency=50
+  ```
+- [ ] 新增 `fft_buf_base` AXI-Lite 配置寄存器
+- [ ] 新增 `nx_actual` / `ny_actual` 运行时参数接口
+
+**预期接口变更**：
+| 接口 | 原方案 | 2048方案 |
+|------|--------|----------|
+| gmem0-5 | mskf_r/i, scales, krn_r/i, output | 保持不变 |
+| **gmem6** | 无 | 新增 fft_buf_ddr |
+| AXI-Lite | Lx, Ly, Nx, Ny, nk | 新增 nx_actual, fft_buf_base |
+
+#### 1.2 Ping-Pong 双缓冲实现
+- [ ] 定义 BRAM 缓存数组 (16×16)
+  ```cpp
+  cmpx_t ping_buf[16][16];
+  cmpx_t pong_buf[16][16];
+  #pragma HLS RESOURCE variable=ping_buf core=RAM_2P_BRAM
+  #pragma HLS RESOURCE variable=pong_buf core=RAM_2P_BRAM
+  ```
+- [ ] 实现 `burst_read_ddr()` 函数
+- [ ] 实现 `burst_write_ddr()` 函数
+- [ ] 实现分块索引计算逻辑
+
+**BRAM 资源估算**：
+- Ping-Pong 缓存: 16×16×8B×2 = 4KB ≈ 2 BRAM
+- Kernel 存储: 33×33×8B×10 ≈ 10KB ≈ 6 BRAM
+- 总计: ~200 BRAM (21%) ✅
+
+#### 1.3 fft_2d() 重构
+- [ ] 分块 FFT row 处理（8×8 blocks）
+- [ ] 分块 Transpose
+- [ ] 分块 FFT column 处理
+- [ ] 流水线优化：读 Block N+1 与处理 Block N 并行
+
+**数据流设计**：
+```
+DDR temp1 (128×128) → Ping buf → FFT rows → Pong buf → DDR temp2
+DDR temp2 → Ping buf → Transpose → Pong buf → DDR temp3
+DDR temp3 → Ping buf → FFT cols → Output
+```
+
+#### 1.4 Host DDR 预分配
+- [ ] Python DDR 地址分配函数
+  ```python
+  DDR_FFT_BUF_BASE = 0x80000000
+  temp1_addr = DDR_FFT_BUF_BASE + 0x00000000  # +128KB
+  temp2_addr = DDR_FFT_BUF_BASE + 0x00020000  # +256KB
+  temp3_addr = DDR_FFT_BUF_BASE + 0x00040000  # +384KB
+  ```
+- [ ] AXI-Lite 寄存器写入代码
+- [ ] DDR 空间验证函数
+
+---
+
+### Phase 2: Padding 策略实现 ⏳
+
+#### 2.1 动态 Nx 参数处理
+- [ ] 修改 `socs_config.h` 支持运行时 Nx
+  ```cpp
+  #ifdef SOCS_NX_OVERRIDE
+      #define Nx SOCS_NX_OVERRIDE  // 编译时固定
+  #else
+      // 运行时从 AXI-Lite 获取
+  #endif
+  ```
+- [ ] 实现 Nx 到 FFT 尺寸映射函数
+  ```cpp
+  int get_fft_size(int nx_actual) {
+      int conv = 4 * nx_actual + 1;
+      return next_power_of_two(conv);  // 16, 32, 64, 128
+  }
+  ```
+
+#### 2.2 Zero-Padding Embed 函数
+- [ ] 实现 `embed_kernel_mask_padded()`
+  ```cpp
+  void embed_kernel_mask_padded(
+      float* mskf_r, float* mskf_i,
+      float* krn_r, float* krn_i,
+      cmpx_t fft_input[128][128],  // 固定最大尺寸
+      int nx_actual,
+      int kernel_idx
+  );
+  ```
+- [ ] Kernel 补零到 33×33 嵌入到 128×128 右下角
+- [ ] Mask spectrum 取 [-Nx:Nx] 范围
+
+#### 2.3 输出提取函数
+- [ ] 实现 `extract_valid_region()`
+  ```cpp
+  void extract_valid_region(
+      float ifft_output[128][128],
+      float* output_ddr,
+      int nx_actual
+  );
+  ```
+- [ ] 根据 nx_actual 计算提取范围
+  - Nx=4: 提取中心 17×17
+  - Nx=16: 提取中心 65×65
+- [ ] FFTshift + 提取逻辑
+
+#### 2.4 Host Nx 计算与传递
+- [ ] Python Nx 计算函数
+  ```python
+  def calculate_nx(na, lx, wavelength, sigma_outer):
+      return int(np.floor(na * lx * (1 + sigma_outer) / wavelength))
+  ```
+- [ ] AXI-Lite 参数写入
+  ```python
+  socs_ip.write(0x10, nx_actual)  # nx_actual
+  socs_ip.write(0x14, ny_actual)  # ny_actual
+  ```
+
+---
+
+### Phase 3: HLS 综合与验证 ⏳
+
+#### 3.1 C Simulation (Nx=4 + Nx=16)
+- [ ] Nx=4 Padding 验证
+  - 对比 v1.0.0 输出，验证 Padding 等价性
+  - RMSE 目标: < 1e-7
+- [ ] Nx=16 功能验证
+  - 使用 `config_Nx16.json` Golden 数据
+  - RMSE 目标: < 1e-6
+- [ ] Nx=8 中间配置验证
+
+#### 3.2 C Synthesis (128×128 固定架构)
+- [ ] 综合配置文件修改
+  ```ini
+  [syn]
+  syn.top=calc_socs_2048_hls
+  syn.clock=200MHz
+  syn.part=xcku3p-ffvb676-2-e
+  ```
+- [ ] BRAM 资源验证目标: < 250 (26%)
+- [ ] DSP 资源验证目标: < 400 (24%)
+- [ ] Fmax 目标: > 200 MHz
+- [ ] Latency 估算: < 30μs (+20% vs v1.0)
+
+#### 3.3 Co-Simulation
+- [ ] RTL 功能验证
+- [ ] DDR 接口时序验证
+- [ ] Nx 动态参数验证
+
+#### 3.4 IP Packaging
+- [ ] 生成 `calc_socs_2048_hls.zip`
+- [ ] 验证 IP 包完整性
+
+---
+
+### Phase 4: Board Validation ⏳
+
+#### 4.1 Vivado Block Design 集成
+- [ ] 新增 DDR 接口连接
+- [ ] 地址映射配置
+  ```
+  mskf_r/i:  0x00000000 ~ 0x00200000 (2MB)
+  krn_r/i:   0x00400000 ~ 0x00410000 (64KB)
+  output:    0x00600000 ~ 0x00610000 (64KB)
+  fft_buf:   0x00800000 ~ 0x00900000 (1MB)
+  ```
+- [ ] AXI-Lite 寄存器地址分配
+
+#### 4.2 JTAG-to-AXI 硬件测试
+- [ ] DDR 缓存读写测试
+- [ ] Ping-Pong 流水验证
+- [ ] Nx=4 和 Nx=16 双配置测试
+- [ ] 输出正确性验证 (ratio ≈ 1.0)
+
+#### 4.3 性能测试
+- [ ] 实际 Latency 测量
+- [ ] DDR 带宽利用率测试
+- [ ] 多 Nx 配置切换测试
+
+---
+
+### Phase 5: 文档与发布 ⏳
+
+#### 5.1 技术文档
+- [ ] 更新 `README.md` (2048 架构说明)
+- [ ] 更新 `socs_config.h` 注释
+- [ ] 编写 Host API 文档 (Python)
+- [ ] 编写 Vivado 集成指南
+
+#### 5.2 版本发布
+- [ ] Git 标签: `v2.0.0-2048-validated`
+- [ ] 更新 `main` 分支
+- [ ] 创建 Release Notes
+
+---
+
+## 📊 资源估算对比表
+
+| 配置 | v1.0 (Nx=4) | v2.0 (Nx=16 DDR) | Nx=16 原方案 |
+|------|-------------|------------------|--------------|
+| **DSP** | 100 (7%) | 365 (24%) | 365 |
+| **BRAM** | 794 (110%) | **~200 (21%)** | 10,608 (1105%) |
+| **DDR** | 2MB | +512KB | 0 |
+| **AXI-MM** | 6 | **7** | 6 |
+| **支持 Nx** | 固定4 | **2~24** | 固定16 |
+| **Latency** | ~20μs | ~25μs | ~80μs |
+
+---
+
+## 🔧 实现优先级
+
+**P0 - 必须完成**：
+1. DDR 缓存架构 (Phase 1.1-1.4)
+2. Padding 策略 (Phase 2.1-2.4)
+3. C Simulation 验证 (Phase 3.1)
+
+**P1 - 高优先级**：
+4. C Synthesis + BRAM 优化验证 (Phase 3.2)
+5. Board Validation (Phase 4)
+
+**P2 - 正常优先级**：
+6. Co-Simulation (Phase 3.3)
+7. 文档与发布 (Phase 5)
+
+---
+
+## ⚠️ 关键风险与对策
+
+| 风险 | 影响 | 对策 |
+|------|------|------|
+| DDR 带宽瓶颈 | Latency 增加 50%+ | 使用 AXI burst 优化，增大 block size |
+| Padding 精度损失 | RMSE > 1e-5 | 数学验证等价性，Python 对照测试 |
+| Host DDR 分配失败 | 硬件测试失败 | 预分配固定地址空间，PYNQ API 验证 |
+| BRAM 仍超限 | 无法综合 | 调整 block size 为 32×32，减少 Ping-Pong |
+
+---
+
+## 🎯 验收标准
+
+### 功能验收
+- C Sim RMSE < 1e-6 (Nx=4, Nx=16)
+- Board ratio ≈ 1.0 (vs Golden)
+
+### 性能验收
+- BRAM < 250 (26%)
+- Fmax > 200 MHz
+- Latency < 30μs
+
+### 架构验收
+- 支持 Nx=2, 4, 8, 16, 24
+- 单一 IP 无需重编译
+- Host API 可动态配置
+
+---
+
+## 历史版本 (归档)
 
 ---
 

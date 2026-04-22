@@ -1,8 +1,8 @@
 # SOCS HLS 任务清单
 
 **最后更新**: 2026-04-22
-**当前状态**: Phase 1 C综合完成 (Fmax=273.97MHz ✅) + Co-Simulation运行中 (17.4M cycles延迟 🔄)
-**下一步**: Co-Simulation完成验证 → BRAM优化 → IP Package
+**当前状态**: Phase 3 C仿真验证失败 (输出全为0 ❌) → 用户要求三大优化方案
+**下一步**: 诊断零输出根因 → hls::fft集成 → Kernel并行化 → golden_1024适配
 
 ---
 
@@ -60,6 +60,85 @@ BIN → HEX转换 → DDR写入 → HLS读取 → 计算输出
 - **问题**: kernel文件路径错误 (kernel_r_0.bin → krn_0_r.bin)
 - **修复**: 更新 `board_validation_config.json` 使用正确路径
 - **验证**: verify_trust_chain.py 成功加载所有BIN文件
+
+---
+
+## Phase 3: C仿真验证 ❌ (失败 - 输出全为0)
+
+### 任务 3.1: IFFT缩放因子修复 ⏳ (已实现但无效)
+- **问题**: Nx=16测试显示HLS输出~600倍幅度误差
+- **根因**: IFFT缺少1/N缩放因子（FFTW BACKWARD convention）
+- **修复**: 在fft_1d_direct_2048()和fft_rows_pingpong()添加scale = 1.0f/N
+- **验证结果**: **修复无效，输出仍为0**
+
+### 任务 3.2: 零输出根因诊断 ⏳ (进行中)
+- **问题**: C仿真输出全为0.000000 (Min=0, Max=0, Mean=0)
+- **RMSE**: Nx=16测试RMSE=0.109921 (4225/4225 errors)
+- **可能根因**:
+  1. Test bench使用合成Gaussian kernel，非真实SOCS kernel
+  2. Kernel文件尺寸：324B = 9×9×4B×2 (对应Nx=4，非Nx=16)
+  3. 配置不一致：HLS TB用Nx=4，Golden reference用Nx=16
+  4. Kernel embedding函数数据流问题
+- **下一步**: 统一使用golden_1024.json配置生成真实kernel数据
+
+---
+
+## Phase 4: 用户要求的三大优化方案 ⏳ (规划中)
+
+### 任务 4.1: 集成hls::fft替代直接DFT ⭐ (最高优先级)
+- **参考实现**: `reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
+- **预期效果**:
+  - DSP消耗：从8,064降至~1,600 (降低80%+)
+  - Latency：从O(N²)降至O(N log N)，降低10倍+
+  - Fmax：从273MHz提升至300MHz+
+- **实现步骤**:
+  1. 定义FFT配置结构体 (fft_config_2048_t)
+  2. 替换fft_1d_direct_2048()为stream-based hls::fft
+  3. 添加DATAFLOW pragma和stream pipeline
+  4. 验证精度 (RMSE < 1e-5)
+- **验收标准**:
+  - DSP < 1,600 (88%占用率)
+  - C仿真时间 < 60s
+  - RMSE < 1e-6
+
+### 任务 4.2: Kernel并行化实现 ⭐ (用户要求)
+- **当前状态**: nk=10顺序循环处理，每个kernel~45s
+- **优化目标**:
+  - 使用DATAFLOW pragma实现kernel并行
+  - 或创建多个FFT实例并行处理不同kernel
+- **预期效果**:
+  - 吞吐量提升：接近10倍
+  - Latency降低：从10×45s降至~45s
+- **实现挑战**:
+  - BRAM资源：需要10份tmpImg缓冲 (640KB，超限)
+  - DDR带宽：并行读取10个kernel数据
+  - 折衷方案：UNROLL factor=2 (2个kernel并行)
+- **验收标准**:
+  - C仿真吞吐量提升 > 5倍
+  - BRAM占用率 < 100%
+
+### 任务 4.3: 适配golden_1024.json配置 ⭐ (用户要求)
+- **新配置参数**:
+  - Lx/Ly: 1024×1024 (相比512提升4倍)
+  - NA: 0.8
+  - wavelength: 193nm
+  - σ_outer: 0.9
+  - nk: 10
+- **Nx计算**: Nx = floor(0.8×1024×1.9/193) ≈ 8
+- **对应尺寸**:
+  - kerX: 2×Nx+1 = 17
+  - convX: 4×Nx+1 = 33
+  - FFT尺寸: 32×32 (满足2^5要求)
+- **优势**:
+  - FFT尺寸降低 (32×32 vs 128×128)
+  - 分辨率提升 (1024×1024 mask)
+- **验证流程**:
+  ```bash
+  python validation/golden/run_verification.py --config input/config/golden_1024.json
+  ```
+- **验收标准**:
+  - Golden数据生成成功 (mskf_r/i.bin: 4MB)
+  - HLS输出非零且有合理幅度 (~0.005范围)
 
 ---
 
