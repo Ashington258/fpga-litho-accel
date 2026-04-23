@@ -64,7 +64,7 @@ void fft_1d_hls_fixed_2048(
     
     // FFT parameters (Vitis 2025.2 format - matching reference example)
     ap_uint<1> dir = is_inverse ? 1 : 0;  // 0=Forward, 1=Inverse
-    ap_uint<15> scaling = 0;  // 0=Scaled mode (BFP scaling)
+    ap_uint<15> scaling = 0;  // Scaled mode (divides by N²=16384, manual compensation later)
     bool status;  // Output status flag
     
     // Call HLS FFT IP (corrected interface - matching reference)

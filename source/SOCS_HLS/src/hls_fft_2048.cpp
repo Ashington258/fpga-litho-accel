@@ -49,7 +49,7 @@ void fft_1d_hls_stream_2048(
     // Scaling factor (for scaled mode)
     // FFT: no scaling needed
     // IFFT: use scaled mode to get 1/N scaling automatically
-    ap_uint<15> scaling_factor = 0;  // Will be handled by scaled mode
+    ap_uint<15> scaling_factor = 0;  // Scaled mode (divides by N²=16384, manual compensation later)
     fft_config.setScaling(scaling_factor);
     
     // Call HLS FFT IP

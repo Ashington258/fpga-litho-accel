@@ -284,7 +284,10 @@ void calc_socs_2048_hls(
     int nk,             // Number of kernels (runtime)
     int Lx,             // Mask width (512)
     int Ly,             // Mask height
-    unsigned long fft_buf_base  // DDR buffer physical base address
+    unsigned long fft_buf_base,  // DDR buffer physical base address
+    
+    // Output mode selection (Phase 1.4+)
+    int output_mode     // 0=center 33×33 (default), 1=full 128×128 (for FI)
 );
 
 #endif // SOCS_2048_H

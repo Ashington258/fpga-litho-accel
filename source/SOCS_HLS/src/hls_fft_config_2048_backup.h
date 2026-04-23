@@ -12,9 +12,6 @@
 #ifndef HLS_FFT_CONFIG_2048_H
 #define HLS_FFT_CONFIG_2048_H
 
-#include <cmath>
-#include <complex>
-
 // Conditional compilation for HLS vs standard C++
 #ifdef __SYNTHESIS__
 #include <ap_fixed.h>
@@ -36,7 +33,7 @@ const hls::ip_fft::arch FFT_ARCH_2048 = hls::ip_fft::pipelined_streaming_io;
 
 // Twiddle and scaling
 const char FFT_TWIDDLE_WIDTH_2048   = 24;  // Float twiddle: 24 bits
-const hls::ip_fft::scaling FFT_SCALING_2048 = hls::ip_fft::scaled;  // COMPENSATION: Manual N² scaling after IFFT
+const hls::ip_fft::scaling FFT_SCALING_2048 = hls::ip_fft::scaled;
 const hls::ip_fft::rounding FFT_ROUNDING_2048 = hls::ip_fft::truncation;
 
 // Output ordering (natural order for easier integration)
@@ -94,18 +91,61 @@ typedef hls::ip_fft::status_t<config_fft_2048> fft_status_2048_t;
 // Stream-based FFT Wrapper Functions (HLS Synthesis Only)
 // ============================================================================
 
+/**
+ * 1D FFT/IFFT using HLS FFT IP (Stream-based)
+ * 
+ * Replaces fft_1d_direct_2048() with hls::fft IP
+ * 
+ * Key differences from direct DFT:
+ *   - Uses stream interface (lower latency)
+ *   - DSP-based complex multiplication (lower DSP count)
+ *   - Pipelined architecture (higher throughput)
+ * 
+ * @param in_stream   Input data stream (128 complex)
+ * @param out_stream  Output data stream (128 complex)
+ * @param is_inverse  true for IFFT, false for FFT
+ */
 void fft_1d_hls_stream_2048(
     hls::stream<std::complex<float>>& in_stream,
     hls::stream<std::complex<float>>& out_stream,
     bool is_inverse
 );
 
+/**
+ * 2D FFT/IFFT using HLS FFT IP (Stream-based)
+ * 
+ * Replaces fft_2d_full_2048() with hls::fft IP
+ * 
+ * Implementation: Row FFT → Transpose → Column FFT
+ * 
+ * @param input       Input 2D array (128×128)
+ * @param output      Output 2D array (128×128)
+ * @param is_inverse  true for IFFT, false for FFT
+ */
+void fft_2d_hls_stream_2048(
+    std::complex<float> input[MAX_FFT_Y][MAX_FFT_X],
+    std::complex<float> output[MAX_FFT_Y][MAX_FFT_X],
+    bool is_inverse
+);
+
+#else
+// ============================================================================
+// Standard C++ Simulation Mode (No HLS-specific code)
+// ============================================================================
+// In simulation mode, use direct DFT implementation (defined in socs_2048.cpp)
+// No HLS FFT configuration needed
+
+#endif // __SYNTHESIS__
+
+#endif // HLS_FFT_CONFIG_2048_H 
+ * @param input   Input 2D array (128×128)
+ * @param output  Output 2D array (128×128)
+ * @param is_inverse  true for IFFT, false for FFT
+ */
 void fft_2d_hls_stream_2048(
     std::complex<float> input[128][128],
     std::complex<float> output[128][128],
     bool is_inverse
 );
-
-#endif // __SYNTHESIS__
 
 #endif // HLS_FFT_CONFIG_2048_H

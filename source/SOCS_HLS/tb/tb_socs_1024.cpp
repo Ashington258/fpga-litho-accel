@@ -1,23 +1,25 @@
 /**
  * Test Bench for SOCS 1024 Architecture (golden_1024.json)
- * FPGA-Litho Project - Phase 1.4 Validation
+ * FPGA-Litho Project - Phase 1.4 Validation - Zero-Padding Strategy
  * 
  * Configuration: golden_1024.json
  *   - Lx/Ly: 1024×1024 (4x resolution improvement)
  *   - NA: 0.8
  *   - wavelength: 193nm
  *   - sigma_outer: 0.9
- *   - Nx ≈ 8 (dynamically calculated)
- *   - FFT size: 128×128
+ *   - Nx = 8 (dynamically calculated)
+ *   - FFT size: 128×128 (zero-padded from actual 64×64)
+ *   - Embedding: bottom-right offset 111 (128-17=111, zero-padding strategy)
+ *   - Extraction: centered offset 47 ((128-33)/2=47)
  * 
  * Validation Strategy:
  *   1. Load golden_1024 data from output/verification/
- *   2. Run HLS SOCS with ap_fixed FFT
- *   3. Compare with CPU reference (tmpImgp_pad32.bin)
- *   4. Verify RMSE < 1e-5
+ *   2. Run HLS SOCS with 128×128 zero-padded FFT
+ *   3. Compare with CPU reference (tmpImgp_pad64.bin - 33×33)
+ *   4. Verify RMSE < 1e-5 (zero-padding is mathematically equivalent)
  */
 
-#include "../src/socs_2048.h"
+#include "../src/socs_2048.h"  // Use 128×128 universal architecture
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -33,14 +35,14 @@
 #define TEST_NK      10
 
 // Nx dynamically calculated: Nx = floor(NA * Lx * (1+sigma_outer) / lambda)
-// For golden_1024: Nx ≈ 8
+// For golden_1024: Nx = 8 (exact value)
 #define TEST_NX      8
 
 // Kernel and output dimensions
 #define KER_X        (2 * TEST_NX + 1)   // = 17
 #define CONV_X       (4 * TEST_NX + 1)   // = 33
 
-// FFT dimensions (128×128 for 2048 architecture)
+// FFT dimensions (128×128 universal architecture with zero-padding)
 #define MAX_FFT_X    128
 #define MAX_FFT_Y    128
 
@@ -155,17 +157,20 @@ int main() {
     // ========================================================================
     std::printf("Step 1: Loading golden_1024 input data...\n");
     
-    // Allocate arrays
-    float* mskf_r = new float[TEST_LX * TEST_LY];
-    float* mskf_i = new float[TEST_LX * TEST_LY];
-    float* scales = new float[TEST_NK];
-    float* krn_r = new float[TEST_NK * KER_X * KER_X];
-    float* krn_i = new float[TEST_NK * KER_X * KER_X];
-    float* output_hls = new float[CONV_X * CONV_X];
-    float* output_golden = new float[CONV_X * CONV_X];
+    // Allocate arrays — sizes must match depth pragma in socs_2048.cpp
+    // CoSim wrapper reads depth×sizeof(element) bytes from these pointers;
+    // if allocation < depth, out-of-bounds read causes SIGSEGV.
+    float* mskf_r = new float[TEST_LX * TEST_LY];   // depth=1048576 (1024²)
+    float* mskf_i = new float[TEST_LX * TEST_LY];   // depth=1048576 (1024²)
+    float* scales = new float[32]();                  // depth=32, zero-init (nk_max=32)
+    float* krn_r = new float[76832]();                // depth=76832, zero-init (32×49²)
+    float* krn_i = new float[76832]();                // depth=76832, zero-init (32×49²)
+    // Allocate output arrays (max size: 128×128 for OUTPUT_MODE=1)
+    float* output_hls = new float[MAX_FFT_X * MAX_FFT_Y];   // depth=16384
+    float* output_golden = new float[MAX_FFT_X * MAX_FFT_Y];
     
     // FFT DDR buffer
-    cmpx_2048_t* fft_buf_ddr = new cmpx_2048_t[MAX_FFT_Y * MAX_FFT_X];
+    cmpx_2048_t* fft_buf_ddr = new cmpx_2048_t[MAX_FFT_Y * MAX_FFT_X];  // depth=16384
     
     // Read mask frequency data
     int read_count = 0;
@@ -203,9 +208,26 @@ int main() {
     
     std::printf("[INFO] Loaded %d kernels (17×17 each) ✓\n", TEST_NK);
     
-    // Read golden output (tmpImgp_pad64.bin for Nx=8, 33×33)
-    // Note: tmpImgp_pad64.bin contains the padded intermediate output (33×33)
-    read_binary_data(GOLDEN_DIR "tmpImgp_pad64.bin", output_golden, CONV_X * CONV_X);
+    // Read golden output (tmpImgp_pad128.bin for Nx=8, 33×33)
+    // Note: tmpImgp_pad128.bin contains the intermediate output from 128×128 FFT IFFT
+    // Golden CPU now uses 128×128 FFT size to match HLS MAX_FFT_X architecture
+    
+    // Phase 1.4+: Support both output modes
+    // Mode 0: Center region (33×33) - existing validation
+    // Mode 1: Full tmpImgp (128×128) - Fourier Interpolation validation
+    
+    const int OUTPUT_MODE = 1;  // Full tmpImgp (128×128) for Fourier Interpolation validation
+    
+    if (OUTPUT_MODE == 0) {
+        read_binary_data(GOLDEN_DIR "tmpImgp_pad128.bin", output_golden, CONV_X * CONV_X);
+        std::printf("[INFO] Output mode 0: Center region (%d×%d) ✓\n", CONV_X, CONV_X);
+    } else {
+        // Mode 1: Allocate and load full 128×128 tmpImgp
+        delete[] output_golden;
+        output_golden = new float[MAX_FFT_X * MAX_FFT_Y];
+        read_binary_data(GOLDEN_DIR "tmpImgp_full_128.bin", output_golden, MAX_FFT_X * MAX_FFT_Y);
+        std::printf("[INFO] Output mode 1: Full tmpImgp (%d×%d) for FI ✓\n", MAX_FFT_X, MAX_FFT_Y);
+    }
     
     std::printf("[INFO] Data loading completed ✓\n\n");
     
@@ -213,7 +235,7 @@ int main() {
     // Step 2: Run HLS SOCS Function
     // ========================================================================
     std::printf("Step 2: Running HLS SOCS calculation...\n");
-    std::printf("[INFO] Using HLS FFT IP with ap_fixed<32,1> precision\n");
+    std::printf("[INFO] Using HLS FFT IP with ap_fixed<32,1> precision (scaled mode + manual N² compensation)\n");
     
     // Call HLS top-level function
     calc_socs_2048_hls(
@@ -227,7 +249,8 @@ int main() {
         TEST_NK,        // nk (number of kernels)
         TEST_LX,        // Lx (mask width 1024)
         TEST_LY,        // Ly (mask height 1024)
-        0               // fft_buf_base (DDR base address, 0 for test)
+        0,              // fft_buf_base (DDR base address, 0 for test)
+        OUTPUT_MODE     // output_mode (0=center 33×33, 1=full 128×128)
     );
     
     std::printf("[INFO] HLS SOCS calculation completed ✓\n\n");
@@ -237,11 +260,13 @@ int main() {
     // ========================================================================
     std::printf("Step 3: Comparing HLS output with golden reference...\n");
     
+    int compare_count = (OUTPUT_MODE == 0) ? (CONV_X * CONV_X) : (MAX_FFT_X * MAX_FFT_Y);
+    
     int result = compare_results(
         "SOCS_Output",
         output_hls,
         output_golden,
-        CONV_X * CONV_X,
+        compare_count,
         1e-5f  // RMSE tolerance
     );
     
@@ -249,7 +274,13 @@ int main() {
     // Step 4: Save Results
     // ========================================================================
     std::printf("\nStep 4: Saving HLS output for analysis...\n");
-    write_binary_data(DATA_DIR "socs_output_hls_1024.bin", output_hls, CONV_X * CONV_X);
+    if (OUTPUT_MODE == 0) {
+        write_binary_data(DATA_DIR "socs_output_hls_1024.bin", output_hls, CONV_X * CONV_X);
+        std::printf("[INFO] Saved center region (%d×%d) ✓\n", CONV_X, CONV_X);
+    } else {
+        write_binary_data(DATA_DIR "socs_output_full_128.bin", output_hls, MAX_FFT_X * MAX_FFT_Y);
+        std::printf("[INFO] Saved full tmpImgp (%d×%d) for FI ✓\n", MAX_FFT_X, MAX_FFT_Y);
+    }
     
     // ========================================================================
     // Cleanup
