@@ -1,0 +1,92 @@
+{
+  "description": "SOCS Optimized HLS IP DDR Address Map (from AddressSegments.csv)",
+  "device": "xcku3p-ffvb676-2-e",
+  "clock_period": "5ns (200MHz)",
+  
+  "hls_ip": {
+    "name": "calc_socs_optimized_hls",
+    "control_base": "0x00000000",
+    "control_range": "64K",
+    "address_base": "0x00010000",
+    "address_range": "64K"
+  },
+  
+  "ddr_memory": {
+    "base_address": "0x40000000",
+    "total_range": "128M",
+    "segments": {
+      "gmem0": {
+        "name": "mskf_r (mask spectrum real)",
+        "base": "0x40000000",
+        "range": "32M",
+        "data_type": "float32",
+        "dimensions": [512, 512],
+        "total_elements": 262144,
+        "total_bytes": 1048576
+      },
+      "gmem1": {
+        "name": "mskf_i (mask spectrum imag)",
+        "base": "0x42000000",
+        "range": "32M",
+        "data_type": "float32",
+        "dimensions": [512, 512],
+        "total_elements": 262144,
+        "total_bytes": 1048576
+      },
+      "gmem2": {
+        "name": "scales (eigenvalues)",
+        "base": "0x44000000",
+        "range": "4M",
+        "data_type": "float32",
+        "dimensions": [4],
+        "total_elements": 4,
+        "total_bytes": 16
+      },
+      "gmem3": {
+        "name": "krn_r (SOCS kernels real)",
+        "base": "0x44400000",
+        "range": "4M",
+        "data_type": "float32",
+        "dimensions": [4, 9, 9],
+        "total_elements": 324,
+        "total_bytes": 1296
+      },
+      "gmem4": {
+        "name": "krn_i (SOCS kernels imag)",
+        "base": "0x44800000",
+        "range": "256K",
+        "data_type": "float32",
+        "dimensions": [4, 9, 9],
+        "total_elements": 324,
+        "total_bytes": 1296
+      },
+      "gmem5": {
+        "name": "output (aerial image)",
+        "base": "0x44840000",
+        "range": "16K",
+        "data_type": "float32",
+        "dimensions": [17, 17],
+        "total_elements": 289,
+        "total_bytes": 1156
+      }
+    }
+  },
+  
+  "jtag_axi": {
+    "master": "hw_axi_1",
+    "max_burst_len": 128,
+    "data_width": 32
+  },
+  
+  "golden_data": {
+    "directory": "e:/fpga-litho-accel/output/verification",
+    "files": {
+      "mskf_r": "mskf_r.bin",
+      "mskf_i": "mskf_i.bin",
+      "scales": "scales.bin",
+      "krn_r": "krn_r.bin",
+      "krn_i": "krn_i.bin",
+      "golden_output": "aerial_image_socs_kernel.bin"
+    }
+  }
+}

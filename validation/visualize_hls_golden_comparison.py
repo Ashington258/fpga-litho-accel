@@ -139,10 +139,11 @@ def main():
 
     # Figure 3: Eigenvalue distribution
     fig3, ax3 = plt.subplots(figsize=(10, 6))
-    ax3.bar(range(nk), golden_scales, color="steelblue", alpha=0.7)
+    num_eigenvalues = len(golden_scales)
+    ax3.bar(range(num_eigenvalues), golden_scales, color="steelblue", alpha=0.7)
     ax3.set_xlabel("Kernel Index", fontsize=12)
     ax3.set_ylabel("Eigenvalue (λ)", fontsize=12)
-    ax3.set_title("SOCS Eigenvalues (Nx=4 Configuration)", fontsize=14)
+    ax3.set_title(f"SOCS Eigenvalues (Nx=4 Configuration, {num_eigenvalues} eigenvalues)", fontsize=14)
     ax3.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(VALIDATION_OUTPUT / "golden_eigenvalues_nx4.png", dpi=150)

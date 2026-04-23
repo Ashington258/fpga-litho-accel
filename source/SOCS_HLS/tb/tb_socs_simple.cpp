@@ -69,19 +69,23 @@ int main() {
     
     // Load input data
     std::cout << "\n[STEP 1] Loading input data..." << std::endl;
-    // Co-Sim runs in: work_dir/hls/sim/wrapc/
-    // Data location: SOCS_HLS/data/ (go up 4 levels from wrapc)
-    load_binary_data("../../../../data/mskf_r.bin", mskf_r, Lx * Ly);
-    load_binary_data("../../../../data/mskf_i.bin", mskf_i, Lx * Ly);
-    load_binary_data("../../../../data/scales.bin", scales, nk);
+    // Use absolute path to avoid CSIM working directory issues
+    const char* data_dir = "e:/fpga-litho-accel/source/SOCS_HLS/data";
+    char path_buf[512];
+    
+    sprintf(path_buf, "%s/mskf_r.bin", data_dir);
+    load_binary_data(path_buf, mskf_r, Lx * Ly);
+    sprintf(path_buf, "%s/mskf_i.bin", data_dir);
+    load_binary_data(path_buf, mskf_i, Lx * Ly);
+    sprintf(path_buf, "%s/scales.bin", data_dir);
+    load_binary_data(path_buf, scales, nk);
     
     // Load kernels
     for (int k = 0; k < nk; k++) {
-        char filename[256];
-        sprintf(filename, "../../../../data/kernels/krn_%d_r.bin", k);
-        load_binary_data(filename, &krn_r[k * kerX * kerY], kerX * kerY);
-        sprintf(filename, "../../../../data/kernels/krn_%d_i.bin", k);
-        load_binary_data(filename, &krn_i[k * kerX * kerY], kerX * kerY);
+        sprintf(path_buf, "%s/kernels/krn_%d_r.bin", data_dir, k);
+        load_binary_data(path_buf, &krn_r[k * kerX * kerY], kerX * kerY);
+        sprintf(path_buf, "%s/kernels/krn_%d_i.bin", data_dir, k);
+        load_binary_data(path_buf, &krn_i[k * kerX * kerY], kerX * kerY);
     }
     
     std::cout << "  ✓ Mask spectrum loaded: " << Lx << "×" << Ly << std::endl;
@@ -103,7 +107,8 @@ int main() {
     std::cout << "\n[STEP 3] Loading golden outputs..." << std::endl;
     
     // Load 32×32 full golden (for FI validation)
-    load_binary_data("../../../../data/tmpImgp_full_32.bin", golden_full, fftConvX * fftConvY);
+    sprintf(path_buf, "%s/tmpImgp_full_32.bin", data_dir);
+    load_binary_data(path_buf, golden_full, fftConvX * fftConvY);
     
     float golden_full_min = golden_full[0], golden_full_max = golden_full[0];
     float golden_full_sum = 0.0f;
@@ -116,7 +121,8 @@ int main() {
     std::cout << "  Golden 32×32 mean: " << golden_full_sum / (fftConvX * fftConvY) << std::endl;
     
     // Load 17×17 center golden (for compatibility check)
-    load_binary_data("../../../../data/tmpImgp_pad32.bin", golden_center, convX * convY);
+    sprintf(path_buf, "%s/tmpImgp_pad32.bin", data_dir);
+    load_binary_data(path_buf, golden_center, convX * convY);
     
     float golden_center_min = golden_center[0], golden_center_max = golden_center[0];
     float golden_center_sum = 0.0f;
