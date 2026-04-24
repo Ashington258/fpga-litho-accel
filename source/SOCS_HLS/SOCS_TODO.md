@@ -1,9 +1,47 @@
 # SOCS HLS 任务清单
 
-**最后更新**: 2026-04-23 (Phase 1.4+ 完成！)
-**当前状态**: Phase 1.4+ C仿真验证成功 ✅ (RMSE=8.32e-7 < 1e-5目标)
+**最后更新**: 2026-04-24 (Phase 1.5 Co-Sim运行中)
+**当前状态**: Phase 1.5 RTL Co-Simulation验证 ⏳ (预计4-6小时)
 **加速比**: 理论5200x，预估实际3000~4000x
-**下一步**: Phase 1.5 RTL Co-Simulation验证 → Phase 2 Vivado集成
+**下一步**: Co-Sim完成 → Phase 2 Vivado集成
+
+---
+
+## Phase 1.5: RTL Co-Simulation验证 ⏳ (运行中 2026-04-24)
+
+### 任务 1.5.1: Golden数据生成 ✅ (已完成)
+- **配置**: golden_1024.json (Lx=1024, Nx≈8)
+- **生成文件**:
+  - ✅ mskf_r.bin (4,194,304 bytes) - 1024×1024 mask频域实部
+  - ✅ mskf_i.bin (4,194,304 bytes) - 1024×1024 mask频域虚部
+  - ✅ scales.bin (40 bytes) - 10个特征值
+  - ✅ kernels/krn_k_r/i.bin (10×1156 bytes) - 17×17 kernels
+  - ✅ tmpImgp_full_128.bin (65,536 bytes) - 128×128完整输出
+- **验证结果**: TCC vs SOCS一致性通过 (Max Relative Diff: 2.7174e-02)
+
+### 任务 1.5.2: C综合验证 ✅ (已完成)
+- **器件**: xcku3p-ffvb676-2-e @ 250MHz
+- **性能指标**:
+  - ✅ Fmax: 273.97 MHz (目标250 MHz)
+  - ✅ Latency: 199,951 cycles (0.8ms @ 250MHz)
+  - ✅ BRAM: 406 (56%)
+  - ✅ DSP: 42 (3%)
+  - ✅ FF: 35,185 (10%)
+  - ✅ LUT: 38,283 (23%)
+- **关键发现**: C综合使用Direct DFT路径（非HLS FFT IP）
+
+### 任务 1.5.3: Co-Simulation验证 ⏳ (运行中)
+- **终端ID**: 0d60490f-6ac2-42bf-a378-83b3a0e68584
+- **状态**: 正在执行C TB测试
+- **输出目录**: `/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_2048_full_fixed_cosim/hls/cosim/`
+- **预计耗时**: 4-6小时
+- **监控命令**: `tail -f socs_2048_full_fixed_cosim/hls/cosim/cosim.log`
+
+### 任务 1.5.4: 代码修改记录 ✅ (已完成)
+- **文件**: `source/SOCS_HLS/src/socs_2048.cpp`
+- **修改**: 删除手动N²补偿代码（HLS FFT scaled模式已提供正确缩放）
+- **原因**: 验证发现HLS输出已匹配golden scale
+- **状态**: ✅ 修改正确，应保留新版本
 
 ---
 

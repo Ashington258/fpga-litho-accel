@@ -3,12 +3,12 @@
 # 适用于：BRAM、DDR、HBM 等各类 AXI 内存测试
 # 用法：修改 base_addr 参数以适配不同内存类型
 # ============================================
-# source E:\\fpga-litho-accel\\validation\\board\\common\\axi_memory_test.tcl
+# source /home/ashington/fpga-litho-accel/validation/board/common/axi_memory_test.tcl
 
 # ========= 用户参数 =========
 set axi_if      [get_hw_axis hw_axi_1]
-set base_addr   0x40000000    ;# 注意：TCL不支持十六进制下划线分隔符
-set test_len    4          ;# 测试的 word 数量，可自行修改
+set base_addr   0x80000000    ;# 注意：TCL不支持十六进制下划线分隔符
+set test_len    32          ;# 测试的 word 数量，可自行修改
 
 # ========= 生成测试数据（正常顺序） =========
 proc gen_test_data {len} {

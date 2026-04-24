@@ -1,6 +1,6 @@
 # FPGA-Litho SOCS_HLS 全局约束与工作流程指南
 
-**项目路径**：`e:\fpga-litho-accel\source\SOCS_HLS`
+**项目路径**：`/home/ashington/fpga-litho-accel/source/SOCS_HLS`
 
 本文件定义了本项目中 **HLS 开发、验证、导出** 的标准化流程（已基于 **Vitis 2025.2** 验证通过）。
 
@@ -14,13 +14,13 @@
 
 ```bash
 # 步骤1：生成 Golden 数据（使用指定配置）
-cd e:\fpga-litho-accel && python validation/golden/run_verification.py --config input/config/golden_original.json
+cd /home/ashington/fpga-litho-accel && python3 validation/golden/run_verification.py --config input/config/golden_1024.json
 
 # 步骤2：运行 Host 预处理（使用相同配置）
-cd e:\fpga-litho-accel\source\host && python run.py --config ../../input/config/golden_original.json --mode full
+cd /home/ashington/fpga-litho-accel/source/host && python3 run.py --config ../../input/config/golden_1024.json --mode full
 
 # 步骤3：对比验证
-python validation/compare_hls_golden.py --config input/config/golden_original.json
+python3 validation/compare_hls_golden.py --config input/config/golden_1024.json
 ```
 
 ### 配置一致性检查清单
@@ -35,8 +35,8 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 | σ_inner/outer | 必须一致                     | 必须一致        | 必须一致      |
 
 **推荐配置（按优先级）**:
-1. **新架构目标**: `input/config/golden_1024.json` (Lx=1024, Nx≈8)
-2. **原标准配置**: `input/config/golden_original.json` (Lx=512, Nx≈4)
+1. **新架构目标**: `input/config/golden_1024.json` (Lx=1024, Nx≈8, FFT=128×128)
+2. **原标准配置**: `input/config/golden_original.json` (Lx=512, Nx≈4, FFT=32×32)
 
 > **每次验证前，必须确认配置一致性，否则验证结果无效！**
 
@@ -64,7 +64,7 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 **推荐工作目录**（所有命令均在此目录下执行）：
 
 ```bash
-cd e:\fpga-litho-accel\source\SOCS_HLS
+cd /home/ashington/fpga-litho-accel/source/SOCS_HLS
 ```
 
 ### ⚠️ 关键约束说明
@@ -74,17 +74,17 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 - **Nx, Ny 不是配置参数**，而是根据光学参数动态计算
 - **计算公式**：$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
 
-**配置对比（2026-04-22更新）**：
+**配置对比（2026-04-24更新）**：
 
 | 配置文件        | Lx   | NA  | λ   | σ_outer | Nx计算 | 实际Nx | FFT尺寸 |
 |---------------|------|-----|-----|---------|--------|--------|---------|
 | golden_original | 512  | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×512×1.9}{193}\rfloor$ | **4**  | 32×32   |
-| golden_1024   | 1024 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1024×1.9}{193}\rfloor$ | **8**  | 32×32   |
+| golden_1024   | 1024 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1024×1.9}{193}\rfloor$ | **8**  | 128×128 |
 | config_Nx16   | 1536 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1536×1.9}{193}\rfloor$ | **12** | 128×128 |
 
 **新架构目标**：
-- **golden_1024配置**：Lx=1024 → Nx≈8，FFT尺寸32×32（资源消耗低）
-- **优势**：分辨率提升4倍，FFT复杂度仅为128×128的1/16
+- **golden_1024配置**：Lx=1024 → Nx≈8，FFT尺寸128×128（支持Nx最大到24）
+- **优势**：分辨率提升4倍，支持更大Nx范围
 
 ---
 
@@ -278,22 +278,22 @@ $$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor 
 **对应尺寸**：
 - **kerX**: 2×Nx+1 = 17
 - **convX**: 4×Nx+1 = 33
-- **FFT尺寸**: 32×32（满足2^5要求，相比128×128降低16倍）
+- **FFT尺寸**: 128×128（固定尺寸，支持Nx最大到24）
 
 **优势**：
-- FFT尺寸降低（32×32 vs 128×128），资源消耗显著减少
 - 分辨率提升（1024×1024 mask），成像质量更好
+- FFT尺寸固定（128×128），支持更大Nx范围（Nx=2~24）
 
 **验证流程**：
 ```bash
 # 生成golden数据
-python validation/golden/run_verification.py --config input/config/golden_1024.json
+python3 validation/golden/run_verification.py --config input/config/golden_1024.json
 
 # 预期输出文件
 # - mskf_r/i.bin: 1024×1024×4B = 4MB（相比512×512提升4倍）
 # - scales.bin: nk×4B = 40B
 # - kernels_r/i: nk×17×17×4B = 11.56KB
-# - tmpImgp_pad32.bin: 33×33×4B = 4.35KB
+# - tmpImgp_full_128.bin: 128×128×4B = 65.5KB
 ```
 
 #### 方案4：使用LUT替代DSP（备选）

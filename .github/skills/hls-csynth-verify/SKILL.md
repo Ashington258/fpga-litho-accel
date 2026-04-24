@@ -16,15 +16,15 @@ description: "WORKFLOW SKILL — Execute Vitis HLS C Synthesis and verify result
 
 ## 核心约束
 
-**项目路径**: `e:\fpga-litho-accel\source\SOCS_HLS`
+**项目路径**: `/home/ashington/fpga-litho-accel/source/SOCS_HLS`
 
 **关键约束**:
 
 1. **Nx/Ny动态计算**: $N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
-2. **当前配置实际值**: **Nx=4, Ny=4**（基于NA=0.8, Lx=512, λ=193, σ=0.9）
-3. **IFFT尺寸改写**: 已满足2^N标准（17×17→32×32 zero-padded）
-4. **器件配置**: `xcku3p-ffvb676-2-e`, 200MHz时钟
-5. **Golden参考**: litho.cpp（已使用nextPowerOfTwo自动填充）
+2. **当前配置实际值**: **Nx=8, Ny=8**（基于NA=0.8, Lx=1024, λ=193, σ=0.9）
+3. **FFT尺寸**: 固定128×128（支持Nx最大到24）
+4. **器件配置**: `xcku3p-ffvb676-2-e`, 250MHz时钟
+5. **Golden参考**: litho.cpp（已使用128×128 FFT）
 
 ## ⚠️ 关键配置要求（新增）
 
@@ -44,10 +44,12 @@ void calc_socs_hls(
     float *output       // AXI-MM: Output
 ) {
     // ⚠️ 必须添加depth参数，否则Co-Simulation失败
-    #pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 depth=512*512
-    #pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 depth=512*512
+    #pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 depth=1024*1024
+    #pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 depth=1024*1024
     #pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 depth=10
-    #pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 depth=10*9*9
+    #pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 depth=10*17*17
+    #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 depth=10*17*17
+    #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=128*128
     #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 depth=10*9*9
     #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=17*17
 
