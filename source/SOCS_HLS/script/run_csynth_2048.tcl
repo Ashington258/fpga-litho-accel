@@ -14,7 +14,7 @@ set_top calc_socs_2048_hls
 
 # 添加源文件
 add_files ${proj_dir}/src/socs_2048.h
-add_files ${proj_dir}/src/socs_2048.cpp
+add_files ${proj_dir}/src/socs_2048.cpp -cflags "-D__SYNTHESIS__"
 add_files ${proj_dir}/src/hls_fft_config_2048_corrected.h
 
 # 添加测试平台
@@ -25,7 +25,7 @@ set_part xcku3p-ffvb676-2-e
 create_clock -period 5 -name default
 
 # HLS 配置
-config_compile -name_max_length 256
+config_compile -name_max_length=256
 config_interface -clock_enable=false
 
 # ================== 运行 C 综合 ==================

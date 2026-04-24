@@ -1,9 +1,160 @@
 # SOCS HLS 任务清单
 
-**最后更新**: 2026-04-24 (Phase 1.5 Co-Sim运行中)
+**最后更新**: 2026-04-25 (Phase 1.5 Co-Sim运行中)
+**当前分支**: feature/2048-architecture
 **当前状态**: Phase 1.5 RTL Co-Simulation验证 ⏳ (预计4-6小时)
 **加速比**: 理论5200x，预估实际3000~4000x
 **下一步**: Co-Sim完成 → Phase 2 Vivado集成
+
+---
+
+## 📋 当前HLS IP核状态总结 (2026-04-25)
+
+### ✅ IP核功能验证状态
+
+| 验证阶段 | 状态 | 结果 | 备注 |
+|---------|------|------|------|
+| C Simulation | ✅ 完成 | RMSE=8.32e-7 | 与Golden CPU完美匹配 |
+| C Synthesis | ✅ 完成 | 资源占用56% BRAM | Fmax=274MHz |
+| Co-Simulation | ⏳ 运行中 | 预计4-6小时 | RTL验证 |
+| Board Validation | ⏳ 待开始 | - | 需硬件环境 |
+
+### 📊 HLS IP核技术规格
+
+**IP核名称**: `calc_socs_2048_hls`
+
+**目标器件**: xcku3p-ffvb676-2-e
+
+**时钟性能**:
+- 目标频率: 200 MHz (5.00ns)
+- 实际频率: 274 MHz (3.650ns) ✅ 超过目标37%
+
+**资源占用**:
+| 资源类型 | 使用量 | 可用量 | 占用率 | 状态 |
+|---------|--------|--------|--------|------|
+| BRAM_18K | 406 | 720 | 56% | ✅ 通过 |
+| DSP | 42 | 1368 | 3% | ✅ 通过 |
+| FF | 35,185 | 325,440 | 10% | ✅ 通过 |
+| LUT | 38,283 | 162,720 | 23% | ✅ 通过 |
+
+**性能指标**:
+- FFT Latency: 199,951 cycles (1.0ms @ 200MHz)
+- 总处理时间: ~8.65ms (10 kernels)
+- 吞吐量: ~1.16 kernels/ms
+
+### 🔧 支持的输入输出规格
+
+**输入数据**:
+1. **Mask频谱** (mskf_r, mskf_i)
+   - 尺寸: 1024×1024 complex<float>
+   - 格式: 二进制BIN文件
+   - 大小: 2 × 4,194,304 bytes = 8 MB
+   - 来源: `output/verification/mskf_r.bin`, `mskf_i.bin`
+
+2. **SOCS Kernels** (krn_r, krn_i)
+   - 尺寸: nk × kerX × kerY (nk=10, kerX=kerY=17)
+   - 格式: 二进制BIN文件
+   - 大小: 2 × 10 × 289 × 4 bytes = 23,120 bytes
+   - 来源: `output/verification/kernels/krn_k_r.bin`, `krn_k_i.bin`
+
+3. **特征值** (scales)
+   - 尺寸: nk=10
+   - 格式: 二进制BIN文件
+   - 大小: 10 × 4 bytes = 40 bytes
+   - 来源: `output/verification/scales.bin`
+
+**输出数据**:
+1. **空中像强度** (output)
+   - 尺寸: 128×128 float
+   - 格式: 二进制BIN文件
+   - 大小: 65,536 bytes
+   - 内容: tmpImgp (FFTshift后的强度分布)
+
+**配置参数** (AXI-Lite接口):
+- `nk`: kernel数量 (默认10)
+- `nx`, `ny`: 光学参数 (动态计算，Nx≈8 for golden_1024)
+- `Lx`, `Ly`: mask尺寸 (1024×1024)
+
+### 🎯 支持的配置范围
+
+**FFT架构**: 固定128×128 (支持Nx=2~24)
+
+**配置兼容性**:
+| 配置文件 | Lx | Nx | kerX | convX | FFT尺寸 | 支持状态 |
+|---------|-----|-----|------|-------|---------|---------|
+| golden_original | 512 | 4 | 9 | 17 | 128×128 | ✅ 支持 |
+| golden_1024 | 1024 | 8 | 17 | 33 | 128×128 | ✅ 支持 |
+| config_Nx16 | 1536 | 12 | 25 | 49 | 128×128 | ✅ 支持 |
+
+**零填充策略**:
+- 实际数据嵌入到128×128 FFT的右下角
+- 嵌入位置: embed_x = (128 × (64 - kerX)) / 64
+- 提取位置: offset = (128 - convX) / 2
+
+### 🔌 接口架构
+
+**AXI-MM Master接口** (6个独立接口):
+```cpp
+#pragma HLS INTERFACE m_axi port=mskf_r bundle=gmem0  // Mask频谱实部
+#pragma HLS INTERFACE m_axi port=mskf_i bundle=gmem1  // Mask频谱虚部
+#pragma HLS INTERFACE m_axi port=krn_r bundle=gmem2   // Kernel实部
+#pragma HLS INTERFACE m_axi port=krn_i bundle=gmem3   // Kernel虚部
+#pragma HLS INTERFACE m_axi port=scales bundle=gmem4  // 特征值
+#pragma HLS INTERFACE m_axi port=output bundle=gmem5  // 输出图像
+```
+
+**AXI-Lite Control接口**:
+```cpp
+#pragma HLS INTERFACE s_axilite port=nk bundle=control
+#pragma HLS INTERFACE s_axilite port=nx bundle=control
+#pragma HLS INTERFACE s_axilite port=ny bundle=control
+#pragma HLS INTERFACE s_axilite port=Lx bundle=control
+#pragma HLS INTERFACE s_axilite port=Ly bundle=control
+#pragma HLS INTERFACE s_axilite port=return bundle=control
+```
+
+### 📁 关键文件位置
+
+**HLS源代码**:
+- `source/SOCS_HLS/src/socs_2048.cpp` - 主实现
+- `source/SOCS_HLS/src/socs_2048.h` - 头文件
+- `source/SOCS_HLS/src/hls_fft_config_2048_corrected.h` - FFT配置
+
+**Test Bench**:
+- `source/SOCS_HLS/tb/tb_socs_1024.cpp` - C仿真测试平台
+
+**综合脚本**:
+- `source/SOCS_HLS/script/run_csynth_2048.tcl` - TCL综合脚本
+- `source/SOCS_HLS/script/config/hls_config_socs_full.cfg` - HLS配置
+
+**综合结果**:
+- `source/SOCS_HLS/socs_2048_full_fixed_cosim/hls/syn/report/calc_socs_2048_hls_csynth.rpt` - C综合报告
+
+**Golden数据**:
+- `output/verification/` - Golden参考数据目录
+
+### ⚠️ 已知限制
+
+1. **FFT架构**: 使用HLS FFT IP (ap_fixed<32,1>精度)
+   - C仿真使用Direct DFT路径 (非HLS FFT IP)
+   - C综合使用HLS FFT IP路径
+
+2. **资源约束**: BRAM占用56%，接近上限
+   - 无法支持多FFT实例并行
+   - 流水线并行需谨慎设计
+
+3. **配置限制**: 
+   - 固定128×128 FFT尺寸
+   - 最大支持Nx=24 (kerX=49)
+
+### 🚀 性能对比
+
+**CPU vs FPGA**:
+- CPU (Intel i7-10700K): 45秒 (10 kernels)
+- FPGA (xcku3p @ 200MHz): 8.65ms (10 kernels)
+- **加速比**: 5200x (理论值)
+
+**实际预估加速比**: 3000~4000x (考虑数据传输开销)
 
 ---
 
