@@ -9,6 +9,7 @@
  */
 
 #include "hls_fft_config_2048.h"
+#include <hls_stream.h>
 #include <cstdio>
 
 // ============================================================================

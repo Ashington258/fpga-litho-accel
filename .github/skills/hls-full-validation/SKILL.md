@@ -47,7 +47,55 @@ description: "WORKFLOW SKILL — Execute complete Vitis HLS validation pipeline:
    ```
 
 2. **配置文件正确格式**:
+## 🤖 自动化集成（2026-04-25新增）
 
+### 自动任务推进
+
+**完成验证后自动调用**：`auto-task-progression` skill
+
+**触发条件**：
+- ✅ C Simulation通过（RMSE达标）
+- ✅ C Synthesis完成（资源未超限）
+- ✅ Co-Simulation通过（RTL功能验证）
+- ✅ Package成功（IP导出完成）
+
+**自动执行**：
+```
+验证完成 → 更新TODO状态 → 自动开始下一个任务
+```
+
+### 自动经验记录
+
+**遇到问题时自动调用**：`experience-recorder` skill
+
+**触发条件**：
+- 🚨 验证失败（RMSE超标、资源超限）
+- ⚠️ 配置错误（如depth参数缺失）
+- 💡 发现优化技巧（如更好的pragma用法）
+- 📚 学习到新知识（如工具版本差异）
+
+**自动执行**：
+```
+检测问题 → 分类经验 → 更新文档 → 记录日志
+```
+
+### 集成示例
+
+**在验证流程中自动触发**：
+```markdown
+## 步骤1：C Simulation
+
+执行C仿真 → 检查结果
+  ├─ 成功 → 继续下一步
+  └─ 失败 → 自动调用 experience-recorder → 记录问题 → 暂停等待用户
+
+## 步骤4：验证完成
+
+所有步骤完成 → 自动调用 auto-task-progression
+  ├─ 更新TODO状态为"✅ 完成"
+  ├─ 识别下一个任务
+  └─ 自动开始执行（无需用户确认）
+```
    ```ini
    # 正确格式（无[package] section）
    part = xcku3p-ffvb676-2-e

@@ -26,9 +26,11 @@ const int  FFT_INPUT_WIDTH_32 = 32;     // 32-bit precision (8-bit aligned)
 
 // Input/Output type: ap_fixed<32, 1> (HLS FFT native precision)
 // HLS FFT library mandates 1-bit integer part (library design limitation)
-// COMPENSATION STRATEGY: Use scaled mode + manual N² scaling after IFFT
-// - Scaled IFFT divides by N² = 16384 (128×128)
-// - Manual compensation: multiply output by 16384
+// 
+// SCALING STRATEGY: Use scaled mode (scaling=0x7F) to match FFTW BACKWARD
+// - HLS FFT scaled mode: divides by N for each 1D FFT (total 1/N² for 2D)
+// - FFTW BACKWARD: divides by N for each 1D IFFT (total 1/N² for 2D)
+// - Result: HLS FFT output matches FFTW BACKWARD without manual compensation
 typedef ap_fixed<FFT_INPUT_WIDTH_32, 1> data_fft_in_t;  // Matches HLS FFT library expectation
 typedef std::complex<data_fft_in_t> cmpx_fft_in_t;
 
@@ -49,10 +51,10 @@ struct config_socs_fft : hls::ip_fft::params_t {
     // Optional: specify implementation options
     static const unsigned implementation_options = hls::ip_fft::pipelined_streaming_io;
     
-    // COMPENSATION STRATEGY: Use scaled mode (HLS FFT native support)
-    // - Scaled IFFT divides by N² = 16384 (128×128 2D FFT)
-    // - Manual compensation after IFFT: multiply output by 16384
-    // - Matches FFTW BACKWARD behavior after compensation
+    // SCALING STRATEGY: Use scaled mode to match FFTW BACKWARD behavior
+    // - HLS FFT scaled mode: divides by N for each 1D FFT (total 1/N² for 2D)
+    // - FFTW BACKWARD: divides by N for each 1D IFFT (total 1/N² for 2D)
+    // - Result: HLS FFT output matches FFTW BACKWARD without manual compensation
     static const unsigned scaling_options = hls::ip_fft::scaled;
 };
 
@@ -109,10 +111,19 @@ void fft_1d_hls_128(
     
     // FFT direction: 0=forward, 1=inverse
     ap_uint<1> dir = is_inverse ? 1 : 0;
-    ap_uint<15> scaling = 0;  // Scaled mode (divides by N²=16384, manual compensation later)
+    
+    // CRITICAL FIX: Use scaled mode for IFFT to match FFTW BACKWARD behavior
+    // FFTW BACKWARD: x[n] = (1/N) * sum_k X[k] * exp(+2πi*k*n/N)
+    // HLS FFT scaled mode: divides by N for each stage (total 1/N for 1D FFT)
+    // For 2D FFT: total scaling = 1/(N*M) = 1/16384 (matches FFTW BACKWARD)
+    // 
+    // Scaling schedule: 1 bit right shift per stage (standard scaled mode)
+    // For 128-point FFT (7 stages): scaling = 0b1111111 = 0x7F
+    ap_uint<15> scaling = 0x7F;  // Scaled mode: divide by 2^7 = 128 for 1D FFT
+    
     bool status;
     
-    // Call HLS FFT IP (unscaled mode: raw IFFT output, no 1/N normalization)
+    // Call HLS FFT IP (scaled mode: IFFT divides by N, matches FFTW BACKWARD)
     hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &status);
 }
 

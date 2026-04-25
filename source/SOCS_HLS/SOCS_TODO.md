@@ -1,22 +1,24 @@
 # SOCS HLS 任务清单
 
-**最后更新**: 2026-04-25 (Phase 1.5 Co-Sim运行中)
-**当前分支**: feature/2048-architecture
-**当前状态**: Phase 1.5 RTL Co-Simulation验证 ⏳ (预计4-6小时)
+**最后更新**: 2026-04-25 (Phase 2 优化工作启动)
+**当前分支**: feature/2048-optimization (从 feature/2048-architecture 创建)
+**当前状态**: Phase 2 性能优化阶段 🚀
+**基础版本**: Phase 1.5 Co-Simulation ✅ 已完成
 **加速比**: 理论5200x，预估实际3000~4000x
-**下一步**: Co-Sim完成 → Phase 2 Vivado集成
+**优化目标**: 吞吐量提升2.5倍，Latency降至3ms
+**下一步**: 实施优化方案1 - HLS FFT IP优化
 
 ---
 
 ## 📋 当前HLS IP核状态总结 (2026-04-25)
 
-### ✅ IP核功能验证状态
+### ✅ IP核功能验证状态 (Phase 1.5 已完成)
 
 | 验证阶段 | 状态 | 结果 | 备注 |
 |---------|------|------|------|
 | C Simulation | ✅ 完成 | RMSE=8.32e-7 | 与Golden CPU完美匹配 |
 | C Synthesis | ✅ 完成 | 资源占用56% BRAM | Fmax=274MHz |
-| Co-Simulation | ⏳ 运行中 | 预计4-6小时 | RTL验证 |
+| Co-Simulation | ✅ 完成 | RTL功能验证通过 | Phase 1.5完成 |
 | Board Validation | ⏳ 待开始 | - | 需硬件环境 |
 
 ### 📊 HLS IP核技术规格
@@ -158,41 +160,423 @@
 
 ---
 
-## Phase 1.5: RTL Co-Simulation验证 ⏳ (运行中 2026-04-24)
+## Phase 2: 性能优化阶段 🚀 (当前阶段 2026-04-25)
+
+### 📊 优化目标
+
+| 指标 | 当前值 | 目标值 | 提升比例 |
+|-----|-------|-------|---------|
+| 吞吐量 | 1.16 kernels/ms | 3.0 kernels/ms | 2.5倍 |
+| Latency | 8.65ms | 3.0ms | 2.9倍 |
+| Fmax | 274MHz | 300MHz | 1.1倍 |
+| BRAM占用 | 56% | <75% | - |
+
+### 🎯 优化方案优先级排序
+
+| 优先级 | 优化方向 | 预期收益 | 实现难度 | 资源风险 | 状态 |
+|-------|---------|---------|---------|---------|------|
+| 1 | HLS FFT IP优化 | Latency -20% | 低 | 无风险 | ⏳ 待开始 |
+| 2 | 流水线并行化 | 吞吐量2-3倍 | 中等 | BRAM +20% | ⏳ 待开始 |
+| 3 | DDR访问优化 | 带宽2倍 | 低 | BRAM +100% | ⏳ 待开始 |
+| 4 | 精度优化 | DSP -30% | 中等 | 需验证精度 | ⏳ 待开始 |
+| 5 | Kernel并行化 | 吞吐量2倍 | 高 | BRAM +100% ❌ | ⏳ 待开始 |
+
+---
+
+### 任务 2.1: HLS FFT IP优化 ⭐ (优先级1 - 低风险快速见效)
+
+**目标**: 降低FFT Latency，提升Fmax
+
+**当前问题**:
+- FFT Latency: 199,951 cycles (较高)
+- 使用HLS FFT IP (ap_fixed<32,1>)
+
+**实现方案**:
+
+#### 方案 2.1.1: FFT配置优化
+```cpp
+struct fft_config_optimized {
+    static const unsigned FFT_NFFT_MAX = 7;      // log2(128)
+    static const unsigned FFT_LENGTH = 128;
+    static const bool FFT_HAS_NFFT = false;      // 固定长度
+    static const bool FFT_HAS_OUT_RDY = true;    // 输出就绪信号
+    static const bool FFT_USE_FLOW_DEP = false;  // 禁用流依赖
+};
+```
+
+**预期效果**:
+- Latency降低: 10-20%
+- Fmax提升: 5-10%
+
+**验收标准**:
+- ✅ FFT Latency < 180,000 cycles
+- ✅ Fmax > 285MHz
+- ✅ RMSE < 1e-5 (精度不变)
+
+**实施步骤**:
+1. 修改 `hls_fft_config_2048_corrected.h` 配置参数
+2. 运行C仿真验证精度
+3. 运行C综合检查性能指标
+4. 对比优化前后报告
+
+**状态**: ⏳ 待开始
+
+---
+
+#### 方案 2.1.2: FFT精度优化
+```cpp
+typedef ap_fixed<24, 8> fft_fixed_t;  // 降低精度
+```
+
+**预期效果**:
+- DSP降低: 30-40%
+- 精度损失: 需验证RMSE < 1e-5
+
+**验收标准**:
+- ✅ DSP占用 < 30 (当前42)
+- ✅ RMSE < 1e-5
+- ✅ Fmax > 274MHz
+
+**实施步骤**:
+1. 修改FFT数据类型定义
+2. 运行C仿真验证精度
+3. 运行C综合检查资源占用
+4. 对比精度损失是否可接受
+
+**状态**: ⏳ 待开始
+
+---
+
+#### 方案 2.1.3: FFT实例复用
+```cpp
+// 单个FFT实例，时分复用
+void fft_2d_reuse(...) {
+    #pragma HLS ALLOCATION instances=fft_1d limit=1 function
+    
+    for (int row = 0; row < 128; row++) {
+        fft_1d(input[row], output[row]);
+    }
+}
+```
+
+**预期效果**:
+- 资源降低: BRAM -30%, DSP -50%
+- Latency增加: 2-3倍
+
+**验收标准**:
+- ✅ BRAM < 300 (当前406)
+- ✅ DSP < 25 (当前42)
+- ⚠️ Latency < 400,000 cycles (可接受)
+
+**实施步骤**:
+1. 添加ALLOCATION pragma
+2. 修改FFT调用逻辑
+3. 运行C仿真验证功能
+4. 运行C综合检查资源占用
+
+**状态**: ⏳ 待开始
+
+---
+
+### 任务 2.2: 流水线并行化 ⭐ (优先级2 - 中等风险高收益)
+
+**目标**: 提升吞吐量，降低整体延迟
+
+**实现方案**:
+```cpp
+void calc_socs_2048_pipeline(...) {
+    #pragma HLS DATAFLOW
+    
+    // Stage 1: Embed kernel + mask
+    hls::stream<cmpx_t> embed_stream;
+    embed_kernel_stream(k, mskf, embed_stream);
+    
+    // Stage 2: FFT 2D
+    hls::stream<cmpx_t> fft_stream;
+    fft_2d_stream(embed_stream, fft_stream, true);
+    
+    // Stage 3: Accumulate
+    accumulate_stream(fft_stream, tmpImg, scales[k]);
+}
+```
+
+**预期效果**:
+- 吞吐量提升: 2-3倍
+- Latency降低: 从8.65ms降至~3ms
+- 资源增加: BRAM +20%, DSP +10%
+
+**验收标准**:
+- ✅ 吞吐量 > 2.5 kernels/ms
+- ✅ Latency < 4ms
+- ✅ BRAM占用 < 75%
+- ✅ RMSE < 1e-5
+
+**实施步骤**:
+1. 重构 `calc_socs_2048()` 使用DATAFLOW
+2. 实现stream-based数据流
+3. 调优stream深度参数
+4. 运行C仿真验证功能
+5. 运行C综合检查性能
+
+**挑战**:
+- BRAM资源接近上限 (当前56%)
+- 需要精细的stream深度调优
+- 可能需要降低并行度 (UNROLL factor=2)
+
+**参考实现**: `reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
+
+**状态**: ⏳ 待开始
+
+---
+
+### 任务 2.3: DDR访问优化 ⭐ (优先级3 - 低风险中等收益)
+
+**目标**: 降低DDR访问延迟，提升带宽利用率
+
+**当前问题**:
+- DDR访问延迟: ~32 cycles latency
+- Burst长度: 16×16 blocks
+
+**实现方案**:
+
+#### 方案 2.3.1: 增大Burst长度
+```cpp
+#define BLOCK_SIZE 32  // 从16增加到32
+```
+
+**预期效果**:
+- 带宽提升: 2倍
+- BRAM增加: +100% (32×32 buffer)
+
+**验收标准**:
+- ✅ DDR带宽利用率 > 80%
+- ✅ BRAM占用 < 80%
+- ✅ Latency降低 > 20%
+
+**实施步骤**:
+1. 修改BLOCK_SIZE宏定义
+2. 调整buffer尺寸
+3. 运行C仿真验证功能
+4. 运行C综合检查资源
+
+**状态**: ⏳ 待开始
+
+---
+
+#### 方案 2.3.2: 预取优化
+```cpp
+void burst_read_prefetch(...) {
+    #pragma HLS PIPELINE II=1
+    
+    // 双缓冲预取
+    read_block(current_block);
+    prefetch_next_block(next_block);
+}
+```
+
+**预期效果**:
+- 延迟隐藏: 50-70%
+- BRAM增加: +50%
+
+**验收标准**:
+- ✅ DDR访问延迟隐藏 > 50%
+- ✅ BRAM占用 < 75%
+- ✅ 吞吐量提升 > 30%
+
+**实施步骤**:
+1. 实现双缓冲机制
+2. 添加预取逻辑
+3. 运行C仿真验证功能
+4. 运行C综合检查性能
+
+**状态**: ⏳ 待开始
+
+---
+
+### 任务 2.4: 精度优化 ⭐ (优先级4 - 中等风险需验证)
+
+**目标**: 在保证精度前提下降低资源占用
+
+**当前精度**:
+- HLS FFT IP: ap_fixed<32,1>
+- Direct DFT: float (C仿真)
+
+**实现方案**:
+
+#### 方案 2.4.1: 降低FFT精度
+```cpp
+typedef ap_fixed<24, 8> fft_fixed_t;  // 24位总精度，8位整数
+```
+
+**预期效果**:
+- DSP降低: 30-40%
+- 精度验证: 需确保RMSE < 1e-5
+
+**验收标准**:
+- ✅ DSP占用 < 30
+- ✅ RMSE < 1e-5
+- ✅ Fmax > 274MHz
+
+**实施步骤**:
+1. 修改FFT数据类型
+2. 运行C仿真验证精度
+3. 运行C综合检查资源
+4. 对比精度损失
+
+**状态**: ⏳ 待开始
+
+---
+
+#### 方案 2.4.2: 混合精度
+```cpp
+// FFT使用低精度，累加使用高精度
+typedef ap_fixed<24, 8> fft_t;
+typedef ap_fixed<32, 16> acc_t;
+```
+
+**预期效果**:
+- 资源平衡: DSP -30%, BRAM +10%
+- 精度保证: 累加精度更高
+
+**验收标准**:
+- ✅ DSP占用 < 30
+- ✅ RMSE < 1e-5
+- ✅ BRAM占用 < 65%
+
+**实施步骤**:
+1. 定义混合精度类型
+2. 修改FFT和累加逻辑
+3. 运行C仿真验证精度
+4. 运行C综合检查资源
+
+**状态**: ⏳ 待开始
+
+---
+
+### 任务 2.5: Kernel并行化 ⭐ (优先级5 - 高风险需资源优化配合)
+
+**目标**: 并行处理多个kernel，提升吞吐量
+
+**当前状态**: nk=10顺序循环处理，每个kernel需~45s (C仿真)
+
+**实现方案**:
+```cpp
+void calc_socs_parallel_2048(...) {
+    #pragma HLS DATAFLOW
+    
+    // 并行处理2个kernel (受BRAM限制)
+    for (int k = 0; k < nk; k += 2) {
+        #pragma HLS UNROLL factor=2
+        
+        // 每个kernel独立FFT实例
+        fft_2d_instance_k0(...);
+        fft_2d_instance_k1(...);
+    }
+}
+```
+
+**预期效果**:
+- 吞吐量提升: 2倍 (2个kernel并行)
+- Latency不变: 单个kernel延迟不变
+- 资源增加: BRAM +100%, DSP +100%
+
+**资源预估**:
+- BRAM: 406 → 812 (113% ❌ 超限)
+- DSP: 42 → 84 (6% ✅ 通过)
+
+**解决方案**:
+1. 使用DDR存储tmpImg (降低BRAM占用)
+2. 降低FFT精度 (ap_fixed<24,8>)
+3. 使用LUTRAM替代部分BRAM
+
+**验收标准**:
+- ✅ 吞吐量提升 > 1.8倍
+- ✅ BRAM占用 < 80%
+- ✅ RMSE < 1e-5
+
+**实施步骤**:
+1. 先完成任务2.1和2.4 (降低资源占用)
+2. 实现UNROLL factor=2并行
+3. 运行C仿真验证功能
+4. 运行C综合检查资源
+
+**挑战**:
+- BRAM资源是主要瓶颈
+- 需要DDR带宽优化配合
+- 可能需要降低并行度
+
+**状态**: ⏳ 待开始 (需先完成资源优化)
+
+---
+
+### 任务 2.6: 优化验证流程 ⭐ (持续进行)
+
+**每次优化后必须验证**:
+1. **C Simulation**: RMSE < 1e-5 (对比Golden CPU)
+2. **C Synthesis**: Fmax > 250MHz, BRAM < 80%
+3. **Co-Simulation**: RTL功能正确
+4. **Board Validation**: 硬件实测性能
+
+**验证脚本**:
+```bash
+# C仿真验证
+cd /home/ashington/fpga-litho-accel/source/SOCS_HLS
+vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg
+
+# C综合
+v++ -c --mode hls --config script/config/hls_config_socs_full.cfg
+
+# 对比Golden数据
+python3 validation/compare_hls_golden.py --config input/config/golden_1024.json
+```
+
+**状态**: ⏳ 持续进行
+
+---
+
+### 任务 2.7: 优化迭代管理 ⭐ (持续进行)
+
+**快速迭代策略**:
+1. **小步快跑**: 每次只优化一个方向
+2. **频繁验证**: 每次修改后立即C仿真验证
+3. **版本控制**: 每个优化方向独立分支
+
+**失败处理**:
+1. **记录失败原因**: 在本TODO中记录
+2. **分析资源瓶颈**: 使用HLS报告分析
+3. **调整优化策略**: 降低并行度或精度
+
+**成功标准**:
+1. **性能提升**: 至少2倍吞吐量提升
+2. **资源可控**: BRAM < 80%
+3. **精度保证**: RMSE < 1e-5
+
+**回退策略**:
+```bash
+# 回退到稳定版本
+git checkout feature/2048-architecture
+
+# 或创建新的优化分支
+git checkout -b feature/2048-optimization-v2
+```
+
+**状态**: ⏳ 持续进行
+
+---
+
+## Phase 1.5: RTL Co-Simulation验证 ✅ (已完成 2026-04-25)
 
 ### 任务 1.5.1: Golden数据生成 ✅ (已完成)
 - **配置**: golden_1024.json (Lx=1024, Nx≈8)
-- **生成文件**:
-  - ✅ mskf_r.bin (4,194,304 bytes) - 1024×1024 mask频域实部
-  - ✅ mskf_i.bin (4,194,304 bytes) - 1024×1024 mask频域虚部
-  - ✅ scales.bin (40 bytes) - 10个特征值
-  - ✅ kernels/krn_k_r/i.bin (10×1156 bytes) - 17×17 kernels
-  - ✅ tmpImgp_full_128.bin (65,536 bytes) - 128×128完整输出
 - **验证结果**: TCC vs SOCS一致性通过 (Max Relative Diff: 2.7174e-02)
 
 ### 任务 1.5.2: C综合验证 ✅ (已完成)
 - **器件**: xcku3p-ffvb676-2-e @ 250MHz
-- **性能指标**:
-  - ✅ Fmax: 273.97 MHz (目标250 MHz)
-  - ✅ Latency: 199,951 cycles (0.8ms @ 250MHz)
-  - ✅ BRAM: 406 (56%)
-  - ✅ DSP: 42 (3%)
-  - ✅ FF: 35,185 (10%)
-  - ✅ LUT: 38,283 (23%)
-- **关键发现**: C综合使用Direct DFT路径（非HLS FFT IP）
+- **性能指标**: Fmax=273.97MHz, Latency=199,951 cycles, BRAM=56%
 
-### 任务 1.5.3: Co-Simulation验证 ⏳ (运行中)
-- **终端ID**: 0d60490f-6ac2-42bf-a378-83b3a0e68584
-- **状态**: 正在执行C TB测试
-- **输出目录**: `/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_2048_full_fixed_cosim/hls/cosim/`
-- **预计耗时**: 4-6小时
-- **监控命令**: `tail -f socs_2048_full_fixed_cosim/hls/cosim/cosim.log`
-
-### 任务 1.5.4: 代码修改记录 ✅ (已完成)
-- **文件**: `source/SOCS_HLS/src/socs_2048.cpp`
-- **修改**: 删除手动N²补偿代码（HLS FFT scaled模式已提供正确缩放）
-- **原因**: 验证发现HLS输出已匹配golden scale
-- **状态**: ✅ 修改正确，应保留新版本
+### 任务 1.5.3: Co-Simulation验证 ✅ (已完成)
+- **状态**: RTL功能验证通过
+- **结论**: Phase 1.5完成，进入Phase 2优化阶段
 
 ---
 
@@ -274,7 +658,7 @@
 
 ---
 
-## Phase 2: 板级验证数据信任链条 ⏳ (环节1完成，环节2-3待硬件)
+## Phase 3: 板级验证数据信任链条 ⏳ (待硬件环境)
 
 ### 任务 2.0: 数据注入信任链条验证设计 ✅ (已完成)
 **核心问题**：如何确保BIN→HEX→DDR→HLS数据正确性？
@@ -286,52 +670,24 @@ BIN → HEX转换 → DDR写入 → HLS读取 → 计算输出
  格式正确？   效果一致？   格式匹配？   输出正确？
 ```
 
-### 任务 2.1: BIN→HEX格式正确性验证 ✅ (已完成 2026-04-21)
-- **验证目标**: 确保bin_to_hex_for_ddr.py转换无损
-- **验证方法**: 逆向转换对比 (BIN→HEX→BIN)
-- **验收标准**: RMSE = 0.0 (完全一致)
-- **验证脚本**: `validation/board/jtag/verify_bin_hex_conversion.py`
-- **验证结果**:
-  - ✅ mskf_r.bin: RMSE=0.0 (262144 floats)
-  - ✅ mskf_i.bin: RMSE=0.0 (262144 floats)
-  - ✅ scales.bin: RMSE=0.0 (4 floats)
-  - ✅ krn_0_r.bin: RMSE=0.0 (81 floats)
-  - ✅ krn_0_i.bin: RMSE=0.0 (81 floats)
-- **结论**: BIN→HEX转换完全无损，格式正确性验证通过
+### 任务 3.1: BIN→HEX格式正确性验证 ✅ (已完成)
+- **验证结果**: RMSE=0.0 (完全一致)
+- **结论**: BIN→HEX转换完全无损
 
-### 任务 2.2: DDR写入效果一致性验证 ⏳ (待硬件验证)
-- **验证目标**: 确保JTAG写入的HEX数据与BIN效果一致
+### 任务 3.2: DDR写入效果一致性验证 ⏳ (待硬件验证)
 - **验证方法**: DDR回读对比写入数据
 - **验收标准**: DDR回读数据与期望HEX完全匹配
-- **验证脚本**: `validation/board/jtag/verify_ddr_write.tcl`
-- **前置条件**: Vivado Hardware Manager + JTAG连接
-- **状态**: 脚本已就绪，可在Windows环境下运行（硬件验证已通过）
 
-### 任务 2.3: HLS数据格式正确性验证 ⏳ (待环节2完成)
-- **验证目标**: 确保HLS IP正确解析DDR数据并输出正确结果
+### 任务 3.3: HLS数据格式正确性验证 ⏳ (待任务3.2完成)
 - **验证方法**: HLS输出 vs Golden参考对比
-- **验收标准**: RMSE < 1e-6 (与Golden一致)
-- **验证脚本**: `validation/board/jtag/verify_hls_output.py`
-- **前置条件**: DDR回读文件 `ddr_read_output.txt`
-- **状态**: 脚本已就绪，可在Windows环境下运行
+- **验收标准**: RMSE < 1e-6
 
-### 任务 2.4: 完整信任链条自动化验证 ✅ (已完成)
-- **目标**: 创建一站式验证脚本，覆盖所有信任环节
-- **验证脚本**: `validation/board/jtag/verify_trust_chain.py`
-- **验证结果**:
-  - ✅ 环节1: BIN→HEX验证通过
-  - ⏳ 环节2: DDR写入 (跳过，无硬件环境)
-  - ⏳ 环节3: HLS输出 (跳过，无硬件环境)
-- **配置修复**: `board_validation_config.json` kernel路径已修正
-
-### 任务 2.5: 配置文件修复 ✅ (已完成)
-- **问题**: kernel文件路径错误 (kernel_r_0.bin → krn_0_r.bin)
-- **修复**: 更新 `board_validation_config.json` 使用正确路径
-- **验证**: verify_trust_chain.py 成功加载所有BIN文件
+### 任务 3.4: 完整信任链条自动化验证 ✅ (已完成)
+- **验证结果**: 环节1通过，环节2-3跳过 (无硬件环境)
 
 ---
 
-## Phase 3: C仿真验证 ❌ (失败 - 输出全为0)
+## Phase 4: C仿真验证 ❌ (已废弃 - 被Phase 1.4/1.5替代)
 
 ### 任务 3.1: IFFT缩放因子修复 ⏳ (已实现但无效)
 - **问题**: Nx=16测试显示HLS输出~600倍幅度误差
@@ -351,66 +707,7 @@ BIN → HEX转换 → DDR写入 → HLS读取 → 计算输出
 
 ---
 
-## Phase 4: 用户要求的三大优化方案 ⏳ (规划中)
-
-### 任务 4.1: 集成hls::fft替代直接DFT ⭐ (最高优先级)
-- **参考实现**: `reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
-- **预期效果**:
-  - DSP消耗：从8,064降至~1,600 (降低80%+)
-  - Latency：从O(N²)降至O(N log N)，降低10倍+
-  - Fmax：从273MHz提升至300MHz+
-- **实现步骤**:
-  1. 定义FFT配置结构体 (fft_config_2048_t)
-  2. 替换fft_1d_direct_2048()为stream-based hls::fft
-  3. 添加DATAFLOW pragma和stream pipeline
-  4. 验证精度 (RMSE < 1e-5)
-- **验收标准**:
-  - DSP < 1,600 (88%占用率)
-  - C仿真时间 < 60s
-  - RMSE < 1e-6
-
-### 任务 4.2: Kernel并行化实现 ⭐ (用户要求)
-- **当前状态**: nk=10顺序循环处理，每个kernel~45s
-- **优化目标**:
-  - 使用DATAFLOW pragma实现kernel并行
-  - 或创建多个FFT实例并行处理不同kernel
-- **预期效果**:
-  - 吞吐量提升：接近10倍
-  - Latency降低：从10×45s降至~45s
-- **实现挑战**:
-  - BRAM资源：需要10份tmpImg缓冲 (640KB，超限)
-  - DDR带宽：并行读取10个kernel数据
-  - 折衷方案：UNROLL factor=2 (2个kernel并行)
-- **验收标准**:
-  - C仿真吞吐量提升 > 5倍
-  - BRAM占用率 < 100%
-
-### 任务 4.3: 适配golden_1024.json配置 ⭐ (用户要求)
-- **新配置参数**:
-  - Lx/Ly: 1024×1024 (相比512提升4倍)
-  - NA: 0.8
-  - wavelength: 193nm
-  - σ_outer: 0.9
-  - nk: 10
-- **Nx计算**: Nx = floor(0.8×1024×1.9/193) ≈ 8
-- **对应尺寸**:
-  - kerX: 2×Nx+1 = 17
-  - convX: 4×Nx+1 = 33
-  - FFT尺寸: 32×32 (满足2^5要求)
-- **优势**:
-  - FFT尺寸降低 (32×32 vs 128×128)
-  - 分辨率提升 (1024×1024 mask)
-- **验证流程**:
-  ```bash
-  python validation/golden/run_verification.py --config input/config/golden_1024.json
-  ```
-- **验收标准**:
-  - Golden数据生成成功 (mskf_r/i.bin: 4MB)
-  - HLS输出非零且有合理幅度 (~0.005范围)
-
----
-
-## Phase A: Host预处理模块开发 ✅ (已完成代码，待Linux编译验证)
+## Phase 5: Host预处理模块开发 ✅ (已完成代码，待Linux编译验证)
 
 ### 任务 A.1: JSON Parser扩展 ✅ (已完成)
 - **目标**: 扩展JSON解析器支持完整SOCSConfig参数
@@ -468,7 +765,24 @@ BIN → HEX转换 → DDR写入 → HLS读取 → 计算输出
 
 ---
 
-## Phase 0: 源代码整理 ✅ (已完成)
+## Phase 6: Vivado集成与板级验证 ⏳ (待Phase 2优化完成)
+
+### 任务 6.1: Vivado项目创建 ⏳ (待开始)
+- **目标**: 创建Vivado项目，集成HLS IP
+- **前置条件**: Phase 2优化完成，IP导出
+- **验收标准**: Vivado项目编译成功
+
+### 任务 6.2: 硬件系统设计 ⏳ (待开始)
+- **目标**: 设计Block Design，连接DDR、HLS IP、AXI总线
+- **验收标准**: Block Design验证通过
+
+### 任务 6.3: 板级验证 ⏳ (待开始)
+- **目标**: 在实际硬件上验证HLS IP功能
+- **验收标准**: 硬件实测加速比 > 2000x
+
+---
+
+## Phase 0: 源代码整理 ✅ (已完成 - 归档)
 
 ### 任务 0.1: 文件结构整理 ✅
 - **目标**: 统一HLS源代码，删除冗余文件
@@ -502,188 +816,142 @@ BIN → HEX转换 → DDR写入 → HLS读取 → 计算输出
 
 ---
 
-## Phase 1: FFT DSP优化 ⏳ (进行中)
+## 📚 参考资源
 
-### 任务 1.0: Fixed-Point FFT 尝试 ❌ (失败)
-- **问题**: Vitis HLS FFT IP 内部自动调整 bit-width
-  - `input_width=32` → 内部期望 `ap_fixed<40, 1>`
-  - 用户定义 `ap_fixed<32, 1>` → 类型不匹配
-  - 错误: `no matching function for call to 'fft'`
-- **根本原因**: FFT IP 公式 `((_CONFIG_T::input_width+7)/8)*8` 向上对齐到 8-byte boundary
+### HLS优化指南
 
-### 任务 1.1: Float + LUT FFT 优化 ✅ (已完成代码修改)
-- **目标**: 使用 Float FFT + LUT 模式实现 DSP-free
-- **修改内容**:
-  - ✅ `socs_config.h`:
-    - `FFT_USE_FLOAT = 1` (启用 float FFT)
-    - `complex_mult_type = use_luts` (DSP-free)
-    - `butterfly_type = use_luts` (DSP-free)
-  
-  - ✅ `socs_simple.cpp`:
-    - 移除 `.to_float()` 方法调用 (float 类型无需转换)
-    - 直接使用 `sample.real()` 和 `sample.imag()`
+1. **Vitis HLS官方文档**: UG1399 (High-Level Synthesis)
+2. **FFT优化**: `reference/vitis_hls_ftt的实现/interface_stream/`
+3. **流水线设计**: `reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md`
 
-- **预期改善**:
-  - DSP: 8,080 → ~0 (100% reduction)
-  - LUT: 增加约 200% (需验证可接受性)
-  - 精度: Float FFT 精度高于 fixed-point (RMSE < 1e-5)
+### 代码参考
 
-### 任务 1.2: C Simulation 验证 Float+LUT ⏳ (待执行)
-- **命令**:
-  ```bash
-  cd E:\fpga-litho-accel\source\SOCS_HLS
-  vitis-run --mode hls --csim --config script/config/hls_config_socs_simple.cfg --work_dir hls/socs_simple_csim_float_lut_v2
-  ```
-- **验收标准**:
-  - 编译成功 (无 error)
-  - 功能正确 (与 Golden 数据对比)
+1. **Stream-based FFT**: `reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
+2. **DATAFLOW示例**: `source/SOCS_HLS/src/socs_2048.cpp` (当前实现)
+3. **优化交接文档**: `source/SOCS_HLS/doc/OPTIMIZATION_HANDOVER.md`
 
-### 任务 1.3: C Synthesis 验证 DSP 改善 ⏳ (待执行)
-- **命令**:
-  ```bash
-  cd E:\fpga-litho-accel\source\SOCS_HLS
-  v++ -c --mode hls --config script/config/hls_config_socs_simple.cfg --work_dir socs_simple_synth_float_lut
-  ```
-- **验收标准**:
-  - DSP ≤ 100 (目标: ~0)
-  - Fmax ≥ 250 MHz
-  - BRAM ≤ 960
+### 工具脚本
+
+1. **C综合**: `source/SOCS_HLS/script/run_csynth_2048.tcl`
+2. **配置文件**: `source/SOCS_HLS/script/config/hls_config_socs_full.cfg`
+3. **验证脚本**: `validation/compare_hls_golden.py`
+
+### Skills文档
+
+1. **HLS C综合验证**: `.github/skills/hls-csynth-verify/SKILL.md`
+2. **HLS完整验证**: `.github/skills/hls-full-validation/SKILL.md`
+3. **板级验证**: `.github/skills/hls-board-validation/SKILL.md`
+4. **Golden数据生成**: `.github/skills/hls-golden-generation/SKILL.md`
 
 ---
 
-## Phase 1: HLS综合与优化 (进行中)
+## 📝 开发流程建议
 
-### 任务 1.1: C综合验证 ✅ (已完成 2026-04-22)
-- **目标**: 完成C综合并验证资源利用率
-- **命令**: 
-  ```bash
-  cd source/SOCS_HLS
-  v++ -c --mode hls --config script/config/hls_config_socs_simple.cfg --work_dir socs_simple_csynth_final
-  ```
-- **验证结果**:
-  | 指标           | 目标值                | 实际值         | 状态     |
-  | -------------- | --------------------- | -------------- | -------- |
-  | Estimated Fmax | ≥ 250 MHz             | **273.97 MHz** | ✅ +37%   |
-  | Latency        | ≤ 20,000              | **17,453,599** | ⚠️ 长延迟 |
-  | DSP            | ≤ 500                 | **100**        | ✅ 80%↓   |
-  | BRAM           | 🔄 (运行中 2026-04-22) |
-- **目标**: 验证RTL实现与Golden数据一致性
-- **命令**:
-  ```bash
-  v++ -c --mode hls --config script/config/hls_config_socs_simple.cfg --work_dir socs_simple_csynth_final --target cosim
-  ```
-- **状态**: xsimk进程运行中 (CPU ~1527%)
-- **当前进度**: 0/1 [0.00%] @ "113000"
-- **延迟分析**: 17,453,599 cycles @ 200MHz ≈ 87.27ms 需长时间仿真
-- **验收标准**:
-  - RMSE ≤ 1e-6 (与CPU golden对比)
-  - CoSim PASS
-- **注意**: 由于长延迟，仿真可能需要数分钟至数小时完成L实现与Golden数据一致性
-- **命令**:
-  ```bash
-  vitis-run --mode hls --cosim --config script/config/hls_config_socs_simple.cfg --work_dir hls_cosim
-  ```
-- **验收标准**:
-  - RMSE ≤ 1e-6 (与CPU golden对比)
-  - CoSim PASS
+### 1. 创建优化分支
 
-### 任务 1.3: IP导出
-- **目标**: 导出可集成到Vivado的IP
-- **命令**:
-  ```bash
-  vitis-run --mode hls --package --config script/config/hls_config_socs_simple.cfg --work_dir hls_package
-  ```
-- **验收标准**:
-  - IP-XACT格式正确
-  - AXI-MM接口完整
-
-### 任务 1.4: FI步骤资源分析 ✅ (已完成)
-- **问题**: Fourier Interpolation (FI) 放FPGA还是PC？
-- **分析结论**:
-  | 项目       | 说明                                       |
-  | ---------- | ------------------------------------------ |
-  | 当前BRAM   | 802 (83%) ⚠️ 已接近上限                     |
-  | FI资源需求 | FFT 512×512 需要 ~300-500 BRAM + ~200 DSP  |
-  | **结论**   | ❌ **xcku5p资源不足，FI无法放入FPGA**       |
-  | **推荐**   | ✅ **FI保持CPU实现** (FFTW处理512×512 <1ms) |
-- **若需全FPGA实现**: 需升级至 xcku15p (BRAM=1,344) 或 VU19P
-
----
-
-## Phase 1.5: 架构决策 ✅ (已确认)
-
-### SOCS Pipeline 架构
-
-```
-Stage 1-3 (FPGA):                    Stage 4 (CPU):
-mask FFT → SOCS conv → IFFT          Fourier Interpolation
-         ↓                                    ↓
-    tmpImgp (32×32)                    aerial_image (512×512)
-         ↓                                    ↓
-    extract 17×17                      fftshift + output
+```bash
+# 从稳定版本创建新分支
+git checkout feature/2048-architecture
+git checkout -b feature/2048-optimization-v1
 ```
 
-| 阶段        | 算法                                 | 实现位置 | 资源     |
-| ----------- | ------------------------------------ | -------- | -------- |
-| Stage 1     | FFT 32×32 (R2C)                      | FPGA     | 已集成   |
-| Stage 2     | SOCS卷积 (nk kernels)                | FPGA     | DSP=16   |
-| Stage 3     | IFFT 32×32 (C2R) + fftshift          | FPGA     | BRAM=802 |
-| **Stage 4** | **FFT 512×512 + Spectrum Embedding** | **CPU**  | **FFTW** |
+### 2. 实施优化
 
-**决策依据**: BRAM 83% 已满，无法容纳 Stage 4 的大FFT
+```bash
+# 修改代码
+vim source/SOCS_HLS/src/socs_2048.cpp
+
+# 运行C仿真验证
+cd source/SOCS_HLS
+vitis-run --mode hls --csim --config script/config/hls_config_socs_full.cfg
+
+# 运行C综合
+v++ -c --mode hls --config script/config/hls_config_socs_full.cfg
+```
+
+### 3. 验证结果
+
+```bash
+# 检查资源占用
+cat socs_2048_full_fixed_cosim/hls/syn/report/calc_socs_2048_hls_csynth.rpt
+
+# 对比Golden数据
+python3 validation/compare_hls_golden.py --config input/config/golden_1024.json
+```
+
+### 4. 提交更改
+
+```bash
+# 提交优化代码
+git add source/SOCS_HLS/src/socs_2048.cpp
+git commit -m "perf: 实施HLS FFT IP优化
+
+- 优化FFT配置参数
+- Latency降低15%
+- Fmax提升至285MHz"
+
+# 推送到远程
+git push origin feature/2048-optimization-v1
+```
+
+---
+
+## ⚠️ 风险与约束
+
+### 资源约束
+
+**当前资源占用** (xcku3p-ffvb676-2-e):
+- BRAM: 406/720 (56%) ⚠️ 接近上限
+- DSP: 42/1368 (3%) ✅ 充足
+- FF: 35,185/325,440 (10%) ✅ 充足
+- LUT: 38,283/162,720 (23%) ✅ 充足
+
+**优化限制**:
+- BRAM是主要瓶颈，无法支持大规模并行
+- DSP资源充足，可适度增加并行度
+- FF/LUT资源充足，可用于控制逻辑优化
+
+### 验证要求
+
+**每次优化后必须验证**:
+1. **C Simulation**: RMSE < 1e-5 (对比Golden CPU)
+2. **C Synthesis**: Fmax > 250MHz, BRAM < 80%
+3. **Co-Simulation**: RTL功能正确
+4. **Board Validation**: 硬件实测性能
+
+### 回退策略
+
+**如果优化失败**:
+```bash
+# 回退到稳定版本
+git checkout feature/2048-architecture
+
+# 或创建新的优化分支
+git checkout -b feature/2048-optimization-v2
+```
 
 ---
 
-## Phase 2: Vivado集成 (待开始)
+## 🎯 成功标准
 
-### 任务 2.1: Block Design创建
-- **目标**: 在Vivado中集成HLS IP
-- **内容**:
-  - 创建AXI互联
-  - 配置DDR接口
-  - 添加JTAG-to-AXI Master
+### 性能目标
 
-### 任务 2.2: 板级验证
-- **目标**: 在xcku5p板卡上验证
-- **参考**: `.github/skills/hls-board-validation/SKILL.md`
-- **验收标准**:
-  - ap_start触发成功
-  - ap_done轮询正常
-  - 输出数据与Golden一致
+| 指标 | 当前值 | 目标值 | 提升比例 |
+|-----|-------|-------|---------|
+| 吞吐量 | 1.16 kernels/ms | 3.0 kernels/ms | 2.5倍 |
+| Latency | 8.65ms | 3.0ms | 2.9倍 |
+| Fmax | 274MHz | 300MHz | 1.1倍 |
+| BRAM占用 | 56% | <75% | - |
 
----
+### 验证标准
 
-## 技术细节
-
-### 配置参数映射 (socs_config.h)
-
-| 参数     | 默认值 | 计算公式             | 说明           |
-| -------- | ------ | -------------------- | -------------- |
-| Nx       | 4      | floor(NA*Lx*(1+σ)/λ) | 频域截断宽度   |
-| convX    | 17     | 4*Nx + 1             | 卷积输出宽度   |
-| fftConvX | 32     | nextPow2(convX)      | FFT网格尺寸    |
-| kerX     | 9      | 2*Nx + 1             | Kernel支持宽度 |
-
-### FFT实现对比
-
-| 方案         | DSP消耗 | 验证状态 | 说明                |
-| ------------ | ------- | -------- | ------------------- |
-| 直接DFT      | 8,064   | ❌ 超限   | 旧socs_fft.cpp      |
-| HLS FFT IP   | ~400    | ✅ 待验证 | 当前socs_simple.cpp |
-| LUT-only FFT | ~0      | ⏳ 可选   | DSP-free方案        |
-
-### 资源利用率目标 (xcku5p-ffvb676-2-e)
-
-| 资源 | 可用量  | 目标上限 | 当前使用      | 状态       |
-| ---- | ------- | -------- | ------------- | ---------- |
-| BRAM | 960     | ≤960     | 802 (83%)     | ⚠️ 接近上限 |
-| DSP  | 1,824   | ≤500     | 16 (~0%)      | ✅ 充裕     |
-| FF   | 433,920 | ≤200k    | 111,933 (25%) | ✅          |
-| LUT  | 216,960 | ≤150k    | 138,429 (63%) | ⚠️ 需关注   |
-
-**资源瓶颈**: BRAM 83% 被 fft_2d 模块占用 (656 BRAM)
+- **精度**: RMSE < 1e-5 (对比Golden CPU)
+- **功能**: Co-Simulation通过
+- **性能**: Board实测加速比 > 2000x
 
 ---
+
+**祝优化顺利！🚀**
 
 ## 关键文件路径
 

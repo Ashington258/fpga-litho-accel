@@ -194,6 +194,17 @@ void fft_2d_full_2048(
     bool is_inverse
 );
 
+/**
+ * 2D FFT shift: move zero-frequency component to center
+ * 
+ * @param input    Input 2D array (128×128)
+ * @param output   Output 2D array (128×128)
+ */
+void fftshift_2d_2048(
+    float input[MAX_FFT_Y][MAX_FFT_X],
+    float output[MAX_FFT_Y][MAX_FFT_X]
+);
+
 // ----------------- Legacy Functions (Compatibility) -----------------
 
 /**

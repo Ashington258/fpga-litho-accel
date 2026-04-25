@@ -1,0 +1,9 @@
+{
+  "name": "socs_ddr_optimized_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_ddr_optimized.cfg"],
+    "work_dir": "."
+  }
+}

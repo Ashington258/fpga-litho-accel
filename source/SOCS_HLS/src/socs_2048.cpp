@@ -294,7 +294,11 @@ void convert_float_to_apfixed(
 }
 
 /**
- * Type conversion: ap_fixed<32, 1> to float (with N²=16384 compensation)
+ * Type conversion: ap_fixed<32, 1> to float
+ * 
+ * NOTE: HLS FFT uses scaled mode (scaling=0x7F), which divides by N for each 1D FFT.
+ * For 2D FFT: total scaling = 1/(128*128) = 1/16384 (matches FFTW BACKWARD behavior)
+ * No manual compensation needed.
  */
 void convert_apfixed_to_float(
     cmpx_fft_out_t input[128][128],
@@ -321,7 +325,11 @@ void convert_apfixed_to_float(
  *   1. Convert float to ap_fixed (32-bit precision)
  *   2. Call HLS FFT IP via fft_2d_hls_128()
  *   3. Convert ap_fixed back to float
- *   4. COMPENSATION: If IFFT, multiply by N²=16384 (scaled mode correction)
+ * 
+ * SCALING: HLS FFT uses scaled mode (scaling=0x7F)
+ *   - 1D IFFT: divides by N=128
+ *   - 2D IFFT: total scaling = 1/(128*128) = 1/16384
+ *   - Matches FFTW BACKWARD behavior (no manual compensation needed)
  */
 void fft_2d_full_2048(
     cmpx_2048_t input[MAX_FFT_Y][MAX_FFT_X],
@@ -344,10 +352,9 @@ void fft_2d_full_2048(
     fft_2d_hls_128(input_fixed, output_fixed, is_inverse);
     
     // Step 3: Convert ap_fixed back to float
+    // NOTE: HLS FFT scaled mode (scaling=0x7F) divides by N²=16384 for 2D IFFT
+    // This matches FFTW BACKWARD behavior, no manual compensation needed
     convert_apfixed_to_float(output_fixed, output);
-    
-// REMOVED: Manual N² compensation (HLS FFT scaled already provides correct scaling)
-    // Verified: HLS output now matches golden scale (272358 -> ~16.6, but full chain RMS ratio fixed)
 
 }
 

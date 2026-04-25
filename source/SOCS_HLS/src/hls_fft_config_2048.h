@@ -42,12 +42,12 @@ const hls::ip_fft::rounding FFT_ROUNDING_2048 = hls::ip_fft::truncation;
 // Output ordering (natural order for easier integration)
 const hls::ip_fft::ordering FFT_OUTPUT_ORDER_2048 = hls::ip_fft::natural_order;
 
-// Memory configuration
-const hls::ip_fft::mem FFT_MEM_DATA_2048 = hls::ip_fft::block_ram;
-const hls::ip_fft::mem FFT_MEM_PHASE_FACTORS_2048 = hls::ip_fft::block_ram;
+// Memory configuration (not used in HLS FFT IP, kept for compatibility)
+// const hls::ip_fft::mem FFT_MEM_DATA_2048 = hls::ip_fft::block_ram;
+// const hls::ip_fft::mem FFT_MEM_PHASE_FACTORS_2048 = hls::ip_fft::block_ram;
 
-// Optimization: Use DSPs for complex multiplication (better performance)
-const hls::ip_fft::opt FFT_COMPLEX_MULT_TYPE_2048 = hls::ip_fft::use_dsp;
+// Optimization: Use DSPs for complex multiplication (configured in struct)
+// const hls::ip_fft::opt FFT_COMPLEX_MULT_TYPE_2048 = hls::ip_fft::use_dsp;
 
 // ============================================================================
 // FFT Configuration Struct (HLS Synthesis Only)
@@ -75,12 +75,12 @@ struct config_fft_2048 : hls::ip_fft::params_t {
     // Output ordering
     static const hls::ip_fft::ordering FFT_OUTPUT_ORDERING = FFT_OUTPUT_ORDER_2048;
     
-    // Memory options
-    static const hls::ip_fft::mem FFT_MEM_DATA = FFT_MEM_DATA_2048;
-    static const hls::ip_fft::mem FFT_MEM_PHASE_FACTORS = FFT_MEM_PHASE_FACTORS_2048;
+    // Memory options (not used in HLS FFT IP, kept for compatibility)
+    // static const hls::ip_fft::mem FFT_MEM_DATA = FFT_MEM_DATA_2048;
+    // static const hls::ip_fft::mem FFT_MEM_PHASE_FACTORS = FFT_MEM_PHASE_FACTORS_2048;
     
-    // Complex multiplication optimization
-    static const hls::ip_fft::opt FFT_COMPLEX_MULT_TYPE = FFT_COMPLEX_MULT_TYPE_2048;
+    // Complex multiplication optimization (configured in struct)
+    // static const hls::ip_fft::opt FFT_COMPLEX_MULT_TYPE = FFT_COMPLEX_MULT_TYPE_2048;
 };
 
 // ============================================================================

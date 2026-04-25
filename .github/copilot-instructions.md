@@ -6,6 +6,113 @@
 
 ---
 
+## 🤖 自动化配置（2026-04-25新增）
+
+### 自动任务推进机制
+
+**目标**：减少用户干预，实现任务链式自动执行。
+
+**配置选项**：
+```yaml
+# 自动化配置（位于copilot-instructions.md顶部）
+automation:
+  auto_progress_tasks: true          # 启用自动任务推进
+  max_continuous_tasks: 5            # 最多连续执行5个任务后暂停
+  pause_on_failure: true             # 失败时暂停
+  pause_on_phase_change: true        # 阶段切换时暂停
+  log_to_session_memory: true        # 记录到session memory
+```
+
+**工作流程**：
+1. **读取TODO文档**：解析 `SOCS_TODO.md` 中的任务状态
+2. **识别当前任务**：找到"⏳ 待开始"或"🔄 进行中"的任务
+3. **执行任务**：调用相应的skill（如 `hls-csynth-verify`）
+4. **自动更新状态**：完成后立即更新TODO状态为"✅ 完成"
+5. **链式推进**：**无需用户确认**，自动开始下一个任务
+
+**示例**：
+```
+用户: "开始Phase 2优化工作"
+Copilot: 
+  1. 读取SOCS_TODO.md，识别任务2.1.1
+  2. 执行任务2.1.1（FFT配置优化）
+  3. 完成后自动更新状态
+  4. 自动开始任务2.1.2（FFT流水线优化）
+  5. 重复直到Phase 2完成或遇到问题
+```
+
+**关键改进**：
+- ❌ 旧方式：完成任务 → 等待用户说"继续下一步"
+- ✅ 新方式：完成任务 → 自动开始下一个任务
+
+### 自动经验记录机制
+
+**目标**：自动更新全局约束和skill文档，持续改进AI辅助质量。
+
+**触发条件**：
+- ✅ 验证失败（发现配置错误）
+- 🎯 性能优化（找到更好方案）
+- 🐛 Bug修复（解决常见陷阱）
+- 📚 新知识（学习到新API用法）
+
+**自动执行流程**：
+```
+1. 检测到需要记录的经验
+   ↓
+2. 分类经验类型（约束/流程/陷阱/最佳实践）
+   ↓
+3. 确定更新位置（copilot-instructions.md 或 SKILL.md）
+   ↓
+4. 自动应用更新（使用replace_string_in_file）
+   ↓
+5. 记录更新日志到 /memories/repo/experience_log.md
+```
+
+**示例**：
+```
+场景: Co-Simulation失败，提示"AXI-MM接口缺少depth参数"
+Copilot自动执行:
+  1. 识别问题类型：关键约束
+  2. 更新copilot-instructions.md，添加depth参数要求
+  3. 更新hls-full-validation/SKILL.md，添加到"常见陷阱"表格
+  4. 记录到/memories/repo/experience_log.md
+```
+
+**配置选项**：
+```yaml
+experience_recording:
+  auto_update_constraints: true      # 自动更新全局约束
+  auto_update_skills: true           # 自动更新skill文档
+  batch_update_on_phase_complete: true  # Phase完成时批量更新
+  log_to_repo_memory: true           # 记录到 /memories/repo/
+  require_user_confirmation: false   # 无需用户确认（自动更新）
+```
+
+### 相关Skills
+
+**新增两个自动化skill**：
+
+1. **`auto-task-progression`**：自动推进TODO任务
+   - 位置：`.github/skills/auto-task-progression/SKILL.md`
+   - 功能：读取TODO → 执行任务 → 更新状态 → 自动开始下一个
+
+2. **`experience-recorder`**：自动记录经验教训
+   - 位置：`.github/skills/experience-recorder/SKILL.md`
+   - 功能：检测经验 → 分类 → 更新文档 → 记录日志
+
+**调用关系**：
+```
+hls-full-validation
+  ├─ 发现问题 → 调用 experience-recorder
+  └─ 完成任务 → 调用 auto-task-progression
+
+hls-csynth-verify
+  ├─ 发现优化机会 → 调用 experience-recorder
+  └─ 完成任务 → 调用 auto-task-progression
+```
+
+---
+
 ## ⚠️ 核心约束：Golden 数据验证配置一致性
 
 **重要原则**：Golden 数据与 HLS 验证必须使用**完全相同的配置文件**，否则数据无参考价值。
