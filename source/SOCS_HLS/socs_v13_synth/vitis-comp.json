@@ -1,0 +1,9 @@
+{
+  "name": "socs_v13_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_v13_direct_dft.cfg"],
+    "work_dir": "."
+  }
+}

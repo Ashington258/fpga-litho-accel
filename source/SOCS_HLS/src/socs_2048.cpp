@@ -643,17 +643,23 @@ void calc_socs_2048_hls(
     
     // ==================== Algorithm Implementation ====================
     
+    // Phase 3 optimization: DATAFLOW pipeline parallelization
+    // Process kernels in pipelined fashion for better throughput
+    
     // Initialize accumulator
-    for (int y = 0; y < MAX_FFT_Y; y++) {
+    init_loop: for (int y = 0; y < MAX_FFT_Y; y++) {
         for (int x = 0; x < MAX_FFT_X; x++) {
             #pragma HLS PIPELINE II=1
             tmpImg[y][x] = 0.0f;
         }
     }
     
-    // Process each kernel
-    for (int k = 0; k < nk; k++) {
+    // Process each kernel with DATAFLOW pipeline
+    // Note: UNROLL factor=2 would double BRAM usage (344→688, 95% occupancy)
+    // DATAFLOW provides pipeline parallelism without doubling resources
+    kernel_loop: for (int k = 0; k < nk; k++) {
         #pragma HLS LOOP_TRIPCOUNT min=4 max=16
+        #pragma HLS DATAFLOW
         
         // Step 1: Embed with zero-padding
         embed_kernel_mask_padded_2048(

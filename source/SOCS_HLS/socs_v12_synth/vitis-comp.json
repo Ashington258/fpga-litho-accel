@@ -1,0 +1,9 @@
+{
+  "name": "socs_v12_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_stream_refactored_v12_direct_dft_only.cfg"],
+    "work_dir": "."
+  }
+}

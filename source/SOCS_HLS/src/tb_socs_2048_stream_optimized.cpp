@@ -48,10 +48,10 @@ int main() {
     // Load mask spectrum data
     printf("Loading mask spectrum data...\n");
     printf("Current working directory: %s\n", getcwd(NULL, 0));
-    printf("Trying to open: data/mskf_r.bin\n");
+    printf("Trying to open: ../../../../data/mskf_r.bin\n");
     
-    ifstream mskf_r_file("data/mskf_r.bin", ios::binary);
-    ifstream mskf_i_file("data/mskf_i.bin", ios::binary);
+    ifstream mskf_r_file("../../../../data/mskf_r.bin", ios::binary);
+    ifstream mskf_i_file("../../../../data/mskf_i.bin", ios::binary);
     if (!mskf_r_file || !mskf_i_file) {
         printf("ERROR: Cannot open mask spectrum files\n");
         printf("  mskf_r_file.good() = %d\n", mskf_r_file.good());
@@ -66,7 +66,7 @@ int main() {
     
     // Load scales
     printf("Loading scales...\n");
-    ifstream scales_file("data/scales.bin", ios::binary);
+    ifstream scales_file("../../../../data/scales.bin", ios::binary);
     if (!scales_file) {
         printf("ERROR: Cannot open scales.bin\n");
         return 1;
@@ -81,7 +81,7 @@ int main() {
         char filename[256];
         
         // Load krn_k_r.bin
-        sprintf(filename, "data/kernels/krn_%d_r.bin", k);
+        sprintf(filename, "../../../../data/kernels/krn_%d_r.bin", k);
         ifstream krn_r_file(filename, ios::binary);
         if (!krn_r_file) {
             printf("ERROR: Cannot open %s\n", filename);
@@ -91,7 +91,7 @@ int main() {
         krn_r_file.close();
         
         // Load krn_k_i.bin
-        sprintf(filename, "data/kernels/krn_%d_i.bin", k);
+        sprintf(filename, "../../../../data/kernels/krn_%d_i.bin", k);
         ifstream krn_i_file(filename, ios::binary);
         if (!krn_i_file) {
             printf("ERROR: Cannot open %s\n", filename);
@@ -104,7 +104,7 @@ int main() {
     
     // Load reference output
     printf("Loading reference output...\n");
-    ifstream ref_file("data/tmpImgp_pad128.bin", ios::binary);
+    ifstream ref_file("../../../../../../output/verification/tmpImgp_pad128.bin", ios::binary);
     if (!ref_file) {
         printf("ERROR: Cannot open tmpImgp_pad128.bin\n");
         return 1;

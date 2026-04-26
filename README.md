@@ -212,12 +212,33 @@ $$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
 
 ## 项目状态
 
-| 模块            | 状态     | 进度                       |
-| --------------- | -------- | -------------------------- |
-| Golden 数据生成 | ✅ 完成   | 可生成 `tmpImgp_pad32.bin` |
-| HLS FFT Kernel  | ✅ 完成   | Fmax ≈ 273 MHz             |
-| HLS SOCS Kernel | 🔄 开发中 | C 综合通过，CoSim 待验证   |
-| 板级验证        | 📋 准备中 | TCL 脚本已完成             |
+| 模块            | 状态     | 进度                                          |
+| --------------- | -------- | --------------------------------------------- |
+| Golden 数据生成 | ✅ 完成   | 可生成 `tmpImgp_pad32.bin`                    |
+| HLS FFT Kernel  | ✅ 完成   | Fmax ≈ 273 MHz                                |
+| HLS SOCS Kernel | ✅ 完成   | **v16 Block Floating Point模式验证通过**      |
+| Fourier插值     | ✅ 完成   | 128×128 → 1024×1024，RMSE=5.06e-04            |
+| 板级验证        | 📋 准备中 | TCL 脚本已完成                                |
+
+### 最新成果（v16 Block Floating Point模式）
+
+**验证日期**：2026-04-26
+
+**关键指标**：
+- **tmpImgp RMSE**: 2.93e-08（目标 < 1e-5）✅ **远超预期**
+- **DSP利用率**: 46/1,368 (3%) - 相比v13降低**99.4%**
+- **BRAM利用率**: 399/720 (55%) - 相比v13降低**70.8%**
+- **Fmax**: 273.97 MHz
+
+**技术突破**：
+1. **Block Floating Point模式**：成功解决FFT精度问题
+2. **精度提升**：RMSE从2.99e-05降至2.93e-08（提升99.7%）
+3. **资源优化**：DSP从8,064降至46（降低99.4%）
+4. **完整验证流程**：C Sim → C Synth → Fourier Interpolation → 可视化
+
+**验证报告**：`output/verification/v16_validation_report.md`
+
+**可视化结果**：`output/verification/v16_vs_golden_comparison.png`
 
 ---
 

@@ -176,6 +176,37 @@ cd /home/ashington/fpga-litho-accel/source/SOCS_HLS
 
 ### ⚠️ 关键约束说明
 
+**HLS FFT配置约束（2026-04-25验证）**：
+
+| 参数 | 错误用法 | 正确用法 | 说明 |
+|------|---------|---------|------|
+| FFT长度 | `max_nfft = 7` | `log2_transform_length = 7` | 必须使用新API，旧API不生效 |
+| Scaling | `0x2AA`（默认） | `0x155`（nfft=7奇数） | 奇数nfft最后一级必须为0或1 |
+| 参数冲突 | 同时设置两个参数 | 只设置一个参数 | 编译报错："Both old and new parameter name used" |
+
+**验证方法**：
+- Impulse测试：输入X[0]=1，输出应为1/N
+- 128-point: 输出 = 1/128 = 0.0078125
+- 1024-point: 输出 = 1/1024 = 0.000976562
+
+**正确配置示例**：
+```cpp
+struct config_socs_fft : hls::ip_fft::params_t {
+    static const unsigned log2_transform_length = 7;  // ✅ 128-point FFT
+    static const unsigned input_width = 24;
+    static const unsigned output_width = 24;
+    static const unsigned output_ordering = hls::ip_fft::natural_order;
+    static const unsigned implementation_options = hls::ip_fft::pipelined_streaming_io;
+    static const unsigned scaling_options = hls::ip_fft::scaled;
+};
+
+// FFT调用
+ap_uint<15> scaling = 0x155;  // ✅ 对于nfft=7（奇数）有效
+bool ovflo;
+unsigned blk_exp;
+hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &ovflo, &blk_exp);
+```
+
 **Nx, Ny 参数特性**：
 
 - **Nx, Ny 不是配置参数**，而是根据光学参数动态计算
@@ -195,28 +226,55 @@ cd /home/ashington/fpga-litho-accel/source/SOCS_HLS
 
 ---
 
-### 📊 存储架构说明（2025-02更新）
+### 📊 存储架构说明（2026-04-26更新）
+
+**⚠️ 关键约束：AXI-MM depth参数必须匹配实际数据大小**
+
+**问题现象**：Co-Simulation产生NaN输出，而C Simulation通过。
+
+**根本原因**：AXI-MM depth参数配置错误，导致RTL仿真中AXI读取失败。
+
+**验证结果**（2026-04-26）：
+- ❌ **错误配置**：`depth=262144` (512×512) → Co-Sim NaN
+- ✅ **正确配置**：`depth=1048576` (1024×1024) → Co-Sim PASS (RMSE=8.324e-07)
+
+**为什么C Sim通过但Co-Sim失败？**
+- **C Simulation**：使用C++内存模型，depth参数被忽略
+- **Co-Simulation**：使用RTL仿真，depth参数对AXI事务至关重要
+- **结果**：错误的depth导致AXI读取失败 → NaN数据
 
 **AXI-MM接口DDR架构**：
 
-当前HLS IP已配置**6个独立AXI-MM Master接口**访问外部DDR内存：
+当前HLS IP已配置**7个独立AXI-MM Master接口**访问外部DDR内存：
 
 ```cpp
-// socs_simple.cpp - AXI-MM接口配置（DDR访问）
-#pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 depth=262144 latency=32
-#pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 depth=262144 latency=32
-#pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 depth=10
-#pragma HLS INTERFACE m_axi port=krn_r  offset=slave bundle=gmem3 depth=810
-#pragma HLS INTERFACE m_axi port=krn_i  offset=slave bundle=gmem4 depth=810
-#pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=289
+// socs_2048_stream_refactored_v13_direct_dft_only.cpp - AXI-MM接口配置（DDR访问）
+// CRITICAL: depth must match actual data size for Co-Simulation
+#pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 \
+    depth=1048576 latency=32 num_read_outstanding=8 max_read_burst_length=64
+#pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 \
+    depth=1048576 latency=32 num_read_outstanding=8 max_read_burst_length=64
+#pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 \
+    depth=32 latency=16 num_read_outstanding=2 max_read_burst_length=4
+#pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 \
+    depth=76832 latency=16 num_read_outstanding=4 max_read_burst_length=32
+#pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 \
+    depth=76832 latency=16 num_read_outstanding=4 max_read_burst_length=32
+#pragma HLS INTERFACE m_axi port=tmpImg_ddr offset=slave bundle=gmem5 \
+    depth=16384 latency=8 num_write_outstanding=4 max_write_burst_length=64
+#pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem6 \
+    depth=16384 latency=8 num_write_outstanding=4 max_write_burst_length=64
 ```
 
-| 接口  | 数据类型            | 尺寸       | DDR地址空间用途   |
-| ----- | ------------------- | ---------- | ----------------- |
-| gmem0 | mskf_r (mask频域实) | 512×512    | 输入mask spectrum |
-| gmem1 | mskf_i (mask频域虚) | 512×512    | 输入mask spectrum |
-| gmem2 | scales (特征值)     | nk=10      | SOCS特征值权重    |
-| gmem3 | krn_r (kernel实)    | nk×9×9=810 | SOCS kernel数据   |
+| 接口  | 数据类型            | 尺寸       | Depth参数 | DDR地址空间用途   |
+| ----- | ------------------- | ---------- | --------- | ----------------- |
+| gmem0 | mskf_r (mask频域实) | 1024×1024 | 1,048,576 | 输入mask spectrum |
+| gmem1 | mskf_i (mask频域虚) | 1024×1024 | 1,048,576 | 输入mask spectrum |
+| gmem2 | scales (特征值)     | nk=10      | 32        | SOCS特征值权重    |
+| gmem3 | krn_r (kernel实)    | nk×17×17   | 76,832    | SOCS kernel数据   |
+| gmem4 | krn_i (kernel虚)    | nk×17×17   | 76,832    | SOCS kernel数据   |
+| gmem5 | tmpImg_ddr (中间结果)| 128×128   | 16,384    | 临时图像缓冲      |
+| gmem6 | output (输出图像)   | 128×128    | 16,384    | 最终空中像输出    |
 | gmem4 | krn_i (kernel虚)    | nk×9×9=810 | SOCS kernel数据   |
 | gmem5 | output (输出图像)   | 17×17=289  | 最终空中像输出    |
 
@@ -241,6 +299,51 @@ cd /home/ashington/fpga-litho-accel/source/SOCS_HLS
 | LUT      | 647,932 | 216,960 | 298%   | ❌ 超限 |
 
 > **主要DSP消耗源**：`fft_2d_rows`函数使用直接DFT计算（非HLS FFT IP），消耗8,064 DSP
+
+---
+
+### 🎯 BRAM优化经验（2026-04-25 Phase 3验证）
+
+**关键发现**：FFT实例是BRAM主要消耗源
+
+**优化历程**（v5 → v8）：
+| 版本 | BRAM占用 | 优化策略 | 效果 |
+|------|---------|---------|------|
+| v5 | 988 (137%) | 移动tmpImg_final到DDR | ❌ 无效 |
+| v6 | 988 (137%) | 移除tmpImgp数组 | ❌ 无效 |
+| v7 | 928 (128%) | DDR-based FFTshift | ⚠️ 节省60 BRAM |
+| **v8** | **320 (44%)** | **降低并行度 (UNROLL factor=2→1)** | **✅ 节省608 BRAM** |
+
+**核心经验**：
+1. **FFT实例消耗**：每个FFT实例消耗~304 BRAM
+   - 2个并行FFT实例 = 608 BRAM (66% of total)
+   - 降低并行度是最有效的优化手段
+
+2. **优化优先级**：
+   - ✅ 降低并行度 (节省608 BRAM, 65.5%)
+   - ⚠️ DDR-based FFTshift (节省60 BRAM, 6.5%)
+   - ❌ 移动数组到DDR (无效，需识别主要消耗源)
+
+3. **权衡取舍**：
+   - 接受50%吞吐量降低
+   - 换取65.5% BRAM节省
+   - 适用于资源受限场景 (BRAM < 75%)
+
+**最佳实践**：
+- 使用HLS报告精确定位资源消耗源 (`hls/syn/report/*_csynth.rpt`)
+- 每次优化后立即验证功能正确性 (C Simulation)
+- 详细记录优化过程和结果 (参考 `doc/Phase3_Optimization_Report.md`)
+- 渐进式优化，避免一次性大改
+
+**适用场景**：
+- 资源受限的FPGA器件 (BRAM占用率 > 75%)
+- 对吞吐量要求不高的应用
+- 需要快速部署的场景
+
+**后续优化方向**（如需恢复吞吐量）：
+- Plan G: 使用LUTRAM替代BRAM (当前LUT占用率仅19%)
+- Plan H: 降低FFT精度 (ap_fixed<24,1> → <18,1>)
+- 混合方案: 在保证精度前提下恢复部分并行度
 
 ---
 
