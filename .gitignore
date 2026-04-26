@@ -46,6 +46,7 @@ klitho_tcc
 klitho_socs
 socs_host
 tb_socs_simple_test
+validation/golden/src/litho
 
 # ============================================================================
 # HLS工作目录（vitis-run生成）
@@ -81,6 +82,14 @@ source/SOCS_HLS/socs_simple_csynth_final/
 source/SOCS_HLS/socs_simple_synth_float_lut_v2/
 socs_simple_synth_float_lut_v2/
 source/SOCS_HLS/data/kernels/
+
+# SOCS 2048架构综合目录
+source/SOCS_HLS/socs_2048_synth/
+source/SOCS_HLS/socs_2048_synth_corrected/
+source/SOCS_HLS/socs_2048_synth_fixed/
+source/SOCS_HLS/socs_2048_unscaled/
+source/SOCS_HLS/socs_2048_csynth_v*/
+source/SOCS_HLS/socs_2048_full_fixed_cosim/
 
 # 根目录HLS工作目录
 hls/

@@ -7,7 +7,7 @@
 set proj_dir "/home/ashington/fpga-litho-accel/source/SOCS_HLS"
 
 # 创建 HLS 组件
-open_component -reset socs_2048_full_fixed_cosim -flow_target vivado
+open_component -reset socs_2048_synth_fixed -flow_target vivado
 
 # 设置顶层函数
 set_top calc_socs_2048_hls

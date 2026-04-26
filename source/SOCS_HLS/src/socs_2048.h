@@ -275,8 +275,8 @@ void calc_socs_2048_hls(
     float* krn_i,       // SOCS kernels imaginary
     float* output,      // Output intensity (MAX_CONV_X×MAX_CONV_Y)
     
-    // FFT DDR buffer interface (gmem6 - NEW)
-    cmpx_2048_t* fft_buf_ddr,  // DDR cache for FFT intermediates
+    // FFT DDR buffer interface (gmem6 - NEW) - temporarily disabled for Co-Simulation
+    // cmpx_2048_t* fft_buf_ddr,  // DDR cache for FFT intermediates
     
     // AXI-Lite runtime parameters (NEW)
     int nx_actual,      // Runtime Nx (2~24)
@@ -284,7 +284,7 @@ void calc_socs_2048_hls(
     int nk,             // Number of kernels (runtime)
     int Lx,             // Mask width (512)
     int Ly,             // Mask height
-    unsigned long fft_buf_base,  // DDR buffer physical base address
+    // unsigned long fft_buf_base,  // DDR buffer physical base address - temporarily disabled
     
     // Output mode selection (Phase 1.4+)
     int output_mode     // 0=center 33×33 (default), 1=full 128×128 (for FI)

@@ -49,12 +49,36 @@ struct config_socs_fft : hls::ip_fft::params_t {
     // Optional: specify implementation options
     static const unsigned implementation_options = hls::ip_fft::pipelined_streaming_io;
     
-    // COMPENSATION STRATEGY: Use scaled mode (HLS FFT native support)
+    // COMPENSATION STRATEGY: Use scaled mode with proper scaling schedule
     // - Scaled IFFT divides by N² = 16384 (128×128 2D FFT)
     // - Manual compensation after IFFT: multiply output by 16384
     // - Matches FFTW BACKWARD behavior after compensation
+    // - Scaling schedule: 0x1555 (no overflow, divide by 2 at each stage)
     static const unsigned scaling_options = hls::ip_fft::scaled;
+    
+    // CRITICAL: Add these parameters to ensure correct config channel generation
+    static const unsigned nfft_max = FFT_NFFT_MAX_128;  // 7 for 128-point
+    static const bool has_nfft = false;  // Fixed FFT length (not runtime configurable)
+    static const bool has_ovflo = true;  // Overflow detection
+    static const bool has_xk_index = false;  // No output index
+    static const bool cyclic_prefix_insertion = false;  // No cyclic prefix
+    
+    // CRITICAL: Config channel width calculation for 128-point scaled FFT
+    // Formula: config_bits = (sch_bits + ch_bits) * channels + cp_len_bits + nfft_bits
+    // - max_nfft = 7 (log2(128))
+    // - has_nfft = false → nfft_bits = 0
+    // - cyclic_prefix_insertion = false → cp_len_bits = 0
+    // - channels = 1
+    // - arch = pipelined_streaming_io → tmp_bits = ((7+1)>>1) * 2 = 8
+    // - scaling_opt = scaled → sch_bits = 8
+    // - config_bits = (8 + 1) * 1 + 0 + 0 = 9
+    // - config_width = ((9 + 7) >> 3) << 3 = 16
+    static const unsigned config_width = 16;
 };
+
+// CRITICAL: Define config_t and status_t types for FFT IP
+typedef hls::ip_fft::config_t<config_socs_fft> config_fft_t;
+typedef hls::ip_fft::status_t<config_socs_fft> status_fft_t;
 
 // ============================================================================
 // FFT Helper Functions (Stream Interface)
@@ -107,13 +131,22 @@ void fft_1d_hls_128(
     #pragma HLS stream variable=out_stream
     #pragma HLS dataflow
     
-    // FFT direction: 0=forward, 1=inverse
-    ap_uint<1> dir = is_inverse ? 1 : 0;
-    ap_uint<15> scaling = 0;  // Scaled mode (divides by N²=16384, manual compensation later)
-    bool status;
+    // Create config and status STREAMS (required by HLS FFT API)
+    hls::stream<hls::ip_fft::config_t<config_socs_fft>> config_stream("config_stream");
+    hls::stream<hls::ip_fft::status_t<config_socs_fft>> status_stream("status_stream");
     
-    // Call HLS FFT IP (unscaled mode: raw IFFT output, no 1/N normalization)
-    hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &status);
+    // Create config object and set parameters
+    hls::ip_fft::config_t<config_socs_fft> config;
+    hls::set_config<config_socs_fft>(config, is_inverse, 0x1555);
+    
+    // Write config to stream (required by FFT API)
+    config_stream.write(config);
+    
+    // Call HLS FFT IP (scaled mode: IFFT divides by N, manual compensation needed)
+    hls::fft<config_socs_fft>(in_stream, out_stream, status_stream, config_stream);
+    
+    // Read status from stream (required by FFT API)
+    hls::ip_fft::status_t<config_socs_fft> status = status_stream.read();
 }
 
 /**

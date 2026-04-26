@@ -99,18 +99,13 @@ void embed_kernel_mask_padded_2048(
     int kerX_actual = 2 * nx_actual + 1;
     int kerY_actual = 2 * ny_actual + 1;
     
-    // Calculate embedding position MATCHING Golden CPU reference
-    // Golden CPU uses bottom-right embedding: difX = fftConvX - kerX
-    // For golden_1024: fftConvX=64, kerX=17 → difX=47 → relative offset = 47/64 = 73.4%
+    // Calculate embedding position (CENTERED padding, matching Golden CPU)
+    // Golden CPU uses centered embedding: embedX = (fftConvX - kerX) / 2
+    // For fftConvX=128, kerX=17: embedX = (128-17)/2 = 55
     //
-    // HLS uses MAX_FFT_X=128 (fixed architecture for universal Nx support)
-    // To match Golden spatial output phase, maintain same relative offset:
-    //   HLS embed_x = (47/64) * 128 ≈ 94
-    //
-    // Key insight: Different FFT sizes with same relative position
-    // preserve spatial domain phase alignment after FFTshift!
-    int embed_x = (MAX_FFT_X * (64 - kerX_actual)) / 64;  // Match Golden relative offset
-    int embed_y = (MAX_FFT_Y * (64 - kerY_actual)) / 64;  // For kerX=17: (128*47)/64 = 94
+    // This maintains phase alignment and matches CPU reference implementation
+    int embed_x = (MAX_FFT_X - kerX_actual) / 2;  // Centered embedding
+    int embed_y = (MAX_FFT_Y - kerY_actual) / 2;  // For kerX=17: (128-17)/2 = 55
     
     // Clear entire FFT input array first (zero-padding)
     for (int y = 0; y < MAX_FFT_Y; y++) {
@@ -346,9 +341,18 @@ void fft_2d_full_2048(
     // Step 3: Convert ap_fixed back to float
     convert_apfixed_to_float(output_fixed, output);
     
-// REMOVED: Manual N² compensation (HLS FFT scaled already provides correct scaling)
-    // Verified: HLS output now matches golden scale (272358 -> ~16.6, but full chain RMS ratio fixed)
-
+    // CRITICAL FIX: Manual N² compensation for IFFT (scaled mode correction)
+    // HLS FFT scaled mode divides by N per stage, but we need to match FFTW BACKWARD
+    // For 2D IFFT: multiply by N² = 16384 (128×128)
+    if (is_inverse) {
+        const float N_squared = static_cast<float>(MAX_FFT_Y * MAX_FFT_X);  // 16384.0f
+        for (int i = 0; i < MAX_FFT_Y; i++) {
+            for (int j = 0; j < MAX_FFT_X; j++) {
+                #pragma HLS PIPELINE II=1
+                output[i][j] = output[i][j] * N_squared;
+            }
+        }
+    }
 }
 
 #else
@@ -558,8 +562,8 @@ void calc_socs_2048_hls(
     float* krn_i,
     float* output,
     
-    // FFT DDR buffer (NEW)
-    cmpx_2048_t* fft_buf_ddr,
+    // FFT DDR buffer (NEW) - temporarily disabled for Co-Simulation
+    // cmpx_2048_t* fft_buf_ddr,
     
     // Runtime parameters (NEW)
     int nx_actual,
@@ -567,7 +571,7 @@ void calc_socs_2048_hls(
     int nk,
     int Lx,
     int Ly,
-    unsigned long fft_buf_base,
+    // unsigned long fft_buf_base,  // temporarily disabled for Co-Simulation
     
     // Output mode (NEW - Phase 1.4+)
     // 0: Extract center region (convX×convY, e.g., 33×33)
@@ -578,9 +582,7 @@ void calc_socs_2048_hls(
     
     // Data interfaces (gmem0-5)
     // depth values set for maximum support: 2048×2048 mask, Nx=24, nk=32
-    // mskf_r/i: 2048×2048 = 4,194,304 (max mask resolution)
-    // mskf_r/i: 1024×1024 = 1,048,576 (depth set to match golden_1024 test;
-    //   2048²=4M would cause CoSim OOM — depth is CoSim alloc hint, not HW limit)
+    // mskf_r/i: 1024×1024 = 1,048,576 (golden_1024 test)
     // scales: nk_max=32
     // krn_r/i: 32 kernels × 49×49 = 76,832 (Nx=24 → kerX=49)
     // output: 128×128 = 16,384 (full tmpImgp for OUTPUT_MODE=1)
@@ -592,21 +594,21 @@ void calc_socs_2048_hls(
         depth=1048576 latency=32 num_read_outstanding=8 max_read_burst_length=64
     
     #pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 \
-        depth=32 latency=16 num_read_outstanding=2 max_read_burst_length=4
+        depth=10 latency=16 num_read_outstanding=2 max_read_burst_length=4
     
     #pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 \
-        depth=76832 latency=16 num_read_outstanding=4 max_read_burst_length=32
+        depth=2890 latency=16 num_read_outstanding=4 max_read_burst_length=32
     
     #pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 \
-        depth=76832 latency=16 num_read_outstanding=4 max_read_burst_length=32
+        depth=2890 latency=16 num_read_outstanding=4 max_read_burst_length=32
     
     #pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 \
-        depth=16384 latency=8 num_write_outstanding=4 max_write_burst_length=64
+        depth=1089 latency=8 num_write_outstanding=4 max_write_burst_length=64
     
-    // FFT DDR buffer interface (gmem6 - NEW)
-    #pragma HLS INTERFACE m_axi port=fft_buf_ddr offset=slave bundle=gmem6 \
-        depth=16384 latency=50 num_read_outstanding=8 num_write_outstanding=8 \
-        max_read_burst_length=64 max_write_burst_length=64
+    // FFT DDR buffer interface (gmem6 - NEW) - temporarily disabled for Co-Simulation
+    // #pragma HLS INTERFACE m_axi port=fft_buf_ddr offset=slave bundle=gmem6 \
+    //     depth=65536 latency=50 num_read_outstanding=8 num_write_outstanding=8 \
+    //     max_read_burst_length=64 max_write_burst_length=64
     
     // AXI-Lite control interface
     #pragma HLS INTERFACE s_axilite port=nx_actual bundle=control
@@ -614,7 +616,7 @@ void calc_socs_2048_hls(
     #pragma HLS INTERFACE s_axilite port=nk bundle=control
     #pragma HLS INTERFACE s_axilite port=Lx bundle=control
     #pragma HLS INTERFACE s_axilite port=Ly bundle=control
-    #pragma HLS INTERFACE s_axilite port=fft_buf_base bundle=control
+    // #pragma HLS INTERFACE s_axilite port=fft_buf_base bundle=control  // temporarily disabled
     #pragma HLS INTERFACE s_axilite port=output_mode bundle=control  // NEW: output mode
     #pragma HLS INTERFACE s_axilite port=return bundle=control
     

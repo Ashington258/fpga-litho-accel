@@ -810,24 +810,32 @@ void calcSOCS(vector<float>& image, const vector<ComplexD>& mskf,
     int convY = 4 * Ny + 1;
     
     // Padded to power-of-two for FFT compatibility
-    // ⚠️ MODIFIED: Force FFT size to 128×128 to match HLS MAX_FFT_X architecture
-    // This enables proper validation of HLS 128×128 zero-padding strategy
-    int fftConvX = 128;  // Force to match HLS MAX_FFT_X
-    int fftConvY = 128;  // Force to match HLS MAX_FFT_Y
+    // For Nx=4: convX=17, next_pow2=32 (matches socs_simple.cpp)
+    // For Nx=8: convX=33, next_pow2=64
+    // For Nx=16: convX=65, next_pow2=128
+    // 
+    // HLS Architecture: Fixed 128×128 FFT (supports Nx up to 24)
+    // Force 128×128 for all Nx <= 24 to match HLS MAX_FFT_X=128
+    int fftConvX = nextPowerOfTwo(convX);
+    int fftConvY = nextPowerOfTwo(convY);
+    
+    // Override: Force 128×128 for HLS compatibility (Phase 1.4+)
+    // This matches socs_2048.cpp MAX_FFT_X=128 architecture
+    if (fftConvX < 128) {
+        fftConvX = 128;
+        fftConvY = 128;
+        if (verbose >= 1) {
+            cout << "[calcSOCS] Overriding FFT size to 128×128 for HLS compatibility" << endl;
+        }
+    }
     
     // Kernel size: the actual support of each SOCS kernel
     int kerX = 2 * Nx + 1;
     int kerY = 2 * Ny + 1;
     
-    // Embedding position matching HLS architecture (relative 73.4% position)
-    // HLS uses embed_x = (MAX_FFT_X * (64 - kerX)) / 64 for 128×128 array
-    // For kerX=17: embed_x = (128 * 47) / 64 = 94
-    // This corresponds to relative position 94/128 = 73.4%
-    // 
-    // For Golden 128×128 array: difX = 128 - 17 = 111 (bottom-right)
-    // To match HLS relative position: use embedX = 94
-    int embedX = 94;  // Match HLS embed_x calculation
-    int embedY = 94;  // Match HLS embed_y calculation
+    // Centered embedding position (standard FFT zero-padding)
+    int embedX = (fftConvX - kerX) / 2;
+    int embedY = (fftConvY - kerY) / 2;
     
     // Keep original variables for backward compatibility (unused in new mode)
     int offKerX = (fftConvX - kerX) / 2;
