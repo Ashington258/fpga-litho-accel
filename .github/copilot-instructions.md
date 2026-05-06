@@ -275,30 +275,45 @@ hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &ovflo, &blk_
 | gmem4 | krn_i (kernel虚)    | nk×17×17   | 76,832    | SOCS kernel数据   |
 | gmem5 | tmpImg_ddr (中间结果)| 128×128   | 16,384    | 临时图像缓冲      |
 | gmem6 | output (输出图像)   | 128×128    | 16,384    | 最终空中像输出    |
-| gmem4 | krn_i (kernel虚)    | nk×9×9=810 | SOCS kernel数据   |
-| gmem5 | output (输出图像)   | 17×17=289  | 最终空中像输出    |
 
-**内部数组存储策略**：
+**内部数组存储策略（V18架构）**：
 
-当前实现中，**内部计算数组仍使用BRAM**（通过RESOURCE pragma指定）：
+当前V18实现采用**DDR+BRAM混合存储架构**：
+- **DDR存储**（通过7个AXI-MM Master接口）：大量输入数据（mskf_r/i 4MB each, krn_r/i 76.8KB each）及输出数据
+- **BRAM存储**（片上缓存）：4个128×128中间计算数组，通过RESOURCE pragma指定
 
 ```cpp
-#pragma HLS RESOURCE variable=fft_input  core=RAM_2P_BRAM  // 32×32 complex
-#pragma HLS RESOURCE variable=fft_output core=RAM_2P_BRAM  // 32×32 complex
-#pragma HLS RESOURCE variable=tmpImg     core=RAM_2P_BRAM  // 32×32 float
-#pragma HLS RESOURCE variable=tmpImgp    core=RAM_2P_BRAM  // 32×32 float
+#pragma HLS RESOURCE variable=fft_input  core=RAM_2P_BRAM  // 128×128 complex<float>
+#pragma HLS RESOURCE variable=fft_output core=RAM_2P_BRAM  // 128×128 complex<float>
+#pragma HLS RESOURCE variable=tmpImg     core=RAM_2P_BRAM  // 128×128 float
+#pragma HLS RESOURCE variable=tmpImgp    core=RAM_2P_BRAM  // 128×128 float
 ```
 
-**资源利用率问题（xcku5p-ffvb676-2-e）**：
+**资源利用率（V18）**：
+
+**实际综合器件：xcku3p-ffvb676-2-e**
 
 | 资源类型 | 使用量  | 可用量  | 占用率 | 状态    |
 | -------- | ------- | ------- | ------ | ------- |
-| BRAM     | 1,366   | 960     | 142%   | ❌ 超限 |
-| DSP      | 8,080   | 1,824   | 442%   | ❌ 超限 |
-| FF       | 556,361 | 433,920 | 128%   | ❌ 超限 |
-| LUT      | 647,932 | 216,960 | 298%   | ❌ 超限 |
+| BRAM     | 399     | 720     | 55%    | ✅ 通过 |
+| DSP      | 53      | 1,368   | 4%     | ✅ 通过 |
+| FF       | 31,942  | 325,440 | 10%    | ✅ 通过 |
+| LUT      | 37,098  | 162,720 | 23%    | ✅ 通过 |
 
-> **主要DSP消耗源**：`fft_2d_rows`函数使用直接DFT计算（非HLS FFT IP），消耗8,064 DSP
+**目标器件：xcku5p-ffvb676-2-e（预估）**
+
+| 资源类型 | 使用量  | 可用量  | 占用率 | 状态    |
+| -------- | ------- | ------- | ------ | ------- |
+| BRAM     | 399     | 960     | 42%    | ✅ 通过 |
+| DSP      | 53      | 1,824   | 3%     | ✅ 通过 |
+| FF       | 31,942  | 433,920 | 7%     | ✅ 通过 |
+| LUT      | 37,098  | 216,960 | 17%    | ✅ 通过 |
+
+> **V18架构改进**：使用HLS FFT IP替代直接DFT计算，DSP从8,064降至53（降低99.3%），BRAM从1,366降至399（降低70.8%）
+>
+> **器件说明**：配置文件指定目标器件为xcku5p，但实际综合验证使用的是资源规模较小的xcku3p。xcku5p提供960个BRAM和1824个DSP，而xcku3p仅提供720个BRAM和1368个DSP。
+
+**⚠️ 注意**：以下v5→v8优化历程为旧版（Direct DFT架构）数据，仅供参考。V18已采用HLS FFT IP，资源占用完全不同。
 
 ---
 
@@ -306,13 +321,14 @@ hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &ovflo, &blk_
 
 **关键发现**：FFT实例是BRAM主要消耗源
 
-**优化历程**（v5 → v8）：
+**优化历程**（v5 → v8 → V18，百分比基于xcku5p-ffvb676-2-e）：
 | 版本 | BRAM占用 | 优化策略 | 效果 |
 |------|---------|---------|------|
-| v5 | 988 (137%) | 移动tmpImg_final到DDR | ❌ 无效 |
-| v6 | 988 (137%) | 移除tmpImgp数组 | ❌ 无效 |
-| v7 | 928 (128%) | DDR-based FFTshift | ⚠️ 节省60 BRAM |
-| **v8** | **320 (44%)** | **降低并行度 (UNROLL factor=2→1)** | **✅ 节省608 BRAM** |
+| v5 | 988 (103%) | 移动tmpImg_final到DDR | ❌ 无效 |
+| v6 | 988 (103%) | 移除tmpImgp数组 | ❌ 无效 |
+| v7 | 928 (97%) | DDR-based FFTshift | ⚠️ 节省60 BRAM |
+| v8 | 320 (33%) | 降低并行度 (UNROLL factor=2→1) | ✅ 节省608 BRAM |
+| **V18** | **399 (42%)** | **HLS FFT IP + 块浮点** | **✅ DSP降低99.3%** |
 
 **核心经验**：
 1. **FFT实例消耗**：每个FFT实例消耗~304 BRAM
@@ -357,7 +373,7 @@ hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &ovflo, &blk_
 
 - **2026-04-19**: 硬件验证通过（DDR + HLS IP 正常）
 - JTAG连接: localhost:3121
-- 目标器件: `xcku3p-ffvb676-2-e` (全局约束中xcku5p为旧版本，请使用xcku3p)
+- 目标器件: `xcku5p-ffvb676-2-e` (⚠️ 注意：部分旧文件中xcku3p为过时版本，请使用xcku5p)
 
 **Vivado TCL Console注意事项**:
 
@@ -368,75 +384,31 @@ hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &ovflo, &blk_
 
 ---
 
-### 🔧 FFT优化方案（2026-04-22更新）
+### 🔧 FFT优化方案（2026-04-25更新，V18已实现）
 
-**问题根源**：当前FFT实现采用直接DFT计算，而非Vitis HLS FFT IP，导致DSP消耗极高（8,064 DSP，442%占用率）。
+**✅ V18已实现方案1**：集成HLS FFT IP，替代Direct DFT计算。
 
-**⚠️ 最新验证结果**：C仿真输出全为0，需先解决数据流问题。
+**V18实现效果**（已验证通过）：
+- **DSP消耗**：从8,064降至53（降低99.3%，3%占用率）
+- **BRAM消耗**：从1,366降至399（降低70.8%，42%占用率）
+- **精度**：RMSE = 8.32e-07 ✅
+- **Co-Sim**：PASS (RMSE=8.324e-07)
 
-**推荐优化方案（按优先级排序）**：
+**V18 FFT配置**（已验证正确）：
+```cpp
+struct config_socs_fft : hls::ip_fft::params_t {
+    static const unsigned log2_transform_length = 7;  // 128-point FFT
+    static const unsigned input_width = 24;
+    static const unsigned output_width = 24;
+    static const unsigned output_ordering = hls::ip_fft::natural_order;
+    static const unsigned implementation_options = hls::ip_fft::pipelined_streaming_io;
+    static const unsigned scaling_options = hls::ip_fft::scaled;
+};
+```
 
-#### ⭐ 方案1：集成HLS FFT IP（最高优先级，用户要求）
+**后续优化方向**（如需进一步提升吞吐量）：
 
-**参考实现**：`reference/vitis_hls_ftt的实现/interface_stream/fft_top.cpp`
-
-**预期效果**：
-- **DSP消耗**：从8,064降至~1,600（降低80%+，88%占用率）
-- **Latency**：从O(N²)降至O(N log N)，C仿真从454s降至~45s（降低10倍+）
-- **Fmax**：从273MHz提升至300MHz+
-
-**实现步骤**：
-1. 定义FFT配置结构体：
-   ```cpp
-   struct fft_config_2048_t {
-       static const unsigned FFT_NFFT_MAX = 7;  // log2(128)
-       static const unsigned FFT_LENGTH = 128;  // Fixed 128-point
-       static const bool FFT_HAS_NFFT = false;
-       static const bool FFT_HAS_OUT_RDY = true;
-   };
-   ```
-
-2. 替换`fft_1d_direct_2048()`为stream-based `hls::fft`：
-   ```cpp
-   void fft_1d_hls_2048(
-       hls::stream<cmpx_2048_t> &in_stream,
-       hls::stream<cmpx_2048_t> &out_stream,
-       bool is_inverse
-   ) {
-       #pragma HLS DATAFLOW
-       #pragma HLS STREAM variable=in_stream depth=128
-       #pragma HLS STREAM variable=out_stream depth=128
-       
-       hls::fft<fft_config_2048_t>(in_stream, out_stream, is_inverse ? 1 : 0);
-   }
-   ```
-
-3. 重构`fft_2d_full_2048()`使用stream pipeline：
-   ```cpp
-   void fft_2d_stream_2048(
-       cmpx_2048_t input[128][128],
-       cmpx_2048_t output[128][128],
-       bool is_inverse
-   ) {
-       #pragma HLS DATAFLOW
-       
-       // Row FFT with stream
-       hls::stream<cmpx_2048_t> row_stream("row_stream");
-       hls::stream<cmpx_2048_t> col_stream("col_stream");
-       
-       // Pipeline stages
-       fft_rows_stream(input, row_stream, is_inverse);
-       transpose_stream(row_stream, col_stream);
-       fft_cols_stream(col_stream, output, is_inverse);
-   }
-   ```
-
-**验证要求**：
-- RMSE < 1e-5（对比FFTW）
-- DSP占用率 < 90%
-- C仿真时间 < 60s
-
-#### ⭐ 方案2：Kernel并行化（用户要求）
+#### ⭐ 方案2：Kernel并行化（待实现）
 
 **当前状态**：nk=10顺序循环处理，每个kernel需~45s（C仿真）
 
