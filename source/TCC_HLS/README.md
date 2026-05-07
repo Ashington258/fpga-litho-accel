@@ -57,7 +57,7 @@ source/TCC_HLS/
 ### 前置条件
 
 1. **Vitis HLS 2025.2+**（支持`vitis-run`命令）
-2. **器件**: xcku3p-ffvb676-2-e (Kintex UltraScale+)
+2. **器件**: xcku5p-ffvb676-2-e (Kintex UltraScale+)
 3. **时钟**: 5ns (200 MHz)
 
 ### 构建命令

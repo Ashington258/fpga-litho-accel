@@ -15,17 +15,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from bin_to_hex_for_ddr import generate_tcl_script, read_bin_file
 
-# 数据路径配置
-DATA_DIR = "e:/fpga-litho-accel/source/SOCS_HLS/data"
-OUTPUT_DIR = "e:/fpga-litho-accel/validation/board/jtag"
+# 数据路径配置 (相对于脚本位置的相对路径)
+# 脚本位置: validation/board/jtag/scripts/python/
+# 数据位置: source/SOCS_HLS/data/
+# 输出位置: validation/board/jtag/scripts/tcl/load/
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "../../../../../"))
+DATA_DIR = os.path.join(PROJECT_ROOT, "source/SOCS_HLS/data")
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, "validation/board/jtag/scripts/tcl/load")
 
-# DDR 地址映射
+# DDR 地址映射 (V18 - golden_1024 config)
 DDR_ADDRESS_MAP = {
-    "mskf_r": 0x40000000,  # 512×512 floats
-    "mskf_i": 0x42000000,  # 512×512 floats
-    "scales": 0x44000000,  # 10 floats
-    "krn_r": 0x44400000,  # 10×81 floats
-    "krn_i": 0x44800000,  # 10×81 floats
+    "mskf_r": 0x40000000,  # 1024×1024 floats = 4MB (gmem0)
+    "mskf_i": 0x40400000,  # 1024×1024 floats = 4MB (gmem1)
+    "scales": 0x40800000,  # 10 floats (gmem2)
+    "krn_r": 0x40880000,   # 10×17×17 floats = 11.6KB (gmem3)
+    "krn_i": 0x40900000,   # 10×17×17 floats = 11.6KB (gmem4)
 }
 
 
@@ -86,7 +91,7 @@ def generate_all_scripts():
     print("\n=== 所有脚本生成完成 ===")
     print("\n>>> 使用方法：")
     print("    在 Vivado Tcl Console 中依次执行：")
-    print("    cd e:/fpga-litho-accel/validation/board/jtag")
+    print(f"    cd {OUTPUT_DIR}")
     print("    source load_all_data.tcl")
 
 

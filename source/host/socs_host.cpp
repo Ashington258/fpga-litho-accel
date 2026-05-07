@@ -1,19 +1,27 @@
 /**
- * SOCS Host - Preprocessing Pipeline for FPGA-Litho (方案 B: Host + FPGA)
+ * @file socs_host.cpp
+ * @brief SOCS 主机端预处理流水线 —— FPGA-Litho 系统前端
  * 
- * Architecture:
- *   MODULE 1: JSON Parser → Load configuration
- *   MODULE 2: Mask Processor → Create mask, compute FFT
- *   MODULE 3: TCC Calculator → Compute transmission cross coefficient
- *   MODULE 4: Kernel Extractor → Eigenvalue decomposition of TCC
- *   MODULE 5: Source Term → Prepare SOCS source weights
- *   MODULE 6: Data Preparation → Format FPGA input (mskf, krn, scales)
- *   [MODULE 7: FPGA calcSOCS → Core convolution (offloaded to FPGA)]
- *   MODULE 8: IFFT Post-processing → Convert frequency to spatial domain
+ * 本文件实现了 SOCS 算法的完整预处理流水线，包括掩模处理、TCC 计算、
+ * 本征核提取等关键步骤，为 FPGA 加速器准备输入数据。
  * 
- * Usage modes:
- *   --load-kernels: Load precomputed kernels from directory (legacy mode)
- *   --compute-kernels: Compute kernels from TCC in real-time (new mode)
+ * 系统架构（模块化设计）：
+ * - 模块 1：JSON 解析器 —— 加载配置参数
+ * - 模块 2：掩模处理器 —— 创建掩模并计算 FFT
+ * - 模块 3：TCC 计算器 —— 计算传输交叉系数
+ * - 模块 4：核提取器 —— TCC 矩阵特征值分解
+ * - 模块 5：光源项 —— 准备 SOCS 光源权重
+ * - 模块 6：数据准备 —— 格式化 FPGA 输入（mskf, krn, scales）
+ * - [模块 7：FPGA calcSOCS —— 核心卷积计算（FPGA 加速）]
+ * - 模块 8：IFFT 后处理 —— 频域到空域转换
+ * 
+ * 运行模式：
+ * - --load-kernels：从目录加载预计算核（遗留模式）
+ * - --compute-kernels：从 TCC 实时计算核（新模式）
+ * - --full：完整流水线（掩模 → TCC → 核 → FPGA 输入）
+ * 
+ * @author FPGA-Litho Project
+ * @version 2.0
  */
 
 #include "file_io.hpp"
@@ -39,7 +47,9 @@ namespace fs = std::filesystem;
 using ComplexD = std::complex<double>;
 using ComplexF = std::complex<float>;
 
-// === Utility Functions ===
+// ============================================================================
+// 辅助函数实现
+// ============================================================================
 
 static std::string resolvePath(const std::string& baseDir, const std::string& relativePath) {
     fs::path path(relativePath);
@@ -84,7 +94,9 @@ static void displayHelp(const std::string& programName) {
     std::cout << "  " << programName << " --full <config.json> [output_dir]" << std::endl;
 }
 
-// === Mode 1: Load Precomputed Kernels ===
+// ============================================================================
+// 模式 1：加载预计算核（遗留模式）
+// ============================================================================
 
 static int runLoadKernelsMode(int argc, char* argv[]) {
     if (argc < 4) {
@@ -130,7 +142,7 @@ static int runLoadKernelsMode(int argc, char* argv[]) {
     const std::string maskImagFile = (fs::path(outputDir) / "mskf_i.bin").string();
     writeComplexArrayToBinary(maskRealFile, maskImagFile, maskFreq);
 
-    // Load kernels from directory
+    // 从目录加载预计算核
     int krnSizeX = 0, krnSizeY = 0, nkFromInfo = 0;
     std::vector<float> scales;
     if (!readKernelInfo(kernelInfoFile, krnSizeX, krnSizeY, nkFromInfo, scales)) {
@@ -145,7 +157,7 @@ static int runLoadKernelsMode(int argc, char* argv[]) {
     const std::string scalesFile = (fs::path(outputDir) / "scales.bin").string();
     writeFloatArrayToBinary(scalesFile, scales);
 
-    // Copy kernel files
+    // 复制核文件至输出目录
     const std::string outputKernelInfo = (outputKernelDir / "kernel_info.txt").string();
     copyFile(kernelInfoFile, outputKernelInfo);
 
@@ -166,7 +178,9 @@ static int runLoadKernelsMode(int argc, char* argv[]) {
     return 0;
 }
 
-// === Mode 2: Compute Kernels from TCC ===
+// ============================================================================
+// 模式 2：从 TCC 计算核（新模式）
+// ============================================================================
 
 static int runComputeKernelsMode(int argc, char* argv[]) {
     if (argc < 3) {
@@ -256,7 +270,7 @@ static int runComputeKernelsMode(int argc, char* argv[]) {
         return 1;
     }
 
-    // Convert kernels to float format for FPGA
+    // 将核转换为单精度浮点格式（FPGA 兼容）
     int krnSizeX = 2 * config.Nx + 1;
     int krnSizeY = 2 * config.Ny + 1;
     std::vector<std::vector<ComplexF>> kernelsFloat(config.nk);
@@ -268,7 +282,7 @@ static int runComputeKernelsMode(int argc, char* argv[]) {
         }
     }
 
-    // Write outputs
+    // 写入输出文件
     const std::string scalesFile = (fs::path(outputDir) / "scales.bin").string();
     writeFloatArrayToBinary(scalesFile, scales);
 

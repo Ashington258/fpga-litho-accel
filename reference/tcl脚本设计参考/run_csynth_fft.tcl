@@ -18,7 +18,7 @@ add_files ${proj_dir}/src/fft_2d.h
 add_files -tb ${proj_dir}/tb/tb_fft_2d.cpp
 
 # 配置
-set_part xcku3p-ffvb676-2-e
+set_part xcku5p-ffvb676-2-e
 create_clock -period 5 -name default
 
 config_compile -name_max_length 256

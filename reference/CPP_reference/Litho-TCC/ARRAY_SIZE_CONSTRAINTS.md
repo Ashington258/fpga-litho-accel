@@ -62,11 +62,11 @@
 
 ## 3. BRAM 容量约束
 
-### 3.1 Kintex UltraScale+ (xcku3p-ffvb676-2-e)
+### 3.1 Kintex UltraScale+ (xcku5p-ffvb676-2-e)
 
 | 资源 | 数量 | 单位容量 | 总容量 |
 |------|------|----------|--------|
-| BRAM | 216 | 36Kb | 7.7Mb ≈ 960KB |
+| BRAM | 960 | 18Kb | 17.3Mb ≈ 2,160KB |
 
 **容量限制分析**：
 - \`tcc[tccSize²×8字节]\` = 277M×8 ≈ 2.2GB（最小配置） ❗**远超BRAM**

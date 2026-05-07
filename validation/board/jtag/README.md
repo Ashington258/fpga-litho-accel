@@ -19,8 +19,8 @@
 | 验证项          | 结果 | 说明                            |
 | --------------- | ---- | ------------------------------- |
 | Golden 数据加载 | ⏳    | 使用真实 SOCS 输入数据          |
-| HLS 计算输出    | ⏳    | 17×17 空中像（289 floats）      |
-| 输出 vs Golden  | ⏳    | 对比 tmpImgp_pad32.bin 参考输出 |
+| HLS 计算输出    | ⏳    | **128×128 空中像（16384 floats）** |
+| 输出 vs Golden  | ⏳    | 对比 tmpImgp_full_128.bin 参考输出 |
 
 ## 📁 目录结构
 
@@ -64,18 +64,19 @@ validation/board/jtag/
 - `generate_all_load_scripts.py`: 从BIN文件生成DDR加载TCL脚本
 - `visualize_aerial_image.py`: 输出可视化与误差分析
 
-## 📊 地址映射
+## 📊 地址映射 (V18 - golden_1024)
 
-| 区域       | DDR 地址   | 大小  | 说明           |
-| ---------- | ---------- | ----- | -------------- |
-| mskf_r     | 0x40000000 | 1MB   | mask 频域实部  |
-| mskf_i     | 0x42000000 | 1MB   | mask 频域虚部  |
-| scales     | 0x44000000 | 40B   | 特征值（10个） |
-| krn_r      | 0x44400000 | 3.2KB | kernel 实部    |
-| krn_i      | 0x44800000 | 3.2KB | kernel 虚部    |
-| output     | 0x44840000 | 1.2KB | HLS 输出结果   |
-| HLS_CTRL   | 0x0000     | -     | HLS 控制寄存器 |
-| HLS_PARAMS | 0x10000    | -     | HLS 参数寄存器 |
+| 区域       | DDR 地址   | 大小   | 说明                      |
+| ---------- | ---------- | ------ | ------------------------- |
+| mskf_r     | 0x40000000 | 4MB    | mask 频域实部 1024×1024 (gmem0) |
+| mskf_i     | 0x40400000 | 4MB    | mask 频域虚部 1024×1024 (gmem1) |
+| scales     | 0x40800000 | 40B    | 特征值（10个）(gmem2)     |
+| krn_r      | 0x40880000 | 11.6KB | kernel 实部 10×17×17 (gmem3) |
+| krn_i      | 0x40900000 | 11.6KB | kernel 虚部 10×17×17 (gmem4) |
+| output     | 0x40990000 | 64KB   | HLS 输出 128×128 (gmem6)  |
+| tmpImg_ddr | 0x40980000 | 64KB   | 中间结果 128×128 (gmem5)  |
+| HLS_CTRL   | 0x0000     | -      | HLS 控制寄存器            |
+| HLS_PARAMS | 0x10000    | -      | HLS 参数寄存器            |
 
 ## 🚀 快速验证流程
 
@@ -124,9 +125,9 @@ python generate_all_load_scripts.py
 ```
 
 **输出文件**：
-- `load_mskf_r.tcl` / `load_mskf_i.tcl` (512×512 floats)
+- `load_mskf_r.tcl` / `load_mskf_i.tcl` (**1024×1024 floats = 4MB**)
 - `load_scales.tcl` (10 floats)
-- `load_krn_r.tcl` / `load_krn_i.tcl` (10×81 floats)
+- `load_krn_r.tcl` / `load_krn_i.tcl` (**10×17×17 floats = 11.6KB**)
 
 ### Step 2: 在 Vivado 中执行完整验证
 
@@ -149,7 +150,7 @@ source run_full_validation_with_golden.tcl
 3. ✅ 配置 HLS IP 参数
 4. ✅ 启动 HLS IP 执行
 5. ✅ 等待 HLS 完成（轮询 ap_done）
-6. ✅ 读取输出数据（17×17 = 289 floats）
+6. ✅ **读取输出数据（128×128 = 16384 floats）**
 7. ✅ 保存输出为 HEX 文件
 
 **输出文件**：`aerial_image_output.hex`
@@ -242,27 +243,28 @@ python visualize_aerial_image.py
 | **JTAG-to-AXI** | s_axi_control   | **0x0000**     | 64K      | **HLS 控制寄存器**  |
 | **JTAG-to-AXI** | s_axi_control_r | 0x10000        | 64K      | HLS 参数寄存器      |
 | **JTAG-to-AXI** | DDR4            | 0x40000000     | 128M     | DDR 内存空间        |
-| **HLS gmem0**   | DDR4            | 0x40000000     | 32M      | mskf_r (mask 实部)  |
-| **HLS gmem1**   | DDR4            | 0x42000000     | 32M      | mskf_i (mask 虚部)  |
-| **HLS gmem2**   | DDR4            | 0x44000000     | 4M       | scales (特征值)     |
-| **HLS gmem3**   | DDR4            | 0x44400000     | 4M       | krn_r (kernel 实部) |
-| **HLS gmem4**   | DDR4            | 0x44800000     | 256K     | krn_i (kernel 虚部) |
-| **HLS gmem5**   | DDR4            | **0x44840000** | 16K      | **HLS 输出结果**    |
+| **HLS gmem0**   | DDR4            | 0x40000000     | 4M       | mskf_r (mask 实部)  |
+| **HLS gmem1**   | DDR4            | 0x40400000     | 4M       | mskf_i (mask 虚部)  |
+| **HLS gmem2**   | DDR4            | 0x40800000     | 64K      | scales (特征值)     |
+| **HLS gmem3**   | DDR4            | 0x40880000     | 512K     | krn_r (kernel 实部) |
+| **HLS gmem4**   | DDR4            | 0x40900000     | 512K     | krn_i (kernel 虚部) |
+| **HLS gmem5**   | DDR4            | 0x40980000     | 64K      | tmpImg_ddr (中间结果) |
+| **HLS gmem6**   | DDR4            | **0x40990000** | 64K      | **HLS 输出结果**    |
 
 **⚠️ 关键提示**：
 - `HLS_CTRL_BASE = 0x0000`（通过 JTAG-to-AXI 访问 HLS 控制寄存器）
 - **不要使用 0x40000000 作为 HLS 启动地址**（这是 DDR 基地址，不是控制寄存器）
 
-## 📊 验证数据概览
+## 📊 验证数据概览 (V18)
 
 | 数据名称     | 大小               | DDR 地址   | 写入方式            |
 | ------------ | ------------------ | ---------- | ------------------- |
 | `mskf_r`     | 512×512 (1MB)      | 0x40000000 | 分批 (2049 batches) |
-| `mskf_i`     | 512×512 (1MB)      | 0x42000000 | 分批 (2049 batches) |
-| `scales`     | 10 floats          | 0x44000000 | 直接写入            |
-| `krn_r`      | 10×81 floats       | 0x44400000 | 直接写入            |
-| `krn_i`      | 10×81 floats       | 0x44800000 | 直接写入            |
-| **HLS 输出** | 17×17 (289 floats) | 0x44840000 | 读取                |
+| `mskf_i`     | 512×512 (1MB)      | 0x40400000 | 分批 (2049 batches) |
+| `scales`     | 10 floats          | 0x40800000 | 直接写入            |
+| `krn_r`      | 10×81 floats       | 0x40880000 | 直接写入            |
+| `krn_i`      | 10×81 floats       | 0x40900000 | 直接写入            |
+| **HLS 输出** | 17×17 (289 floats) | 0x40990000 | 读取                |
 
 ## 🚀 使用步骤（推荐 V2 版本）
 
@@ -292,16 +294,16 @@ source socs_hls_validation_v2.tcl
 # 加载验证数据变量定义
 source data/socs_data.tcl
 
-# 写入 scales (10 floats @ 0x44000000)
-axi_write_data $axi_if 0x44000000 $scales_data "Write scales"
+# 写入 scales (10 floats @ 0x40800000)
+axi_write_data $axi_if 0x40800000 $scales_data "Write scales"
 
 # 写入 kernels (10个kernel，各81 floats)
 for {set k 0} {$k < 10} {incr k} {
     # 注意：构建变量名后用 [set $var] 获取值，消息中用 ${k} 防止变量名错误解析
     set krn_r_var "krn_${k}_r"
     set krn_i_var "krn_${k}_i"
-    axi_write_data $axi_if [expr 0x44400000 + $k*81*4] [set $krn_r_var] "Write krn_${k}_r"
-    axi_write_data $axi_if [expr 0x44800000 + $k*81*4] [set $krn_i_var] "Write krn_${k}_i"
+    axi_write_data $axi_if [expr 0x40880000 + $k*81*4] [set $krn_r_var] "Write krn_${k}_r"
+    axi_write_data $axi_if [expr 0x40900000 + $k*81*4] [set $krn_i_var] "Write krn_${k}_i"
 }
 ```
 
@@ -329,7 +331,7 @@ for {set b 0} {$b < $num_batches} {incr b} {
 # 分批写入 mskf_i (2048 batches)
 puts "开始写入 mskf_i..."
 for {set b 0} {$b < $num_batches} {incr b} {
-    set batch_addr [expr 0x42000000 + $b*128*4]
+    set batch_addr [expr 0x40400000 + $b*128*4]
     axi_write_data $axi_if $batch_addr [set mskf_i_batch_$b] "mskf_i batch $b"
     
     if {$b % 100 == 0} {
@@ -375,11 +377,11 @@ puts "HLS IP 执行完成"
 ### Step 5: 读取 HLS 输出结果
 
 ```tcl
-# 读取输出数据 (289 floats @ 0x44840000)
+# 读取输出数据 (289 floats @ 0x40990000)
 # 由于 Vivado burst 限制，分3批读取：128+128+33
-axi_read_data $axi_if 0x44840000 128 "Read output batch 1"
-axi_read_data $axi_if 0x44840200 128 "Read output batch 2"
-axi_read_data $axi_if 0x44840400 33  "Read output batch 3"
+axi_read_data $axi_if 0x40990000 128 "Read output batch 1"
+axi_read_data $axi_if 0x40990200 128 "Read output batch 2"
+axi_read_data $axi_if 0x40990400 33  "Read output batch 3"
 
 puts "输出数据已读取到 TCL 变量"
 ```
@@ -489,7 +491,7 @@ create_hw_axi_txn rd_txn ...
 [Labtools 27-3199] Address Value '1149501440' is too large
 ```
 
-**解决方案**：脚本已修复，使用 hex 格式地址 `0x44840000`
+**解决方案**：脚本已修复，使用 hex 格式地址 `0x40990000`
 
 ### 4. Burst 长度超限
 
@@ -501,7 +503,7 @@ ERROR: Burst length exceeds maximum supported
 
 ### 5. HLS IP 无法启动 / 输出全0
 
-**症状**：读取 `0x44840000` 返回全零数据
+**症状**：读取 `0x40990000` 返回全零数据
 
 **根本原因排查**：
 1. **检查 HLS 控制地址**：确保 `HLS_CTRL_BASE = 0x0000`（来自 AddressSegments.csv）

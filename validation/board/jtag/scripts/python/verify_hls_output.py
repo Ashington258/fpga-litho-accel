@@ -9,7 +9,7 @@
 验证方法：
   1. 从DDR读取HLS输出数据（aerial image）
   2. 将DDR回读数据转换为float32数组
-  3. 对比HLS输出与Golden参考（aerial_image_tcc_direct.bin）
+  3. 对比HLS输出与Golden参考（tmpImgp_full_128.bin）
 
 验收标准：
   - RMSE < 1e-6 (与Golden一致)
@@ -19,7 +19,7 @@
   python verify_hls_output.py --golden <golden_bin> --hls_ddr_addr <hex_addr> --hls_output_len <int>
 
 示例：
-  python verify_hls_output.py --golden aerial_image_tcc_direct.bin --hls_ddr_addr 0x44840000 --hls_output_len 289
+  python verify_hls_output.py --golden tmpImgp_full_128.bin --hls_ddr_addr 0x40990000 --hls_output_len 16384
 """
 
 import argparse

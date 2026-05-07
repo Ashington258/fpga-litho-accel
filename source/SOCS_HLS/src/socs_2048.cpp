@@ -131,7 +131,7 @@ void embed_kernel_mask_padded_2048(
     // Compute and embed kernel × mask product
     for (int ky = 0; ky < kerY_actual; ky++) {
         for (int kx = 0; kx < kerX_actual; kx++) {
-            // #pragma HLS PIPELINE II=1  // DISABLED for C Simulation
+            #pragma HLS PIPELINE II=1  // ENABLED for Co-Simulation
             
             // Convert kernel index to spatial offset
             int y_offset = ky - ny_actual;  // y ∈ [-Ny:Ny]
