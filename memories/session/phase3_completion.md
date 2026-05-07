@@ -152,7 +152,7 @@ fftshift_and_output_from_ddr(tmpImg_ddr, output, nx_actual, ny_actual);
 
 - **开发环境**: Linux (当前会话)
 - **HLS工具**: Vitis HLS 2025.2
-- **目标器件**: xcku3p-ffvb676-2-e
+- **目标器件**: xcku5p-ffvb676-2-e
 - **配置文件**: golden_1024.json (Lx=1024, Nx=8)
 
 ### 验证要求

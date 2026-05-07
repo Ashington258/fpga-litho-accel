@@ -44,7 +44,7 @@
 
 ### 结论
 - ✅ 功能正确：算法实现与 CPU reference 一致
-- ❌ 不可部署：资源需求远超 xcku3p-ffvb676-2-e 器件容量
+- ❌ 不可部署：资源需求远超 xcku5p-ffvb676-2-e 器件容量
 - 🔄 需重构：切换到 HLS FFT IP 以降低资源消耗
 
 ---
@@ -138,7 +138,7 @@ vitis-run --mode hls --csim --config script/config/hls_config_socs_fft.cfg --wor
 - **FFT IP 参考**：`reference/vitis_hls_ftt的实现/interface_stream/`
 - **CPU Reference**：`validation/golden/src/litho.cpp`
 - **Golden 数据**：`output/verification/`
-- **器件规格**：xcku3p-ffvb676-2-e (Kintex UltraScale+)
+- **器件规格**：xcku5p-ffvb676-2-e (Kintex UltraScale+)
 
 ---
 

@@ -280,7 +280,7 @@ source/TCC_HLS/                    ← 与现有工程结构一致
 **📌 HLS 配置文件模板（参考参考文档）**：
 ```cfg
 # hls_config.cfg 核心内容
-part = xcku3p-ffvb676-2-e
+part = xcku5p-ffvb676-2-e
 clock = 5ns
 source_file = src/tcc_top.cpp
 testbench_file = tb/tb_tcc.cpp
