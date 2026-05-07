@@ -1,0 +1,9 @@
+{
+  "name": "socs_v17_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_v17_xsim.cfg"],
+    "work_dir": "."
+  }
+}
