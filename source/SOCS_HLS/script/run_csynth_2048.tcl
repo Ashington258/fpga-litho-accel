@@ -21,7 +21,7 @@ add_files ${proj_dir}/src/hls_fft_config_2048_corrected.h
 add_files -tb ${proj_dir}/tb/tb_socs_1024.cpp
 
 # 配置目标器件
-set_part xcku3p-ffvb676-2-e
+set_part xcku5p-ffvb676-2-e
 create_clock -period 5 -name default
 
 # HLS 配置

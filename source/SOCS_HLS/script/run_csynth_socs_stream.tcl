@@ -19,7 +19,7 @@ set_top calc_socs_2048_hls_stream
 open_solution -reset solution1
 
 # Set target device
-set_part {xcku3p-ffvb676-2-e}
+set_part {xcku5p-ffvb676-2-e}
 
 # Set clock period
 create_clock -period 5.00 -name default
