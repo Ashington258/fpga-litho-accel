@@ -1,0 +1,92 @@
+{
+  "comparison_with_fpga": {
+    "description": "CPU C++ 实现与 FPGA 实现的性能对比",
+    "cpu_cpp": {
+      "platform": "Ubuntu 24.04 LTS, GCC 13.3.0, -O2",
+      "precision": "single (float)",
+      "tcc_direct_image_ms": 45.176,
+      "socs_10kernels_ms": 35.6,
+      "throughput_fps": 28.09,
+      "power_w": 80,
+      "efficiency_frames_per_joule": 0.351
+    },
+    "fpga": {
+      "platform": "xcku5p-ffvb676-2-e @ 250 MHz",
+      "precision": "single + block floating point",
+      "socs_10kernels_ms": 10.57,
+      "throughput_fps": 94.6,
+      "power_w": 4.0,
+      "efficiency_frames_per_joule": 23.65
+    },
+    "speedup": {
+      "vs_tcc_direct": {
+        "cpu_time_ms": 45.176,
+        "fpga_time_ms": 10.57,
+        "speedup": 4.28,
+        "description": "FPGA vs CPU TCC直接成像"
+      },
+      "vs_socs_10kernels": {
+        "cpu_time_ms": 35.6,
+        "fpga_time_ms": 10.57,
+        "speedup": 3.37,
+        "description": "FPGA vs CPU SOCS 10核成像"
+      }
+    },
+    "efficiency_improvement": {
+      "cpu_efficiency": 0.351,
+      "fpga_efficiency": 23.65,
+      "improvement_factor": 67.4,
+      "description": "FPGA 能效比是 CPU 的 67.4 倍"
+    }
+  },
+  "comparison_with_matlab": {
+    "description": "CPU C++ 实现与 MATLAB 实现的性能对比（论文数据）",
+    "matlab": {
+      "platform": "MATLAB (双精度)",
+      "tcc_direct_image_ms": 479,
+      "socs_10kernels_ms": 287,
+      "throughput_fps": 3.48,
+      "power_w": 80,
+      "efficiency_frames_per_joule": 0.044
+    },
+    "cpu_cpp": {
+      "platform": "C++ (单精度, -O2)",
+      "tcc_direct_image_ms": 45.176,
+      "socs_10kernels_ms": 35.6,
+      "throughput_fps": 28.09,
+      "power_w": 80,
+      "efficiency_frames_per_joule": 0.351
+    },
+    "speedup": {
+      "tcc_direct": {
+        "matlab_time_ms": 479,
+        "cpp_time_ms": 45.176,
+        "speedup": 10.6,
+        "description": "C++ vs MATLAB TCC直接成像"
+      },
+      "socs_10kernels": {
+        "matlab_time_ms": 287,
+        "cpp_time_ms": 35.6,
+        "speedup": 8.06,
+        "description": "C++ vs MATLAB SOCS 10核成像"
+      }
+    }
+  },
+  "summary": {
+    "cpu_cpp_advantages": [
+      "开发周期短",
+      "算法灵活性高",
+      "易于调试和验证"
+    ],
+    "fpga_advantages": [
+      "延迟低（10.57 ms vs 35.6 ms）",
+      "吞吐量高（94.6 fps vs 28.09 fps）",
+      "功耗低（4 W vs 80 W）",
+      "能效比高（67.4倍提升）"
+    ],
+    "use_cases": {
+      "cpu_cpp": "快速原型验证、算法开发、离线仿真",
+      "fpga": "实时成像、边缘计算、低功耗嵌入式应用"
+    }
+  }
+}

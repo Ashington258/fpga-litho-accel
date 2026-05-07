@@ -1,0 +1,9 @@
+{
+  "name": "fft_test_hp_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_fft_test_high_precision.cfg"],
+    "work_dir": "."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "socs_stream_refactored_v5_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_stream_refactored_v5.cfg"],
+    "work_dir": "."
+  }
+}

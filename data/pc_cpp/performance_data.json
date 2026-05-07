@@ -1,0 +1,73 @@
+{
+  "performance_breakdown": {
+    "10_kernels": {
+      "module_1_source_us": 302,
+      "module_2_mask_us": 36972,
+      "module_3_fft_mask_us": 78420,
+      "module_4_tcc_us": 65149,
+      "module_5_tcc_image_us": 45176,
+      "module_6_kernels_us": 48836,
+      "module_7_socs_image_us": 35600,
+      "total_us": 821494,
+      "total_ms": 821.494,
+      "total_s": 0.821494
+    },
+    "50_kernels": {
+      "module_1_source_us": 298,
+      "module_2_mask_us": 36252,
+      "module_3_fft_mask_us": 76025,
+      "module_4_tcc_us": 66305,
+      "module_5_tcc_image_us": 46740,
+      "module_6_kernels_us": 62656,
+      "module_7_socs_image_us": 41548,
+      "total_us": 848796,
+      "total_ms": 848.796,
+      "total_s": 0.848796
+    },
+    "400_kernels": {
+      "module_1_source_us": 271,
+      "module_2_mask_us": 32962,
+      "module_3_fft_mask_us": 74836,
+      "module_4_tcc_us": 64760,
+      "module_5_tcc_image_us": 46068,
+      "module_6_kernels_us": 118672,
+      "module_7_socs_image_us": 69327,
+      "total_us": 941023,
+      "total_ms": 941.023,
+      "total_s": 0.941023,
+      "note": "实际使用289核（TCC矩阵大小限制）"
+    }
+  },
+  "key_metrics": {
+    "tcc_direct_image_ms": {
+      "10_kernels": 45.176,
+      "50_kernels": 46.74,
+      "400_kernels": 46.068,
+      "average": 45.995,
+      "description": "完整TCC直接成像时间（Module 5）"
+    },
+    "socs_online_image_ms": {
+      "10_kernels": 35.6,
+      "50_kernels": 41.548,
+      "400_kernels": 69.327,
+      "description": "SOCS在线成像时间（Module 7，纯计算）"
+    }
+  },
+  "throughput": {
+    "10_kernels": {
+      "socs_image_time_ms": 35.6,
+      "throughput_fps": 28.09,
+      "description": "吞吐量 = 1000 / 35.6"
+    },
+    "50_kernels": {
+      "socs_image_time_ms": 41.548,
+      "throughput_fps": 24.07,
+      "description": "吞吐量 = 1000 / 41.548"
+    },
+    "400_kernels": {
+      "socs_image_time_ms": 69.327,
+      "throughput_fps": 14.42,
+      "description": "吞吐量 = 1000 / 69.327"
+    }
+  }
+}

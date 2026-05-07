@@ -1,0 +1,413 @@
+============================================================
+  Litho-Full: Integrated TCC + SOCS Verification Program
+============================================================
+
+[CONFIG] Simulation Parameters:
+  Mask Period: 1024 x 1024
+  Mask Size: 1024 x 1024
+  NA: 0.8
+  Defocus: 0.2
+  Number of Kernels: 400
+  Output Directory: ../../../data/pc_cpp/output_400kernels
+  FFT Padded Size: 1024 x 1024
+
+============================================================
+[MODULE 1] Creating Source...
+[STATISTICS] Source:
+  Mean:    0.000098
+  StdDev:  0.000134
+  Max:     0.000282
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000 
+[TIME] Source creation: 271 us
+
+============================================================
+[MODULE 2] Creating Mask...
+Read Mask: ../../../input/mask/1024x1024.bin
+[STATISTICS] Mask:
+  Mean:    0.205368
+  StdDev:  0.403970
+  Max:     1.000000
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000 
+[TIME] Mask creation: 32962 us
+
+[PARAM] TCC Parameters:
+  Outer Sigma: 0.900000
+  Nx: 8, Ny: 8
+  TCC Size: 289 x 289
+
+============================================================
+[MODULE 3] Computing FFT of Mask...
+[SAMPLES] FFT Mask (center region):
+  [511,511] = (0.026167, -0.002220)
+  [511,512] = (0.063272, 0.000934)
+  [511,513] = (0.017988, -0.001101)
+  [512,511] = (0.099257, 0.036346)
+  [512,512] = (0.205368, 0.000000)
+[TIME] FFT Mask: 74836 us
+
+============================================================
+[MODULE 4] Computing TCC Matrix...
+[TCC] Computing pupil functions...
+[TCC] Parameters: outerSigma=0.900000, dz=60.312496, k=0.032555
+[TCC] Computing TCC matrix...
+[STATISTICS] TCC Real:
+  Mean:    0.036434
+  StdDev:  0.085118
+  Max:     1.000000
+  Min:     0.000000
+  Diagonal[0]: (0.000000, 0.000000)
+  Diagonal[1]: (0.000000, 0.000000)
+[TIME] TCC computation: 64760 us
+
+============================================================
+[MODULE 5] Computing Aerial Image (TCC-based)...
+[calcImage] Computing aerial image from TCC...
+[STATISTICS] Aerial Image (TCC):
+  Mean:    0.094496
+  StdDev:  0.099675
+  Max:     0.385138
+  Min:     0.004065
+  Samples: 0.005223 0.005219 0.005214 0.005208 0.005201 
+[TIME] TCC Image: 46068 us
+
+============================================================
+[MODULE 6] Extracting SOCS Kernels...
+[calcKernels] Solving eigenproblem for TCC matrix...
+[calcKernels] zheevr returned: info=0, m=289
+[STATISTICS] SOCS Kernel Eigenvalues:
+  Scale[0]: 23.010136
+  Scale[1]: 9.634128
+  Scale[2]: 9.634128
+  Scale[3]: 2.661961
+  Scale[4]: 2.638622
+  Scale[5]: 1.067181
+  Scale[6]: 1.067181
+  Scale[7]: 0.554192
+  Scale[8]: 0.553295
+  Scale[9]: 0.322799
+  Scale[10]: 0.322799
+  Scale[11]: 0.318914
+  Scale[12]: 0.262698
+  Scale[13]: 0.262698
+  Scale[14]: 0.217793
+  Scale[15]: 0.207823
+  Scale[16]: 0.198431
+  Scale[17]: 0.154683
+  Scale[18]: 0.145977
+  Scale[19]: 0.145977
+  Scale[20]: 0.111332
+  Scale[21]: 0.111332
+  Scale[22]: 0.107829
+  Scale[23]: 0.106370
+  Scale[24]: 0.087062
+  Scale[25]: 0.087062
+  Scale[26]: 0.086608
+  Scale[27]: 0.083177
+  Scale[28]: 0.069710
+  Scale[29]: 0.068346
+  Scale[30]: 0.068346
+  Scale[31]: 0.060883
+  Scale[32]: 0.056574
+  Scale[33]: 0.050699
+  Scale[34]: 0.050238
+  Scale[35]: 0.050238
+  Scale[36]: 0.044042
+  Scale[37]: 0.044042
+  Scale[38]: 0.042337
+  Scale[39]: 0.041935
+  Scale[40]: 0.041915
+  Scale[41]: 0.041262
+  Scale[42]: 0.041262
+  Scale[43]: 0.033674
+  Scale[44]: 0.032638
+  Scale[45]: 0.032246
+  Scale[46]: 0.032246
+  Scale[47]: 0.031771
+  Scale[48]: 0.030984
+  Scale[49]: 0.028148
+  Scale[50]: 0.027723
+  Scale[51]: 0.027446
+  Scale[52]: 0.027446
+  Scale[53]: 0.025490
+  Scale[54]: 0.025490
+  Scale[55]: 0.025068
+  Scale[56]: 0.024616
+  Scale[57]: 0.023109
+  Scale[58]: 0.023109
+  Scale[59]: 0.021842
+  Scale[60]: 0.021631
+  Scale[61]: 0.021631
+  Scale[62]: 0.020974
+  Scale[63]: 0.020429
+  Scale[64]: 0.018959
+  Scale[65]: 0.018393
+  Scale[66]: 0.017912
+  Scale[67]: 0.017912
+  Scale[68]: 0.017911
+  Scale[69]: 0.016993
+  Scale[70]: 0.016993
+  Scale[71]: 0.016727
+  Scale[72]: 0.016603
+  Scale[73]: 0.015911
+  Scale[74]: 0.015911
+  Scale[75]: 0.014579
+  Scale[76]: 0.014579
+  Scale[77]: 0.014438
+  Scale[78]: 0.014361
+  Scale[79]: 0.014107
+  Scale[80]: 0.013650
+  Scale[81]: 0.013580
+  Scale[82]: 0.013580
+  Scale[83]: 0.013579
+  Scale[84]: 0.012496
+  Scale[85]: 0.012376
+  Scale[86]: 0.012376
+  Scale[87]: 0.012258
+  Scale[88]: 0.012234
+  Scale[89]: 0.012079
+  Scale[90]: 0.012079
+  Scale[91]: 0.011481
+  Scale[92]: 0.011431
+  Scale[93]: 0.011333
+  Scale[94]: 0.010999
+  Scale[95]: 0.010999
+  Scale[96]: 0.010824
+  Scale[97]: 0.010412
+  Scale[98]: 0.010412
+  Scale[99]: 0.010359
+  Scale[100]: 0.009831
+  Scale[101]: 0.009683
+  Scale[102]: 0.009642
+  Scale[103]: 0.009642
+  Scale[104]: 0.009447
+  Scale[105]: 0.009212
+  Scale[106]: 0.009212
+  Scale[107]: 0.009119
+  Scale[108]: 0.008907
+  Scale[109]: 0.008895
+  Scale[110]: 0.008874
+  Scale[111]: 0.008874
+  Scale[112]: 0.008538
+  Scale[113]: 0.008538
+  Scale[114]: 0.008371
+  Scale[115]: 0.008243
+  Scale[116]: 0.008228
+  Scale[117]: 0.008073
+  Scale[118]: 0.008073
+  Scale[119]: 0.008021
+  Scale[120]: 0.007836
+  Scale[121]: 0.007788
+  Scale[122]: 0.007788
+  Scale[123]: 0.007743
+  Scale[124]: 0.007606
+  Scale[125]: 0.007606
+  Scale[126]: 0.007551
+  Scale[127]: 0.007500
+  Scale[128]: 0.007408
+  Scale[129]: 0.007408
+  Scale[130]: 0.007383
+  Scale[131]: 0.007347
+  Scale[132]: 0.007120
+  Scale[133]: 0.007017
+  Scale[134]: 0.006995
+  Scale[135]: 0.006877
+  Scale[136]: 0.006877
+  Scale[137]: 0.006669
+  Scale[138]: 0.006669
+  Scale[139]: 0.006524
+  Scale[140]: 0.006278
+  Scale[141]: 0.006278
+  Scale[142]: 0.006270
+  Scale[143]: 0.006186
+  Scale[144]: 0.006075
+  Scale[145]: 0.006034
+  Scale[146]: 0.006034
+  Scale[147]: 0.005921
+  Scale[148]: 0.005712
+  Scale[149]: 0.005698
+  Scale[150]: 0.005698
+  Scale[151]: 0.005677
+  Scale[152]: 0.005316
+  Scale[153]: 0.005283
+  Scale[154]: 0.005283
+  Scale[155]: 0.005249
+  Scale[156]: 0.005166
+  Scale[157]: 0.005144
+  Scale[158]: 0.005080
+  Scale[159]: 0.005080
+  Scale[160]: 0.004951
+  Scale[161]: 0.004951
+  Scale[162]: 0.004947
+  Scale[163]: 0.004806
+  Scale[164]: 0.004693
+  Scale[165]: 0.004587
+  Scale[166]: 0.004587
+  Scale[167]: 0.004524
+  Scale[168]: 0.004251
+  Scale[169]: 0.004226
+  Scale[170]: 0.004226
+  Scale[171]: 0.004223
+  Scale[172]: 0.004210
+  Scale[173]: 0.003989
+  Scale[174]: 0.003989
+  Scale[175]: 0.003796
+  Scale[176]: 0.003655
+  Scale[177]: 0.003639
+  Scale[178]: 0.003639
+  Scale[179]: 0.003588
+  Scale[180]: 0.003435
+  Scale[181]: 0.003435
+  Scale[182]: 0.003261
+  Scale[183]: 0.003244
+  Scale[184]: 0.003140
+  Scale[185]: 0.003140
+  Scale[186]: 0.002979
+  Scale[187]: 0.002897
+  Scale[188]: 0.002789
+  Scale[189]: 0.002684
+  Scale[190]: 0.002684
+  Scale[191]: 0.002649
+  Scale[192]: 0.000939
+  Scale[193]: 0.000265
+  Scale[194]: 0.000265
+  Scale[195]: 0.000250
+  Scale[196]: 0.000248
+  Scale[197]: 0.000000
+  Scale[198]: 0.000000
+  Scale[199]: 0.000000
+  Scale[200]: 0.000000
+  Scale[201]: 0.000000
+  Scale[202]: 0.000000
+  Scale[203]: 0.000000
+  Scale[204]: 0.000000
+  Scale[205]: 0.000000
+  Scale[206]: 0.000000
+  Scale[207]: 0.000000
+  Scale[208]: 0.000000
+  Scale[209]: 0.000000
+  Scale[210]: 0.000000
+  Scale[211]: 0.000000
+  Scale[212]: 0.000000
+  Scale[213]: 0.000000
+  Scale[214]: 0.000000
+  Scale[215]: 0.000000
+  Scale[216]: 0.000000
+  Scale[217]: 0.000000
+  Scale[218]: 0.000000
+  Scale[219]: 0.000000
+  Scale[220]: 0.000000
+  Scale[221]: 0.000000
+  Scale[222]: 0.000000
+  Scale[223]: 0.000000
+  Scale[224]: 0.000000
+  Scale[225]: 0.000000
+  Scale[226]: 0.000000
+  Scale[227]: 0.000000
+  Scale[228]: 0.000000
+  Scale[229]: 0.000000
+  Scale[230]: 0.000000
+  Scale[231]: 0.000000
+  Scale[232]: 0.000000
+  Scale[233]: 0.000000
+  Scale[234]: 0.000000
+  Scale[235]: 0.000000
+  Scale[236]: 0.000000
+  Scale[237]: 0.000000
+  Scale[238]: 0.000000
+  Scale[239]: 0.000000
+  Scale[240]: 0.000000
+  Scale[241]: 0.000000
+  Scale[242]: 0.000000
+  Scale[243]: 0.000000
+  Scale[244]: 0.000000
+  Scale[245]: 0.000000
+  Scale[246]: 0.000000
+  Scale[247]: 0.000000
+  Scale[248]: 0.000000
+  Scale[249]: 0.000000
+  Scale[250]: 0.000000
+  Scale[251]: 0.000000
+  Scale[252]: 0.000000
+  Scale[253]: 0.000000
+  Scale[254]: 0.000000
+  Scale[255]: 0.000000
+  Scale[256]: 0.000000
+  Scale[257]: 0.000000
+  Scale[258]: 0.000000
+  Scale[259]: 0.000000
+  Scale[260]: -0.000000
+  Scale[261]: -0.000000
+  Scale[262]: -0.000000
+  Scale[263]: -0.000000
+  Scale[264]: -0.000000
+  Scale[265]: -0.000000
+  Scale[266]: -0.000000
+  Scale[267]: -0.000000
+  Scale[268]: -0.000000
+  Scale[269]: -0.000000
+  Scale[270]: -0.000000
+  Scale[271]: -0.000000
+  Scale[272]: -0.000000
+  Scale[273]: -0.000000
+  Scale[274]: -0.000000
+  Scale[275]: -0.000000
+  Scale[276]: -0.000000
+  Scale[277]: -0.000000
+  Scale[278]: -0.000000
+  Scale[279]: -0.000000
+  Scale[280]: -0.000000
+  Scale[281]: -0.000000
+  Scale[282]: -0.000000
+  Scale[283]: -0.000000
+  Scale[284]: -0.000000
+  Scale[285]: -0.000000
+  Scale[286]: -0.000000
+  Scale[287]: -0.000000
+  Scale[288]: -0.000000
+[TIME] Kernel extraction: 118672 us
+
+============================================================
+[MODULE 7] Computing Aerial Image (SOCS)...
+[calcSOCS] Computing aerial image via SOCS...
+[calcSOCS] Physical convolution size: 33 x 33
+[calcSOCS] Padded convolution FFT size: 128 x 128
+[calcSOCS] Kernel support size: 17 x 17
+[calcSOCS] Centered padding offset: (55, 55)
+[calcSOCS] Number of kernels: 289
+[GOLDEN OUTPUT] Writing tmpImgp for HLS validation...
+  Full tmpImgp size: 128×128
+  Extracted center: 33×33
+  ✓ Golden saved: ../../../data/pc_cpp/output_400kernels/tmpImgp_pad128.bin
+  ✓ Golden size: 33×33 = 1089 floats
+  ✓ Full tmpImgp saved: ../../../data/pc_cpp/output_400kernels/tmpImgp_full_128.bin (for FI validation)
+[STATISTICS] Aerial Image (SOCS):
+  Mean:    0.094496
+  StdDev:  0.099675
+  Max:     0.385138
+  Min:     0.004065
+  Samples: 0.005223 0.005219 0.005214 0.005208 0.005201 
+[TIME] SOCS Image: 69327 us
+
+============================================================
+[SUMMARY] Performance Breakdown:
+  Module 1 (Source):     271 us
+  Module 2 (Mask):       32962 us
+  Module 3 (FFT Mask):   74836 us
+  Module 4 (TCC):        64760 us
+  Module 5 (TCC Image):  46068 us
+  Module 6 (Kernels):    118672 us
+  Module 7 (SOCS Image): 69327 us
+  ----------------------------------------
+  Total:                 941023 us (0.941023 s)
+============================================================
+
+[VERIFICATION SUMMARY] For HLS Golden Reference:
+  TCC Mean (Real): 0.036434
+  TCC StdDev (Real): 0.085118
+  Image Mean (TCC): 0.094496
+  Image Mean (SOCS): 0.094496
+  Recommended tolerance: relative error < 1e-5
+
+[DONE] Output saved to: ../../../data/pc_cpp/output_400kernels

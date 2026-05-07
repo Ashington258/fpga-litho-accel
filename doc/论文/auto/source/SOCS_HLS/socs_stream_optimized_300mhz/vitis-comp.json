@@ -1,0 +1,9 @@
+{
+  "name": "socs_stream_optimized_300mhz",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_stream_optimized.cfg"],
+    "work_dir": "."
+  }
+}

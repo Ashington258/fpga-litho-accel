@@ -1,0 +1,17 @@
+# TCC HLS子项目Git Ignore（补充规则）
+
+# HLS工作目录（不提交，由vitis-run生成）
+hls_litho_proj/
+solution*/
+
+# 编译产物
+tb_tcc
+test_*
+*.o
+
+# HLS临时文件
+*.log
+*.rpt
+*.xml
+*.json
+*.db

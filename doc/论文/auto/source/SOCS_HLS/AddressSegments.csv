@@ -1,0 +1,50 @@
+######################################################################################
+# This is a generated CSV file representing the addressing in design design_1
+#
+# Format:
+# Master Segment Name, Address Space, Slave Segment, Offset, Range ...
+#      Excluded (optional), Included (optional), Unassigned (optional)
+######################################################################################
+
+# 
+# Assignments in Address Space /calc_socs_hls_0/Data_m_axi_gmem0
+#
+SEG_calc_socs_hls_0_Reg,/calc_socs_hls_0/Data_m_axi_gmem0,/calc_socs_hls_0/s_axi_control/Reg,0x0,1,Excluded
+SEG_calc_socs_hls_0_Reg_1,/calc_socs_hls_0/Data_m_axi_gmem0,/calc_socs_hls_0/s_axi_control_r/Reg,0x0,1,Excluded
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/calc_socs_hls_0/Data_m_axi_gmem0,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x40000000,32M
+# 
+# Assignments in Address Space /calc_socs_hls_0/Data_m_axi_gmem1
+#
+SEG_calc_socs_hls_0_Reg,/calc_socs_hls_0/Data_m_axi_gmem1,/calc_socs_hls_0/s_axi_control/Reg,0x0,1,Excluded
+SEG_calc_socs_hls_0_Reg_1,/calc_socs_hls_0/Data_m_axi_gmem1,/calc_socs_hls_0/s_axi_control_r/Reg,0x0,1,Excluded
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/calc_socs_hls_0/Data_m_axi_gmem1,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x42000000,32M
+# 
+# Assignments in Address Space /calc_socs_hls_0/Data_m_axi_gmem2
+#
+SEG_calc_socs_hls_0_Reg,/calc_socs_hls_0/Data_m_axi_gmem2,/calc_socs_hls_0/s_axi_control/Reg,0x0,1,Excluded
+SEG_calc_socs_hls_0_Reg_1,/calc_socs_hls_0/Data_m_axi_gmem2,/calc_socs_hls_0/s_axi_control_r/Reg,0x0,1,Excluded
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/calc_socs_hls_0/Data_m_axi_gmem2,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x44000000,4M
+# 
+# Assignments in Address Space /calc_socs_hls_0/Data_m_axi_gmem3
+#
+SEG_calc_socs_hls_0_Reg,/calc_socs_hls_0/Data_m_axi_gmem3,/calc_socs_hls_0/s_axi_control/Reg,0x0,1,Excluded
+SEG_calc_socs_hls_0_Reg_1,/calc_socs_hls_0/Data_m_axi_gmem3,/calc_socs_hls_0/s_axi_control_r/Reg,0x0,1,Excluded
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/calc_socs_hls_0/Data_m_axi_gmem3,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x44400000,4M
+# 
+# Assignments in Address Space /calc_socs_hls_0/Data_m_axi_gmem4
+#
+SEG_calc_socs_hls_0_Reg,/calc_socs_hls_0/Data_m_axi_gmem4,/calc_socs_hls_0/s_axi_control/Reg,0x0,1,Excluded
+SEG_calc_socs_hls_0_Reg_1,/calc_socs_hls_0/Data_m_axi_gmem4,/calc_socs_hls_0/s_axi_control_r/Reg,0x0,1,Excluded
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/calc_socs_hls_0/Data_m_axi_gmem4,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x44800000,256K
+# 
+# Assignments in Address Space /calc_socs_hls_0/Data_m_axi_gmem5
+#
+SEG_calc_socs_hls_0_Reg,/calc_socs_hls_0/Data_m_axi_gmem5,/calc_socs_hls_0/s_axi_control/Reg,0x0,1,Excluded
+SEG_calc_socs_hls_0_Reg_1,/calc_socs_hls_0/Data_m_axi_gmem5,/calc_socs_hls_0/s_axi_control_r/Reg,0x0,1,Excluded
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/calc_socs_hls_0/Data_m_axi_gmem5,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x44840000,16K
+# 
+# Assignments in Address Space /jtag_axi_0/Data
+#
+SEG_calc_socs_hls_0_Reg,/jtag_axi_0/Data,/calc_socs_hls_0/s_axi_control/Reg,0x0000,64K
+SEG_calc_socs_hls_0_Reg_1,/jtag_axi_0/Data,/calc_socs_hls_0/s_axi_control_r/Reg,0x10000,64K
+SEG_ddr4_0_C0_DDR4_ADDRESS_BLOCK,/jtag_axi_0/Data,/ddr4_0/C0_DDR4_MEMORY_MAP/C0_DDR4_ADDRESS_BLOCK,0x40000000,128M

@@ -1,0 +1,59 @@
+{
+  "platform": {
+    "hardware": {
+      "cpu": {
+        "model": "Intel Xeon Platinum 8163",
+        "frequency_ghz": 2.50,
+        "architecture": "2 × Socket, 48 cores (96 threads)",
+        "cores_per_socket": 24,
+        "threads_per_core": 2,
+        "total_logical_cpus": 96,
+        "cache": {
+          "l1d": "1.5 MiB",
+          "l1i": "1.5 MiB",
+          "l2": "48 MiB",
+          "l3": "66 MiB"
+        },
+        "frequency_range_ghz": {
+          "min": 1.00,
+          "max": 2.50
+        }
+      },
+      "memory": {
+        "total_gb": 93,
+        "type": "DDR4"
+      },
+      "motherboard": {
+        "manufacturer": "Inspur",
+        "model": "SA5212M5",
+        "board_name": "YZMB-00882-10E"
+      }
+    },
+    "software": {
+      "os": "Ubuntu 24.04 LTS",
+      "kernel": "Linux 6.8",
+      "compiler": "GCC 13.3.0",
+      "optimization": "-O2",
+      "standard": "c++17",
+      "precision": "single (float)",
+      "libraries": {
+        "fftw": "3.x",
+        "lapack": "system",
+        "blas": "system"
+      }
+    }
+  },
+  "configuration": {
+    "mask_size": "1024×1024",
+    "na": 0.8,
+    "wavelength_nm": 193,
+    "defocus": 0.2,
+    "source_type": "Annular",
+    "source_grid": "101×101",
+    "annular_inner": 0.6,
+    "annular_outer": 0.9,
+    "nx": 8,
+    "ny": 8,
+    "tcc_size": 289
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "socs_stream_refactored_v11_synth",
+  "type": "HLS",
+  "configuration": {
+    "componentType": "HLS",
+    "configFiles": ["..\/script\/config\/hls_config_socs_stream_refactored_v11_bram_accumulator.cfg"],
+    "work_dir": "."
+  }
+}

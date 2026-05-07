@@ -1,0 +1,29 @@
+# HLS Directives for SOCS 2048 Stream Refactored
+# Phase 3优化：Stream接口重构
+
+# Top function directives
+set_directive_top -name calc_socs_2048_hls_stream_refactored calc_socs_2048_hls_stream_refactored
+
+# DATAFLOW optimization for kernel loop
+set_directive_dataflow calc_socs_2048_hls_stream_refactored/process_kernels
+
+# Stream interface directives
+set_directive_stream -depth 16384 calc_socs_2048_hls_stream_refactored embed_stream
+set_directive_stream -depth 16384 calc_socs_2048_hls_stream_refactored fft_out_stream
+set_directive_stream -depth 16384 calc_socs_2048_hls_stream_refactored tmpImg_stream_0
+set_directive_stream -depth 16384 calc_socs_2048_hls_stream_refactored tmpImg_stream_1
+
+# Pipeline optimization for inner loops
+set_directive_pipeline -II 1 calc_socs_2048_hls_stream_refactored/embed_kernel_to_stream
+set_directive_pipeline -II 1 calc_socs_2048_hls_stream_refactored/fft_2d_stream_wrapper
+set_directive_pipeline -II 1 calc_socs_2048_hls_stream_refactored/accumulate_from_stream
+set_directive_pipeline -II 1 calc_socs_2048_hls_stream_refactored/fftshift_and_output_from_stream
+
+# Resource allocation for streams
+set_directive_resource -core RAM_2P_BRAM calc_socs_2048_hls_stream_refactored/fft_2d_stream_wrapper fft_input
+set_directive_resource -core RAM_2P_BRAM calc_socs_2048_hls_stream_refactored/fft_2d_stream_wrapper fft_output
+set_directive_resource -core RAM_2P_BRAM calc_socs_2048_hls_stream_refactored/fftshift_and_output_from_stream tmpImg
+set_directive_resource -core RAM_2P_BRAM calc_socs_2048_hls_stream_refactored/fftshift_and_output_from_stream tmpImgp
+
+# Loop trip count
+set_directive_loop_tripcount -min 4 -max 16 calc_socs_2048_hls_stream_refactored/process_kernels
