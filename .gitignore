@@ -167,8 +167,15 @@ tcl_log.txt
 # 运行时日志
 dfx_runtime.txt
 
-# 输出目录（不提交）
-output/
+# 输出目录（不提交，但保留图像文件和报告）
+output/**
+!output/**/
+!output/**/*.png
+!output/**/*.jpg
+!output/**/*.jpeg
+!output/**/*.json
+!output/**/*.md
+!output/**/*.txt
 
 # 文档汇报目录（不提交）
 doc/汇报/
@@ -276,6 +283,15 @@ source/host/output/
 output/verification/png/
 *.png
 !validation/golden/png/*.png
+!input/**/*.png
+!input/**/*.jpg
+!input/**/*.jpeg
+!output/**/*.png
+!output/**/*.jpg
+!output/**/*.jpeg
+!doc/论文/*.png
+!doc/论文/*.jpg
+!doc/论文/*.jpeg
 
 # 临时二进制文件（Phase 5+可提交golden数据）
 # golden/*.bin 在Phase 1-4需要保留
