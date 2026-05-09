@@ -78,13 +78,20 @@ def compile_litho() -> bool:
 # ============================================================================
 
 
-def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
-    """运行 Litho 验证程序"""
+def run_litho(config_path: Path, output_dir: Path, verbose: int, executable_name: str = "litho") -> bool:
+    """运行 Litho 验证程序
+    
+    Args:
+        config_path: 配置文件路径
+        output_dir: 输出目录路径
+        verbose: 详细程度 (0=quiet, 1=normal, 2=debug)
+        executable_name: 可执行文件名称 (默认: "litho", 可选: "litho_thread")
+    """
     # Windows 使用 .exe 后缀
     if sys.platform == "win32":
-        executable = PROJECT_ROOT / "validation/golden/src/litho.exe"
+        executable = PROJECT_ROOT / f"validation/golden/src/{executable_name}.exe"
     else:
-        executable = PROJECT_ROOT / "validation/golden/src/litho"
+        executable = PROJECT_ROOT / f"validation/golden/src/{executable_name}"
 
     args = [str(executable), str(config_path), str(output_dir)]
     if verbose == 2:
@@ -92,7 +99,7 @@ def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
     elif verbose == 0:
         args.append("--quiet")
 
-    print(f"\n[RUN] Starting Litho Verification...")
+    print(f"\n[RUN] Starting {executable_name} Verification...")
     print(f"  Config: {config_path}")
     print(f"  Output: {output_dir}")
 
@@ -109,7 +116,7 @@ def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
         result = subprocess.run(
             args,
             stderr=subprocess.PIPE,  # 捕获 stderr，不显示也不影响判断
-            timeout=300,  # 5 分钟超时
+            timeout=600,  # 10 分钟超时（多线程版本可能需要更多时间）
             env=env,
         )
 
@@ -127,7 +134,7 @@ def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
         success = all(f.exists() and f.stat().st_size > 0 for f in key_files)
 
         if not success and result.returncode != 0:
-            print(f"  [WARN] litho.exe returned code {result.returncode}")
+            print(f"  [WARN] {executable_name} returned code {result.returncode}")
             if result.stderr:
                 print(
                     f"  stderr: {result.stderr.decode('utf-8', errors='replace')[:200]}"
@@ -136,10 +143,10 @@ def run_litho(config_path: Path, output_dir: Path, verbose: int) -> bool:
         return success
 
     except subprocess.TimeoutExpired:
-        print("[ERROR] Litho execution timed out (300s)")
+        print(f"[ERROR] {executable_name} execution timed out (600s)")
         return False
     except Exception as e:
-        print(f"[ERROR] Failed to run litho: {e}")
+        print(f"[ERROR] Failed to run {executable_name}: {e}")
         return False
 
 

@@ -1,0 +1,48 @@
+{
+    "simulation": {
+        "description": "Test case: 4096x4096",
+        "version": "1.0"
+    },
+    "mask": {
+        "period": {
+            "Lx": 4096,
+            "Ly": 4096
+        },
+        "size": {
+            "maskSizeX": 4096,
+            "maskSizeY": 4096
+        },
+        "type": "Import",
+        "inputFile": "input/mask/Different_resolution_tests/4096x4096.bin",
+        "dose": 1.0
+    },
+    "source": {
+        "gridSize": 101,
+        "type": "Annular",
+        "annular": {
+            "innerRadius": 0.6,
+            "outerRadius": 0.9
+        }
+    },
+    "optics": {
+        "NA": 0.8,
+        "wavelength": 193,
+        "defocus": 0.2
+    },
+    "kernel": {
+        "count": 128,
+        "targetIntensity": 0.225
+    },
+    "output": {
+        "baseDir": "out",
+        "kernelsDir": "out/kernels",
+        "kernelsPngDir": "out/kernels/png",
+        "imageFile": "out/image.bin",
+        "imagePng": "out/image.png",
+        "imageSegmentedPng": "out/image_s.png",
+        "maskPng": "out/mask.png",
+        "sourcePng": "out/source.png",
+        "tccRealPng": "out/tcc_r.png",
+        "tccImagPng": "out/tcc_i.png"
+    }
+}

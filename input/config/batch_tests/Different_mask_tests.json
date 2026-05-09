@@ -1,0 +1,136 @@
+{
+    "testSuite": "Different_mask_tests",
+    "description": "ICCAD 2013 benchmark mask test suite (T1-T10)",
+    "baseConfig": "input/config/golden_1024.json",
+    "testCases": [
+        {
+            "testName": "T1",
+            "description": "ICCAD 2013 benchmark mask T1",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T1.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T2",
+            "description": "ICCAD 2013 benchmark mask T2",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T2.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T3",
+            "description": "ICCAD 2013 benchmark mask T3",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T3.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T4",
+            "description": "ICCAD 2013 benchmark mask T4",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T4.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T5",
+            "description": "ICCAD 2013 benchmark mask T5",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T5.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T6",
+            "description": "ICCAD 2013 benchmark mask T6",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T6.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T7",
+            "description": "ICCAD 2013 benchmark mask T7",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T7.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T8",
+            "description": "ICCAD 2013 benchmark mask T8",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T8.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T9",
+            "description": "ICCAD 2013 benchmark mask T9",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T9.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "T10",
+            "description": "ICCAD 2013 benchmark mask T10",
+            "mask": {
+                "period": {"Lx": 2048, "Ly": 2048},
+                "size": {"maskSizeX": 1024, "maskSizeY": 1024},
+                "type": "Import",
+                "inputFile": "input/mask/Different_mask_tests/T10.bin",
+                "dose": 1.0
+            }
+        }
+    ],
+    "commonConfig": {
+        "source": {
+            "gridSize": 101,
+            "type": "Annular",
+            "annular": {
+                "innerRadius": 0.6,
+                "outerRadius": 0.9
+            }
+        },
+        "optics": {
+            "NA": 0.8,
+            "wavelength": 193,
+            "defocus": 0.2
+        },
+        "kernel": {
+            "count": 10,
+            "targetIntensity": 0.225
+        }
+    }
+}

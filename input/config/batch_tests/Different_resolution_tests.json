@@ -1,0 +1,134 @@
+{
+    "testSuite": "Different_resolution_tests",
+    "description": "Multi-resolution mask test suite (256x256 to 8192x8192)",
+    "baseConfig": "input/config/golden_1024.json",
+    "testCases": [
+        {
+            "testName": "256x256",
+            "description": "Low resolution test (256x256)",
+            "expectedNx": 2,
+            "mask": {
+                "period": {
+                    "Lx": 256,
+                    "Ly": 256
+                },
+                "size": {
+                    "maskSizeX": 256,
+                    "maskSizeY": 256
+                },
+                "type": "Import",
+                "inputFile": "input/mask/Different_resolution_tests/256x256.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "512x512",
+            "description": "Medium resolution test (512x512)",
+            "expectedNx": 4,
+            "mask": {
+                "period": {
+                    "Lx": 512,
+                    "Ly": 512
+                },
+                "size": {
+                    "maskSizeX": 512,
+                    "maskSizeY": 512
+                },
+                "type": "Import",
+                "inputFile": "input/mask/Different_resolution_tests/512x512.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "1024x1024",
+            "description": "High resolution test (1024x1024)",
+            "expectedNx": 8,
+            "mask": {
+                "period": {
+                    "Lx": 1024,
+                    "Ly": 1024
+                },
+                "size": {
+                    "maskSizeX": 1024,
+                    "maskSizeY": 1024
+                },
+                "type": "Import",
+                "inputFile": "input/mask/Different_resolution_tests/1024x1024.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "2048x2048",
+            "description": "Ultra-high resolution test (2048x2048)",
+            "expectedNx": 16,
+            "mask": {
+                "period": {
+                    "Lx": 2048,
+                    "Ly": 2048
+                },
+                "size": {
+                    "maskSizeX": 2048,
+                    "maskSizeY": 2048
+                },
+                "type": "Import",
+                "inputFile": "input/mask/Different_resolution_tests/2048x2048.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "4096x4096",
+            "description": "Extreme resolution test (4096x4096)",
+            "expectedNx": 32,
+            "mask": {
+                "period": {
+                    "Lx": 4096,
+                    "Ly": 4096
+                },
+                "size": {
+                    "maskSizeX": 4096,
+                    "maskSizeY": 4096
+                },
+                "type": "Import",
+                "inputFile": "input/mask/Different_resolution_tests/4096x4096.bin",
+                "dose": 1.0
+            }
+        },
+        {
+            "testName": "8192x8192",
+            "description": "Maximum resolution test (8192x8192)",
+            "expectedNx": 64,
+            "mask": {
+                "period": {
+                    "Lx": 8192,
+                    "Ly": 8192
+                },
+                "size": {
+                    "maskSizeX": 8192,
+                    "maskSizeY": 8192
+                },
+                "type": "Import",
+                "inputFile": "input/mask/Different_resolution_tests/8192x8192.bin",
+                "dose": 1.0
+            }
+        }
+    ],
+    "commonConfig": {
+        "source": {
+            "gridSize": 101,
+            "type": "Annular",
+            "annular": {
+                "innerRadius": 0.6,
+                "outerRadius": 0.9
+            }
+        },
+        "optics": {
+            "NA": 0.8,
+            "wavelength": 193,
+            "defocus": 0.2
+        },
+        "kernel": {
+            "count": 128,
+            "targetIntensity": 0.225
+        }
+    }
+}
