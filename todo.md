@@ -1,12 +1,17 @@
 # todo
 
-## 1 不同的mask测试任务
 
-新增工业mask的测试案例,需要对`input/mask/Different_mask_tests`目录下T1~T10的mask全部进行测试，使用`validation/golden/src/litho.cpp`输出所有的测试图样，测试光学参数使用`input/config/golden_1024.json`，新建新的批量测试参数`Different_mask_tests.json`
+现在完成不同mask和不同分辨率的测试，结果放在`output/Different_mask_tests`,`output/Different_resolution_tests`
 
-## 2 不同的分辨率测试
+现在需要对论文@doc/论文/论文.md （### 5.6 不同配置参数的敏感性分析进行同步更新）
+1. 阅读论文
+2. 在合适的部分添加不同mask(数据来源`Mask patterns of ten testbenches provided in the ICCAD 2013 contest`标注)和不同分辨率结果分析，以及对应的图像(从`output`中提取图像，重命名到`doc/论文`)
+3. 文字描述学术化，严谨
+4. 风格保持全文统一，过度自然
 
-对`input/mask/Different_resolution_tests`路径下的mask进行测试，光学参数出了分辨率下使用`input/config/golden_1024.json`，你需要新建对应的，`Different_resolution_tests.json`
 
 
-完成以上的测试，所有的结果放在一个全新的output文件夹`output`，新建对应的output/Different_mask_tests，output/Different_resolution_tests
+标注:S. Banerjee, Z. Li, and S. R. Nassif, ‘‘ICCAD-2013 CAD
+contest in mask optimization and benchmark suite,’’ in Proc.
+IEEE/ACM Int. Conf. Computer-Aided Design (ICCAD), Nov. 2013,
+pp. 271–274.
