@@ -1,0 +1,55 @@
+# Kernel Information
+## Kernel Size and Count
+- Kernel Size: 17x17
+- Number of Kernels: 50
+## Eigenvalues of Each Kernel
+Eigenvalue 0: 23.0101
+Eigenvalue 1: 9.63413
+Eigenvalue 2: 9.63413
+Eigenvalue 3: 2.66196
+Eigenvalue 4: 2.63862
+Eigenvalue 5: 1.06718
+Eigenvalue 6: 1.06718
+Eigenvalue 7: 0.554192
+Eigenvalue 8: 0.553295
+Eigenvalue 9: 0.322799
+Eigenvalue 10: 0.322799
+Eigenvalue 11: 0.318914
+Eigenvalue 12: 0.262698
+Eigenvalue 13: 0.262698
+Eigenvalue 14: 0.217793
+Eigenvalue 15: 0.207823
+Eigenvalue 16: 0.198431
+Eigenvalue 17: 0.154683
+Eigenvalue 18: 0.145977
+Eigenvalue 19: 0.145977
+Eigenvalue 20: 0.111332
+Eigenvalue 21: 0.111332
+Eigenvalue 22: 0.107829
+Eigenvalue 23: 0.10637
+Eigenvalue 24: 0.0870624
+Eigenvalue 25: 0.0870624
+Eigenvalue 26: 0.0866075
+Eigenvalue 27: 0.0831772
+Eigenvalue 28: 0.06971
+Eigenvalue 29: 0.068346
+Eigenvalue 30: 0.068346
+Eigenvalue 31: 0.0608825
+Eigenvalue 32: 0.0565744
+Eigenvalue 33: 0.0506993
+Eigenvalue 34: 0.050238
+Eigenvalue 35: 0.050238
+Eigenvalue 36: 0.0440419
+Eigenvalue 37: 0.0440419
+Eigenvalue 38: 0.0423372
+Eigenvalue 39: 0.0419347
+Eigenvalue 40: 0.0419148
+Eigenvalue 41: 0.0412616
+Eigenvalue 42: 0.0412616
+Eigenvalue 43: 0.0336736
+Eigenvalue 44: 0.032638
+Eigenvalue 45: 0.0322456
+Eigenvalue 46: 0.0322456
+Eigenvalue 47: 0.0317712
+Eigenvalue 48: 0.0309841
+Eigenvalue 49: 0.028148

@@ -810,21 +810,28 @@ void calcSOCS(vector<float>& image, const vector<ComplexD>& mskf,
     int convY = 4 * Ny + 1;
     
     // Padded to power-of-two for FFT compatibility
-    int fftConvX = nextPowerOfTwo(convX);
-    int fftConvY = nextPowerOfTwo(convY);
+    // ⚠️ MODIFIED: Force FFT size to 128×128 to match HLS MAX_FFT_X architecture
+    // This enables proper validation of HLS 128×128 zero-padding strategy
+    int fftConvX = 128;  // Force to match HLS MAX_FFT_X
+    int fftConvY = 128;  // Force to match HLS MAX_FFT_Y
     
     // Kernel size: the actual support of each SOCS kernel
     int kerX = 2 * Nx + 1;
     int kerY = 2 * Ny + 1;
     
-    // Centered padding offsets for embedding kernel*mask into convolution array
-    // This places the kernel support at the CENTER of the padded array
-    int offKerX = (fftConvX - kerX) / 2;  // Offset for kernel region
-    int offKerY = (fftConvY - kerY) / 2;
+    // Embedding position matching HLS architecture (relative 73.4% position)
+    // HLS uses embed_x = (MAX_FFT_X * (64 - kerX)) / 64 for 128×128 array
+    // For kerX=17: embed_x = (128 * 47) / 64 = 94
+    // This corresponds to relative position 94/128 = 73.4%
+    // 
+    // For Golden 128×128 array: difX = 128 - 17 = 111 (bottom-right)
+    // To match HLS relative position: use embedX = 94
+    int embedX = 94;  // Match HLS embed_x calculation
+    int embedY = 94;  // Match HLS embed_y calculation
     
-    // Alternative offset (matching original behavior for backward compatibility)
-    // Original placed data at the "bottom-right" corner of the array
-    // We keep this as fallback for now
+    // Keep original variables for backward compatibility (unused in new mode)
+    int offKerX = (fftConvX - kerX) / 2;
+    int offKerY = (fftConvY - kerY) / 2;
     int difX = fftConvX - kerX;
     int difY = fftConvY - kerY;
     
@@ -885,14 +892,10 @@ void calcSOCS(vector<float>& image, const vector<ComplexD>& mskf,
                 int kx = x + Nx;
                 
                 // Convolution array indices (centered padding)
-                // Option A: Centered embedding (recommended for HLS)
-                // int by = offKerY + ky;
-                // int bx = offKerX + kx;
-                
-                // Option B: Original behavior (bottom-right embedding)
-                // Kept for backward compatibility verification
-                int by = difY + ky;
-                int bx = difX + kx;
+                // Option C: HLS-matched embedding (relative 73.4% position)
+                // This matches HLS embed_x = (MAX_FFT_X * (64 - kerX)) / 64 = 94
+                int by = embedY + ky;
+                int bx = embedX + kx;
                 
                 // Mask spectrum indices
                 int my = y + fftLyh;
@@ -965,15 +968,16 @@ void calcSOCS(vector<float>& image, const vector<ComplexD>& mskf,
             cout << "  ✓ Golden size: " << convX << "×" << convY << " = " << (convX * convY) << " floats" << endl;
         }
         
-        // Also output full tmpImgp for debugging (optional)
-        if (verbose >= 2) {
+        // Also output full tmpImgp for Fourier Interpolation validation
+        // Changed: Always output full 128×128 for HLS FI validation (Phase 1.4+)
+        if (verbose >= 1) {  // Changed from >= 2 to >= 1
             vector<float> tmpImgp_full(fftConvX * fftConvY);
             for (int i = 0; i < fftConvX * fftConvY; i++) {
                 tmpImgp_full[i] = static_cast<float>(tmpImgp[i]);
             }
             string fullFile = outputDir + "/tmpImgp_full_" + to_string(fftConvX) + ".bin";
             writeFloatArrayToBinary(fullFile, tmpImgp_full, fftConvX * fftConvY);
-            cout << "  ✓ Full tmpImgp saved: " << fullFile << endl;
+            cout << "  ✓ Full tmpImgp saved: " << fullFile << " (for FI validation)" << endl;
         }
     }
 

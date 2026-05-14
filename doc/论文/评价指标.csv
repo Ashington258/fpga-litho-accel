@@ -1,0 +1,36 @@
+类别,指标,英文名称/符号,说明,典型用途/备注
+精度评估指标,最大绝对误差,Maximum Absolute Error,光强计算结果与基准结果之间的最大绝对差值,衡量最坏情况下的像素级误差
+精度评估指标,最小绝对误差,Minimum Absolute Error,光强计算结果与基准结果之间的最小绝对差值,反映误差下界，通常辅助分析
+精度评估指标,最大相对误差,Maximum Relative Error,绝对误差与基准光强之间比值的最大值,衡量低光强或边缘区域的相对偏差
+精度评估指标,最小相对误差,Minimum Relative Error,绝对误差与基准光强之间比值的最小值,辅助分析相对误差分布
+精度评估指标,均方根误差,RMSE,所有像素点误差平方均值的平方根,综合评价整体重构精度
+计算效率指标,TCC计算时间,TCC Calculation Time,构建传输交叉系数矩阵所需时间,复杂度通常较高，约为 O(Ns Nx^2 Ny^2)
+计算效率指标,SOCS核提取时间,SOCS Kernel Extraction Time,通过特征值分解或SVD提取SOCS核所需时间,离线预计算阶段的重要耗时
+计算效率指标,FFT/IFFT执行时间,FFT/IFFT Runtime,快速傅里叶变换及逆变换的执行时间,在线成像计算的核心耗时
+计算效率指标,光强计算时间,Aerial Image Intensity Runtime,完成频域卷积、IFFT和强度累加的计算时间,衡量单次空中像仿真效率
+计算效率指标,傅里叶插值时间,Fourier Interpolation Time,通过傅里叶插值调整图像尺寸或采样密度所需时间,用于不同网格分辨率之间的数据转换
+计算效率指标,总执行时间,Total Runtime,完整光刻仿真流程的总耗时,用于比较不同实现平台或算法的整体效率
+光学条件参数,数值孔径,NA,投影光学系统的数值孔径,决定成像分辨率和截止频率
+光学条件参数,曝光波长,λ,曝光光源波长,常见先进光刻条件为193 nm
+光学条件参数,相干因子,σ,光源尺寸相对于投影系统孔径的归一化参数,描述部分相干照明条件
+光学条件参数,离焦量,Δz,焦点相对于最佳焦平面的偏移量,用于评估工艺窗口和焦深鲁棒性
+光学条件参数,光源网格大小,Source Grid Size,光源离散采样网格尺寸,例如51×51、101×101、201×201
+光学条件参数,掩模尺寸,Mask Size,输入掩模图形的离散网格尺寸,例如2048×2048、4096×4096
+SOCS模型指标,核数量,Number of SOCS Kernels,用于SOCS近似重构的本征核数量,影响计算精度与运行时间的权衡
+SOCS模型指标,特征值,σᵢ,第i个SOCS核对应的权重系数,特征值越大通常贡献越主要
+SOCS模型指标,特征函数/本征核,φᵢ / Kernel,频域中的SOCS核函数,用于与掩模频谱相乘并重构空中像
+成像质量指标,光强分布,Aerial Image Intensity Distribution,空间域中的空中像强度分布,核心输出结果，可用于OPC和成像质量分析
+成像质量指标,对比度,Image Contrast,目标图形边缘内外或明暗区域之间的光强差异,衡量图形可分辨性
+成像质量指标,工艺变化容忍度,Process Variation Tolerance,成像结果对曝光剂量、离焦等工艺扰动的稳定性,用于评估工艺窗口
+验证方法,与Abbe成像对比,Comparison with Abbe Imaging,在点光源或特定光学条件下与Abbe成像结果对比,用于验证部分相干模型退化情形的正确性
+验证方法,与开源工具对比,Comparison with Open-source Lithography Tool,与已有光刻仿真工具结果进行对比,用于验证工具实现的一致性
+验证方法,解析解对比,Comparison with Analytical Solution,与线/空间等简单图形的解析计算结果对比,用于验证基础模型正确性
+论文Table 1数据,10个SOCS核最大绝对误差,Maximum Absolute Error with 10 Kernels,9.35e-3,核数量较少时误差较大
+论文Table 1数据,10个SOCS核最大相对误差,Maximum Relative Error with 10 Kernels,2.75e-1,核数量较少时相对误差较大
+论文Table 1数据,10个SOCS核RMSE,RMSE with 10 Kernels,7.92e-3,整体精度较低
+论文Table 1数据,50个SOCS核最大绝对误差,Maximum Absolute Error with 50 Kernels,2.56e-3,增加核数量后误差下降
+论文Table 1数据,50个SOCS核最大相对误差,Maximum Relative Error with 50 Kernels,8.00e-2,相对误差明显降低
+论文Table 1数据,50个SOCS核RMSE,RMSE with 50 Kernels,2.45e-3,整体精度改善
+论文Table 1数据,400个SOCS核最大绝对误差,Maximum Absolute Error with 400 Kernels,1.20e-4,高核数量下精度较高
+论文Table 1数据,400个SOCS核最大相对误差,Maximum Relative Error with 400 Kernels,3.76e-3,相对误差显著降低
+论文Table 1数据,400个SOCS核RMSE,RMSE with 400 Kernels,5.84e-5,整体误差最低

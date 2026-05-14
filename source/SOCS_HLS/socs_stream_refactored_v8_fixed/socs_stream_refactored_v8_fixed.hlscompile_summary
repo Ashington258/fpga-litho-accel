@@ -1,0 +1,246 @@
+<ENTRY>
+{
+ "thisFile": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/socs_stream_refactored_v8_fixed.hlscompile_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Sat Apr 25 19:14:44 2026",
+ "timestampMillis": "1777115684532",
+ "buildStep": {
+  "cmdId": "421a2d90-aa89-480a-8b1e-00f3bbf9f463",
+  "name": "v++",
+  "logFile": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/logs/socs_stream_refactored_v8_fixed.steps.log",
+  "commandLine": "/home/ashington/AMDDesignTools/2025.2/Vitis/bin/unwrapped/lnx64.o/v++  -c --mode hls --config script/config/hls_config_socs_stream_refactored_v8.cfg --work_dir socs_stream_refactored_v8_fixed ",
+  "args": [
+   "-c",
+   "--mode",
+   "hls",
+   "--config",
+   "script/config/hls_config_socs_stream_refactored_v8.cfg",
+   "--work_dir",
+   "socs_stream_refactored_v8_fixed"
+  ],
+  "iniFiles": [
+   {
+    "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/script/config/hls_config_socs_stream_refactored_v8.cfg",
+    "content": "part=xcku3p-ffvb676-2-e\n\n[hls]\nclock=280000000\nflow_target=vivado\npackage.output.format=rtl\nsyn.file=src/socs_2048_stream_refactored_v8.cpp\nsyn.file=src/socs_2048.cpp\nsyn.top=calc_socs_2048_hls_stream_refactored\ntb.file=tb/tb_socs_1024_stream_refactored_v8.cpp\n"
+   }
+  ],
+  "cwd": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Apr 25 19:14:44 2026",
+ "timestampMillis": "1777115684532",
+ "status": {
+  "cmdId": "421a2d90-aa89-480a-8b1e-00f3bbf9f463",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "Sat Apr 25 19:14:51 2026",
+ "timestampMillis": "1777115691947",
+ "buildSummary": {
+  "hardwarePlatform": "",
+  "hardwareDsa": "",
+  "platformDirectory": "",
+  "runtime": "",
+  "systemConfig": "",
+  "flow": "BF_COMPILE",
+  "target": "TT_HW",
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "calc_socs_2048_hls_stream_refactored",
+     "file": "",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/src/socs_2048_stream_refactored_v8.cpp",
+     "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/src/socs_2048.cpp"
+    ],
+    "psSources": [],
+    "cuNames": [],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "2025.2"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Sat Apr 25 19:14:51 2026",
+ "timestampMillis": "1777115691949",
+ "buildStep": {
+  "cmdId": "38bc2ebc-a00f-45e7-9a03-6ad4325907a2",
+  "name": "",
+  "logFile": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls/hls.log",
+  "commandLine": "",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Apr 25 19:14:51 2026",
+ "timestampMillis": "1777115691950",
+ "status": {
+  "cmdId": "38bc2ebc-a00f-45e7-9a03-6ad4325907a2",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:14:51 2026",
+ "timestampMillis": "1777115691951",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls/hls_data.json",
+  "name": "",
+  "fileType": "JSON",
+  "reportType": "HLS_SYNTHESIS",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:14:51 2026",
+ "timestampMillis": "1777115691952",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls/syn/report/csynth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "HLS_SYNTHESIS",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:14:51 2026",
+ "timestampMillis": "1777115691953",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls/syn/report/csynth.xml",
+  "name": "",
+  "fileType": "XML",
+  "reportType": "HLS_SYNTHESIS",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:16:40 2026",
+ "timestampMillis": "1777115800554",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls",
+  "name": "",
+  "fileType": "DIR",
+  "reportType": "HLS_DATAFLOW",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:16:40 2026",
+ "timestampMillis": "1777115800555",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls",
+  "name": "",
+  "fileType": "DIR",
+  "reportType": "HLS_FUNCTION_CALL_GRAPH",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:16:40 2026",
+ "timestampMillis": "1777115800556",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/hls",
+  "name": "",
+  "fileType": "DIR",
+  "reportType": "HLS_SCHEDULE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Apr 25 19:16:40 2026",
+ "timestampMillis": "1777115800557",
+ "status": {
+  "cmdId": "38bc2ebc-a00f-45e7-9a03-6ad4325907a2",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Sat Apr 25 19:16:40 2026",
+ "timestampMillis": "1777115800994",
+ "status": {
+  "cmdId": "421a2d90-aa89-480a-8b1e-00f3bbf9f463",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:16:41 2026",
+ "timestampMillis": "1777115801084",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/reports/v++_compile_socs_stream_refactored_v8_fixed_guidance.html",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Sat Apr 25 19:16:41 2026",
+ "timestampMillis": "1777115801085",
+ "report": {
+  "path": "/home/ashington/project/optimization/fpga-litho-accel/source/SOCS_HLS/socs_stream_refactored_v8_fixed/reports/.db/v++_compile_socs_stream_refactored_v8_fixed_guidance.pb3",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>

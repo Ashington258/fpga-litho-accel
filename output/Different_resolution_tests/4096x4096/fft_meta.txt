@@ -1,0 +1,10 @@
+physical_size_x 4096
+physical_size_y 4096
+fft_size_x 4096
+fft_size_y 4096
+Nx 32
+Ny 32
+conv_size_x 129
+conv_size_y 129
+fft_conv_size_x 256
+fft_conv_size_y 256

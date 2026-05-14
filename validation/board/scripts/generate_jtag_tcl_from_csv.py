@@ -478,7 +478,7 @@ while {!$done} {
 
     # Step 7: Read Output Data
     output_addr = ddr_addrs["output"]
-    output_len = 289  # 17×17 floats
+    output_len = 16384  # 128×128 floats (HLS V18 FFT output)
 
     tcl_content += f"""# =====================================================================
 # Step 7: Read Output Data from BRAM

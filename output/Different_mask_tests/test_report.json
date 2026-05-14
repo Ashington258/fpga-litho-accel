@@ -1,0 +1,113 @@
+{
+  "testSuite": "Different_mask_tests",
+  "timestamp": "2026-05-09T12:30:32.053975",
+  "summary": {
+    "total": 10,
+    "success": 10,
+    "failed": 0,
+    "successRate": "100.0%"
+  },
+  "totalDuration": 52.277907848358154,
+  "results": [
+    {
+      "testName": "T1",
+      "description": "ICCAD 2013 benchmark mask T1",
+      "status": "success",
+      "startTime": "2026-05-09T12:29:39.775510",
+      "duration": 5.218336343765259,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T1",
+      "errors": [],
+      "endTime": "2026-05-09T12:29:44.993844"
+    },
+    {
+      "testName": "T2",
+      "description": "ICCAD 2013 benchmark mask T2",
+      "status": "success",
+      "startTime": "2026-05-09T12:29:44.993907",
+      "duration": 5.22488808631897,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T2",
+      "errors": [],
+      "endTime": "2026-05-09T12:29:50.218798"
+    },
+    {
+      "testName": "T3",
+      "description": "ICCAD 2013 benchmark mask T3",
+      "status": "success",
+      "startTime": "2026-05-09T12:29:50.218850",
+      "duration": 5.230520486831665,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T3",
+      "errors": [],
+      "endTime": "2026-05-09T12:29:55.449372"
+    },
+    {
+      "testName": "T4",
+      "description": "ICCAD 2013 benchmark mask T4",
+      "status": "success",
+      "startTime": "2026-05-09T12:29:55.449418",
+      "duration": 5.221364259719849,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T4",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:00.670785"
+    },
+    {
+      "testName": "T5",
+      "description": "ICCAD 2013 benchmark mask T5",
+      "status": "success",
+      "startTime": "2026-05-09T12:30:00.670832",
+      "duration": 5.259628534317017,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T5",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:05.930463"
+    },
+    {
+      "testName": "T6",
+      "description": "ICCAD 2013 benchmark mask T6",
+      "status": "success",
+      "startTime": "2026-05-09T12:30:05.930519",
+      "duration": 5.250327110290527,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T6",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:11.180848"
+    },
+    {
+      "testName": "T7",
+      "description": "ICCAD 2013 benchmark mask T7",
+      "status": "success",
+      "startTime": "2026-05-09T12:30:11.180894",
+      "duration": 5.20756721496582,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T7",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:16.388464"
+    },
+    {
+      "testName": "T8",
+      "description": "ICCAD 2013 benchmark mask T8",
+      "status": "success",
+      "startTime": "2026-05-09T12:30:16.388520",
+      "duration": 5.21767520904541,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T8",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:21.606198"
+    },
+    {
+      "testName": "T9",
+      "description": "ICCAD 2013 benchmark mask T9",
+      "status": "success",
+      "startTime": "2026-05-09T12:30:21.606257",
+      "duration": 5.256922483444214,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T9",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:26.863182"
+    },
+    {
+      "testName": "T10",
+      "description": "ICCAD 2013 benchmark mask T10",
+      "status": "success",
+      "startTime": "2026-05-09T12:30:26.863228",
+      "duration": 5.190678119659424,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_mask_tests/T10",
+      "errors": [],
+      "endTime": "2026-05-09T12:30:32.053909"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+============================================================
+  Litho-Full: Integrated TCC + SOCS Verification Program
+============================================================
+
+[CONFIG] Simulation Parameters:
+  Mask Period: 1024 x 1024
+  Mask Size: 1024 x 1024
+  NA: 0.8
+  Defocus: 0.2
+  Number of Kernels: 50
+  Output Directory: ../../../data/pc_cpp/output_50kernels
+  FFT Padded Size: 1024 x 1024
+
+============================================================
+[MODULE 1] Creating Source...
+[STATISTICS] Source:
+  Mean:    0.000098
+  StdDev:  0.000134
+  Max:     0.000282
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000 
+[TIME] Source creation: 298 us
+
+============================================================
+[MODULE 2] Creating Mask...
+Read Mask: ../../../input/mask/1024x1024.bin
+[STATISTICS] Mask:
+  Mean:    0.205368
+  StdDev:  0.403970
+  Max:     1.000000
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000 
+[TIME] Mask creation: 36252 us
+
+[PARAM] TCC Parameters:
+  Outer Sigma: 0.900000
+  Nx: 8, Ny: 8
+  TCC Size: 289 x 289
+
+============================================================
+[MODULE 3] Computing FFT of Mask...
+[SAMPLES] FFT Mask (center region):
+  [511,511] = (0.026167, -0.002220)
+  [511,512] = (0.063272, 0.000934)
+  [511,513] = (0.017988, -0.001101)
+  [512,511] = (0.099257, 0.036346)
+  [512,512] = (0.205368, 0.000000)
+[TIME] FFT Mask: 76025 us
+
+============================================================
+[MODULE 4] Computing TCC Matrix...
+[TCC] Computing pupil functions...
+[TCC] Parameters: outerSigma=0.900000, dz=60.312496, k=0.032555
+[TCC] Computing TCC matrix...
+[STATISTICS] TCC Real:
+  Mean:    0.036434
+  StdDev:  0.085118
+  Max:     1.000000
+  Min:     0.000000
+  Diagonal[0]: (0.000000, 0.000000)
+  Diagonal[1]: (0.000000, 0.000000)
+[TIME] TCC computation: 66305 us
+
+============================================================
+[MODULE 5] Computing Aerial Image (TCC-based)...
+[calcImage] Computing aerial image from TCC...
+[STATISTICS] Aerial Image (TCC):
+  Mean:    0.094496
+  StdDev:  0.099675
+  Max:     0.385138
+  Min:     0.004065
+  Samples: 0.005223 0.005219 0.005214 0.005208 0.005201 
+[TIME] TCC Image: 46740 us
+
+============================================================
+[MODULE 6] Extracting SOCS Kernels...
+[calcKernels] Solving eigenproblem for TCC matrix...
+[calcKernels] zheevr returned: info=0, m=50
+[STATISTICS] SOCS Kernel Eigenvalues:
+  Scale[0]: 23.010136
+  Scale[1]: 9.634128
+  Scale[2]: 9.634128
+  Scale[3]: 2.661961
+  Scale[4]: 2.638622
+  Scale[5]: 1.067181
+  Scale[6]: 1.067181
+  Scale[7]: 0.554192
+  Scale[8]: 0.553295
+  Scale[9]: 0.322799
+  Scale[10]: 0.322799
+  Scale[11]: 0.318914
+  Scale[12]: 0.262698
+  Scale[13]: 0.262698
+  Scale[14]: 0.217793
+  Scale[15]: 0.207823
+  Scale[16]: 0.198431
+  Scale[17]: 0.154683
+  Scale[18]: 0.145977
+  Scale[19]: 0.145977
+  Scale[20]: 0.111332
+  Scale[21]: 0.111332
+  Scale[22]: 0.107829
+  Scale[23]: 0.106370
+  Scale[24]: 0.087062
+  Scale[25]: 0.087062
+  Scale[26]: 0.086608
+  Scale[27]: 0.083177
+  Scale[28]: 0.069710
+  Scale[29]: 0.068346
+  Scale[30]: 0.068346
+  Scale[31]: 0.060883
+  Scale[32]: 0.056574
+  Scale[33]: 0.050699
+  Scale[34]: 0.050238
+  Scale[35]: 0.050238
+  Scale[36]: 0.044042
+  Scale[37]: 0.044042
+  Scale[38]: 0.042337
+  Scale[39]: 0.041935
+  Scale[40]: 0.041915
+  Scale[41]: 0.041262
+  Scale[42]: 0.041262
+  Scale[43]: 0.033674
+  Scale[44]: 0.032638
+  Scale[45]: 0.032246
+  Scale[46]: 0.032246
+  Scale[47]: 0.031771
+  Scale[48]: 0.030984
+  Scale[49]: 0.028148
+[TIME] Kernel extraction: 62656 us
+
+============================================================
+[MODULE 7] Computing Aerial Image (SOCS)...
+[calcSOCS] Computing aerial image via SOCS...
+[calcSOCS] Physical convolution size: 33 x 33
+[calcSOCS] Padded convolution FFT size: 128 x 128
+[calcSOCS] Kernel support size: 17 x 17
+[calcSOCS] Centered padding offset: (55, 55)
+[calcSOCS] Number of kernels: 50
+[GOLDEN OUTPUT] Writing tmpImgp for HLS validation...
+  Full tmpImgp size: 128×128
+  Extracted center: 33×33
+  ✓ Golden saved: ../../../data/pc_cpp/output_50kernels/tmpImgp_pad128.bin
+  ✓ Golden size: 33×33 = 1089 floats
+  ✓ Full tmpImgp saved: ../../../data/pc_cpp/output_50kernels/tmpImgp_full_128.bin (for FI validation)
+[STATISTICS] Aerial Image (SOCS):
+  Mean:    0.093576
+  StdDev:  0.099708
+  Max:     0.384417
+  Min:     0.003164
+  Samples: 0.004302 0.004297 0.004292 0.004285 0.004278 
+[TIME] SOCS Image: 41548 us
+
+============================================================
+[SUMMARY] Performance Breakdown:
+  Module 1 (Source):     298 us
+  Module 2 (Mask):       36252 us
+  Module 3 (FFT Mask):   76025 us
+  Module 4 (TCC):        66305 us
+  Module 5 (TCC Image):  46740 us
+  Module 6 (Kernels):    62656 us
+  Module 7 (SOCS Image): 41548 us
+  ----------------------------------------
+  Total:                 848796 us (0.848796 s)
+============================================================
+
+[VERIFICATION SUMMARY] For HLS Golden Reference:
+  TCC Mean (Real): 0.036434
+  TCC StdDev (Real): 0.085118
+  Image Mean (TCC): 0.094496
+  Image Mean (SOCS): 0.093576
+  Recommended tolerance: relative error < 1e-5
+
+[DONE] Output saved to: ../../../data/pc_cpp/output_50kernels

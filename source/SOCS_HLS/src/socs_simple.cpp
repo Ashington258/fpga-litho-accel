@@ -14,6 +14,7 @@
  * Key Features:
  *   - Dynamic Nx/Ny calculation via socs_config.h
  *   - Fixed-point FFT (ap_fixed<32,1>) for DSP optimization (80%+ reduction)
+ *   - Compensation: Manual N² scaling (16384) after IFFT to match FFTW BACKWARD
  *   - Vitis HLS FFT IP (array-based API with hls::fft)
  *   - Compatible with FFTW BACKWARD (unscaled) for verification
  * 

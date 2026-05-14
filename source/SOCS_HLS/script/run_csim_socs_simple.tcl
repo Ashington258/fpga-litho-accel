@@ -18,7 +18,7 @@ add_files ${proj_dir}/src/socs_config.h
 add_files -tb ${proj_dir}/tb/tb_socs_simple.cpp
 
 # Target device (keep consistent with previous synth)
-set_part xcku3p-ffvb676-2-e
+set_part xcku5p-ffvb676-2-e
 
 # Clock constraint (200 MHz target)
 create_clock -period 5 -name default

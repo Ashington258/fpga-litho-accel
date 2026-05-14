@@ -1,8 +1,115 @@
 # FPGA-Litho SOCS_HLS 全局约束与工作流程指南
 
-**项目路径**：`e:\fpga-litho-accel\source\SOCS_HLS`
+**项目路径**：`/home/ashington/fpga-litho-accel/source/SOCS_HLS`
 
 本文件定义了本项目中 **HLS 开发、验证、导出** 的标准化流程（已基于 **Vitis 2025.2** 验证通过）。
+
+---
+
+## 🤖 自动化配置（2026-04-25新增）
+
+### 自动任务推进机制
+
+**目标**：减少用户干预，实现任务链式自动执行。
+
+**配置选项**：
+```yaml
+# 自动化配置（位于copilot-instructions.md顶部）
+automation:
+  auto_progress_tasks: true          # 启用自动任务推进
+  max_continuous_tasks: 5            # 最多连续执行5个任务后暂停
+  pause_on_failure: true             # 失败时暂停
+  pause_on_phase_change: true        # 阶段切换时暂停
+  log_to_session_memory: true        # 记录到session memory
+```
+
+**工作流程**：
+1. **读取TODO文档**：解析 `SOCS_TODO.md` 中的任务状态
+2. **识别当前任务**：找到"⏳ 待开始"或"🔄 进行中"的任务
+3. **执行任务**：调用相应的skill（如 `hls-csynth-verify`）
+4. **自动更新状态**：完成后立即更新TODO状态为"✅ 完成"
+5. **链式推进**：**无需用户确认**，自动开始下一个任务
+
+**示例**：
+```
+用户: "开始Phase 2优化工作"
+Copilot: 
+  1. 读取SOCS_TODO.md，识别任务2.1.1
+  2. 执行任务2.1.1（FFT配置优化）
+  3. 完成后自动更新状态
+  4. 自动开始任务2.1.2（FFT流水线优化）
+  5. 重复直到Phase 2完成或遇到问题
+```
+
+**关键改进**：
+- ❌ 旧方式：完成任务 → 等待用户说"继续下一步"
+- ✅ 新方式：完成任务 → 自动开始下一个任务
+
+### 自动经验记录机制
+
+**目标**：自动更新全局约束和skill文档，持续改进AI辅助质量。
+
+**触发条件**：
+- ✅ 验证失败（发现配置错误）
+- 🎯 性能优化（找到更好方案）
+- 🐛 Bug修复（解决常见陷阱）
+- 📚 新知识（学习到新API用法）
+
+**自动执行流程**：
+```
+1. 检测到需要记录的经验
+   ↓
+2. 分类经验类型（约束/流程/陷阱/最佳实践）
+   ↓
+3. 确定更新位置（copilot-instructions.md 或 SKILL.md）
+   ↓
+4. 自动应用更新（使用replace_string_in_file）
+   ↓
+5. 记录更新日志到 /memories/repo/experience_log.md
+```
+
+**示例**：
+```
+场景: Co-Simulation失败，提示"AXI-MM接口缺少depth参数"
+Copilot自动执行:
+  1. 识别问题类型：关键约束
+  2. 更新copilot-instructions.md，添加depth参数要求
+  3. 更新hls-full-validation/SKILL.md，添加到"常见陷阱"表格
+  4. 记录到/memories/repo/experience_log.md
+```
+
+**配置选项**：
+```yaml
+experience_recording:
+  auto_update_constraints: true      # 自动更新全局约束
+  auto_update_skills: true           # 自动更新skill文档
+  batch_update_on_phase_complete: true  # Phase完成时批量更新
+  log_to_repo_memory: true           # 记录到 /memories/repo/
+  require_user_confirmation: false   # 无需用户确认（自动更新）
+```
+
+### 相关Skills
+
+**新增两个自动化skill**：
+
+1. **`auto-task-progression`**：自动推进TODO任务
+   - 位置：`.github/skills/auto-task-progression/SKILL.md`
+   - 功能：读取TODO → 执行任务 → 更新状态 → 自动开始下一个
+
+2. **`experience-recorder`**：自动记录经验教训
+   - 位置：`.github/skills/experience-recorder/SKILL.md`
+   - 功能：检测经验 → 分类 → 更新文档 → 记录日志
+
+**调用关系**：
+```
+hls-full-validation
+  ├─ 发现问题 → 调用 experience-recorder
+  └─ 完成任务 → 调用 auto-task-progression
+
+hls-csynth-verify
+  ├─ 发现优化机会 → 调用 experience-recorder
+  └─ 完成任务 → 调用 auto-task-progression
+```
 
 ---
 
@@ -14,13 +121,13 @@
 
 ```bash
 # 步骤1：生成 Golden 数据（使用指定配置）
-cd e:\fpga-litho-accel && python validation/golden/run_verification.py --config input/config/golden_original.json
+cd /home/ashington/fpga-litho-accel && python3 validation/golden/run_verification.py --config input/config/golden_1024.json
 
 # 步骤2：运行 Host 预处理（使用相同配置）
-cd e:\fpga-litho-accel\source\host && python run.py --config ../../input/config/golden_original.json --mode full
+cd /home/ashington/fpga-litho-accel/source/host && python3 run.py --config ../../input/config/golden_1024.json --mode full
 
 # 步骤3：对比验证
-python validation/compare_hls_golden.py --config input/config/golden_original.json
+python3 validation/compare_hls_golden.py --config input/config/golden_1024.json
 ```
 
 ### 配置一致性检查清单
@@ -34,7 +141,9 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 | source type   | 必须一致                     | 必须一致        | 必须一致      |
 | σ_inner/outer | 必须一致                     | 必须一致        | 必须一致      |
 
-**当前推荐配置**: `input/config/golden_original.json`
+**推荐配置（按优先级）**:
+1. **新架构目标**: `input/config/golden_1024.json` (Lx=1024, Nx≈8, FFT=128×128)
+2. **原标准配置**: `input/config/golden_original.json` (Lx=512, Nx≈4, FFT=32×32)
 
 > **每次验证前，必须确认配置一致性，否则验证结果无效！**
 
@@ -62,72 +171,195 @@ python validation/compare_hls_golden.py --config input/config/golden_original.js
 **推荐工作目录**（所有命令均在此目录下执行）：
 
 ```bash
-cd e:\fpga-litho-accel\source\SOCS_HLS
+cd /home/ashington/fpga-litho-accel/source/SOCS_HLS
 ```
 
 ### ⚠️ 关键约束说明
+
+**HLS FFT配置约束（2026-04-25验证）**：
+
+| 参数 | 错误用法 | 正确用法 | 说明 |
+|------|---------|---------|------|
+| FFT长度 | `max_nfft = 7` | `log2_transform_length = 7` | 必须使用新API，旧API不生效 |
+| Scaling | `0x2AA`（默认） | `0x155`（nfft=7奇数） | 奇数nfft最后一级必须为0或1 |
+| 参数冲突 | 同时设置两个参数 | 只设置一个参数 | 编译报错："Both old and new parameter name used" |
+
+**验证方法**：
+- Impulse测试：输入X[0]=1，输出应为1/N
+- 128-point: 输出 = 1/128 = 0.0078125
+- 1024-point: 输出 = 1/1024 = 0.000976562
+
+**正确配置示例**：
+```cpp
+struct config_socs_fft : hls::ip_fft::params_t {
+    static const unsigned log2_transform_length = 7;  // ✅ 128-point FFT
+    static const unsigned input_width = 24;
+    static const unsigned output_width = 24;
+    static const unsigned output_ordering = hls::ip_fft::natural_order;
+    static const unsigned implementation_options = hls::ip_fft::pipelined_streaming_io;
+    static const unsigned scaling_options = hls::ip_fft::scaled;
+};
+
+// FFT调用
+ap_uint<15> scaling = 0x155;  // ✅ 对于nfft=7（奇数）有效
+bool ovflo;
+unsigned blk_exp;
+hls::fft<config_socs_fft>(in_stream, out_stream, dir, scaling, -1, &ovflo, &blk_exp);
+```
 
 **Nx, Ny 参数特性**：
 
 - **Nx, Ny 不是配置参数**，而是根据光学参数动态计算
 - **计算公式**：$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor$
-- **当前配置实际值**：Nx ≈ 4（基于 NA=0.8, Lx=512, λ=193, σ≈0.9）
-- **HLS 目标配置**：需将 NA 或 Lx 调大以使 Nx=16（例如 NA=1.2 或 Lx=1536）
 
-**IFFT 尺寸改写需求**：
+**配置对比（2026-04-24更新）**：
 
-- **litho.cpp 当前使用 65×65 IFFT（当 Nx=16）**
-- **Vitis HLS FFT 只支持 2 的幂次**，需改写为 128×128 zero-padded IFFT
-- **改写版 CPU reference 尚未实现**，需新编写验证 golden
+| 配置文件        | Lx   | NA  | λ   | σ_outer | Nx计算 | 实际Nx | FFT尺寸 |
+|---------------|------|-----|-----|---------|--------|--------|---------|
+| golden_original | 512  | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×512×1.9}{193}\rfloor$ | **4**  | 32×32   |
+| golden_1024   | 1024 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1024×1.9}{193}\rfloor$ | **8**  | 128×128 |
+| config_Nx16   | 1536 | 0.8 | 193 | 0.9     | $\lfloor\frac{0.8×1536×1.9}{193}\rfloor$ | **12** | 128×128 |
+
+**新架构目标**：
+- **golden_1024配置**：Lx=1024 → Nx≈8，FFT尺寸128×128（支持Nx最大到24）
+- **优势**：分辨率提升4倍，支持更大Nx范围
 
 ---
 
-### 📊 存储架构说明（2025-02更新）
+### 📊 存储架构说明（2026-04-26更新）
+
+**⚠️ 关键约束：AXI-MM depth参数必须匹配实际数据大小**
+
+**问题现象**：Co-Simulation产生NaN输出，而C Simulation通过。
+
+**根本原因**：AXI-MM depth参数配置错误，导致RTL仿真中AXI读取失败。
+
+**验证结果**（2026-04-26）：
+- ❌ **错误配置**：`depth=262144` (512×512) → Co-Sim NaN
+- ✅ **正确配置**：`depth=1048576` (1024×1024) → Co-Sim PASS (RMSE=8.324e-07)
+
+**为什么C Sim通过但Co-Sim失败？**
+- **C Simulation**：使用C++内存模型，depth参数被忽略
+- **Co-Simulation**：使用RTL仿真，depth参数对AXI事务至关重要
+- **结果**：错误的depth导致AXI读取失败 → NaN数据
 
 **AXI-MM接口DDR架构**：
 
-当前HLS IP已配置**6个独立AXI-MM Master接口**访问外部DDR内存：
+当前HLS IP已配置**7个独立AXI-MM Master接口**访问外部DDR内存：
 
 ```cpp
-// socs_simple.cpp - AXI-MM接口配置（DDR访问）
-#pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 depth=262144 latency=32
-#pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 depth=262144 latency=32
-#pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 depth=10
-#pragma HLS INTERFACE m_axi port=krn_r  offset=slave bundle=gmem3 depth=810
-#pragma HLS INTERFACE m_axi port=krn_i  offset=slave bundle=gmem4 depth=810
-#pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem5 depth=289
+// socs_2048_stream_refactored_v13_direct_dft_only.cpp - AXI-MM接口配置（DDR访问）
+// CRITICAL: depth must match actual data size for Co-Simulation
+#pragma HLS INTERFACE m_axi port=mskf_r offset=slave bundle=gmem0 \
+    depth=1048576 latency=32 num_read_outstanding=8 max_read_burst_length=64
+#pragma HLS INTERFACE m_axi port=mskf_i offset=slave bundle=gmem1 \
+    depth=1048576 latency=32 num_read_outstanding=8 max_read_burst_length=64
+#pragma HLS INTERFACE m_axi port=scales offset=slave bundle=gmem2 \
+    depth=32 latency=16 num_read_outstanding=2 max_read_burst_length=4
+#pragma HLS INTERFACE m_axi port=krn_r offset=slave bundle=gmem3 \
+    depth=76832 latency=16 num_read_outstanding=4 max_read_burst_length=32
+#pragma HLS INTERFACE m_axi port=krn_i offset=slave bundle=gmem4 \
+    depth=76832 latency=16 num_read_outstanding=4 max_read_burst_length=32
+#pragma HLS INTERFACE m_axi port=tmpImg_ddr offset=slave bundle=gmem5 \
+    depth=16384 latency=8 num_write_outstanding=4 max_write_burst_length=64
+#pragma HLS INTERFACE m_axi port=output offset=slave bundle=gmem6 \
+    depth=16384 latency=8 num_write_outstanding=4 max_write_burst_length=64
 ```
 
-| 接口  | 数据类型            | 尺寸       | DDR地址空间用途   |
-| ----- | ------------------- | ---------- | ----------------- |
-| gmem0 | mskf_r (mask频域实) | 512×512    | 输入mask spectrum |
-| gmem1 | mskf_i (mask频域虚) | 512×512    | 输入mask spectrum |
-| gmem2 | scales (特征值)     | nk=10      | SOCS特征值权重    |
-| gmem3 | krn_r (kernel实)    | nk×9×9=810 | SOCS kernel数据   |
-| gmem4 | krn_i (kernel虚)    | nk×9×9=810 | SOCS kernel数据   |
-| gmem5 | output (输出图像)   | 17×17=289  | 最终空中像输出    |
+| 接口  | 数据类型            | 尺寸       | Depth参数 | DDR地址空间用途   |
+| ----- | ------------------- | ---------- | --------- | ----------------- |
+| gmem0 | mskf_r (mask频域实) | 1024×1024 | 1,048,576 | 输入mask spectrum |
+| gmem1 | mskf_i (mask频域虚) | 1024×1024 | 1,048,576 | 输入mask spectrum |
+| gmem2 | scales (特征值)     | nk=10      | 32        | SOCS特征值权重    |
+| gmem3 | krn_r (kernel实)    | nk×17×17   | 76,832    | SOCS kernel数据   |
+| gmem4 | krn_i (kernel虚)    | nk×17×17   | 76,832    | SOCS kernel数据   |
+| gmem5 | tmpImg_ddr (中间结果)| 128×128   | 16,384    | 临时图像缓冲      |
+| gmem6 | output (输出图像)   | 128×128    | 16,384    | 最终空中像输出    |
 
-**内部数组存储策略**：
+**内部数组存储策略（V18架构）**：
 
-当前实现中，**内部计算数组仍使用BRAM**（通过RESOURCE pragma指定）：
+当前V18实现采用**DDR+BRAM混合存储架构**：
+- **DDR存储**（通过7个AXI-MM Master接口）：大量输入数据（mskf_r/i 4MB each, krn_r/i 76.8KB each）及输出数据
+- **BRAM存储**（片上缓存）：4个128×128中间计算数组，通过RESOURCE pragma指定
 
 ```cpp
-#pragma HLS RESOURCE variable=fft_input  core=RAM_2P_BRAM  // 32×32 complex
-#pragma HLS RESOURCE variable=fft_output core=RAM_2P_BRAM  // 32×32 complex
-#pragma HLS RESOURCE variable=tmpImg     core=RAM_2P_BRAM  // 32×32 float
-#pragma HLS RESOURCE variable=tmpImgp    core=RAM_2P_BRAM  // 32×32 float
+#pragma HLS RESOURCE variable=fft_input  core=RAM_2P_BRAM  // 128×128 complex<float>
+#pragma HLS RESOURCE variable=fft_output core=RAM_2P_BRAM  // 128×128 complex<float>
+#pragma HLS RESOURCE variable=tmpImg     core=RAM_2P_BRAM  // 128×128 float
+#pragma HLS RESOURCE variable=tmpImgp    core=RAM_2P_BRAM  // 128×128 float
 ```
 
-**资源利用率问题（xcku5p-ffvb676-2-e）**：
+**资源利用率（V18）**：
+
+**实际综合器件：xcku3p-ffvb676-2-e**
 
 | 资源类型 | 使用量  | 可用量  | 占用率 | 状态    |
 | -------- | ------- | ------- | ------ | ------- |
-| BRAM     | 1,366   | 960     | 142%   | ❌ 超限 |
-| DSP      | 8,080   | 1,824   | 442%   | ❌ 超限 |
-| FF       | 556,361 | 433,920 | 128%   | ❌ 超限 |
-| LUT      | 647,932 | 216,960 | 298%   | ❌ 超限 |
+| BRAM     | 399     | 720     | 55%    | ✅ 通过 |
+| DSP      | 53      | 1,368   | 4%     | ✅ 通过 |
+| FF       | 31,942  | 325,440 | 10%    | ✅ 通过 |
+| LUT      | 37,098  | 162,720 | 23%    | ✅ 通过 |
 
-> **主要DSP消耗源**：`fft_2d_rows`函数使用直接DFT计算（非HLS FFT IP），消耗8,064 DSP
+**目标器件：xcku5p-ffvb676-2-e（预估）**
+
+| 资源类型 | 使用量  | 可用量  | 占用率 | 状态    |
+| -------- | ------- | ------- | ------ | ------- |
+| BRAM     | 399     | 960     | 42%    | ✅ 通过 |
+| DSP      | 53      | 1,824   | 3%     | ✅ 通过 |
+| FF       | 31,942  | 433,920 | 7%     | ✅ 通过 |
+| LUT      | 37,098  | 216,960 | 17%    | ✅ 通过 |
+
+> **V18架构改进**：使用HLS FFT IP替代直接DFT计算，DSP从8,064降至53（降低99.3%），BRAM从1,366降至399（降低70.8%）
+>
+> **器件说明**：配置文件指定目标器件为xcku5p，但实际综合验证使用的是资源规模较小的xcku3p。xcku5p提供960个BRAM和1824个DSP，而xcku3p仅提供720个BRAM和1368个DSP。
+
+**⚠️ 注意**：以下v5→v8优化历程为旧版（Direct DFT架构）数据，仅供参考。V18已采用HLS FFT IP，资源占用完全不同。
+
+---
+
+### 🎯 BRAM优化经验（2026-04-25 Phase 3验证）
+
+**关键发现**：FFT实例是BRAM主要消耗源
+
+**优化历程**（v5 → v8 → V18，百分比基于xcku5p-ffvb676-2-e）：
+| 版本 | BRAM占用 | 优化策略 | 效果 |
+|------|---------|---------|------|
+| v5 | 988 (103%) | 移动tmpImg_final到DDR | ❌ 无效 |
+| v6 | 988 (103%) | 移除tmpImgp数组 | ❌ 无效 |
+| v7 | 928 (97%) | DDR-based FFTshift | ⚠️ 节省60 BRAM |
+| v8 | 320 (33%) | 降低并行度 (UNROLL factor=2→1) | ✅ 节省608 BRAM |
+| **V18** | **399 (42%)** | **HLS FFT IP + 块浮点** | **✅ DSP降低99.3%** |
+
+**核心经验**：
+1. **FFT实例消耗**：每个FFT实例消耗~304 BRAM
+   - 2个并行FFT实例 = 608 BRAM (66% of total)
+   - 降低并行度是最有效的优化手段
+
+2. **优化优先级**：
+   - ✅ 降低并行度 (节省608 BRAM, 65.5%)
+   - ⚠️ DDR-based FFTshift (节省60 BRAM, 6.5%)
+   - ❌ 移动数组到DDR (无效，需识别主要消耗源)
+
+3. **权衡取舍**：
+   - 接受50%吞吐量降低
+   - 换取65.5% BRAM节省
+   - 适用于资源受限场景 (BRAM < 75%)
+
+**最佳实践**：
+- 使用HLS报告精确定位资源消耗源 (`hls/syn/report/*_csynth.rpt`)
+- 每次优化后立即验证功能正确性 (C Simulation)
+- 详细记录优化过程和结果 (参考 `doc/Phase3_Optimization_Report.md`)
+- 渐进式优化，避免一次性大改
+
+**适用场景**：
+- 资源受限的FPGA器件 (BRAM占用率 > 75%)
+- 对吞吐量要求不高的应用
+- 需要快速部署的场景
+
+**后续优化方向**（如需恢复吞吐量）：
+- Plan G: 使用LUTRAM替代BRAM (当前LUT占用率仅19%)
+- Plan H: 降低FFT精度 (ap_fixed<24,1> → <18,1>)
+- 混合方案: 在保证精度前提下恢复部分并行度
 
 ---
 
@@ -141,7 +373,7 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 
 - **2026-04-19**: 硬件验证通过（DDR + HLS IP 正常）
 - JTAG连接: localhost:3121
-- 目标器件: `xcku3p-ffvb676-2-e` (全局约束中xcku5p为旧版本，请使用xcku3p)
+- 目标器件: `xcku5p-ffvb676-2-e` (⚠️ 注意：部分旧文件中xcku3p为过时版本，请使用xcku5p)
 
 **Vivado TCL Console注意事项**:
 
@@ -152,31 +384,101 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 
 ---
 
-### 🔧 FFT优化方案
+### 🔧 FFT优化方案（2026-04-25更新，V18已实现）
 
-**问题根源**：当前FFT实现采用直接DFT计算，而非Vitis HLS FFT IP，导致DSP消耗极高。
+**✅ V18已实现方案1**：集成HLS FFT IP，替代Direct DFT计算。
 
-**推荐优化方案（按优先级排序）**：
+**V18实现效果**（已验证通过）：
+- **DSP消耗**：从8,064降至53（降低99.3%，3%占用率）
+- **BRAM消耗**：从1,366降至399（降低70.8%，42%占用率）
+- **精度**：RMSE = 8.32e-07 ✅
+- **Co-Sim**：PASS (RMSE=8.324e-07)
 
-#### 方案1：集成HLS FFT IP（强烈推荐）
+**V18 FFT配置**（已验证正确）：
+```cpp
+struct config_socs_fft : hls::ip_fft::params_t {
+    static const unsigned log2_transform_length = 7;  // 128-point FFT
+    static const unsigned input_width = 24;
+    static const unsigned output_width = 24;
+    static const unsigned output_ordering = hls::ip_fft::natural_order;
+    static const unsigned implementation_options = hls::ip_fft::pipelined_streaming_io;
+    static const unsigned scaling_options = hls::ip_fft::scaled;
+};
+```
 
-使用Vitis HLS提供的`hls::fft` IP替换直接DFT：
+**后续优化方向**（如需进一步提升吞吐量）：
 
-- **DSP消耗**：32-point FFT仅需约200-400 DSP（降低80%+）
-- **实现路径**：参考 `reference/vitis_hls_ftt的实现/interface_stream/`
-- **配置示例**：
+#### ⭐ 方案2：Kernel并行化（待实现）
 
-  ```cpp
-  #include "hls_fft.h"
+**当前状态**：nk=10顺序循环处理，每个kernel需~45s（C仿真）
 
-  config_t fft_config;
-  fft_config.setDir(1); // IFFT
-  fft_config.setScaling(FFT_SCALE_SCALED_DYNAMIC);
+**优化目标**：
+- 使用DATAFLOW pragma实现kernel并行处理
+- 创建多个FFT实例并行处理不同kernel
 
-  hls::fft<config_t>(fft_input, fft_output, fft_config);
-  ```
+**预期效果**：
+- **吞吐量提升**：接近10倍
+- **Latency降低**：从10×45s降至~45s（理论值）
 
-#### 方案2：使用LUT替代DSP
+**实现示例**：
+```cpp
+void calc_socs_parallel_2048(...) {
+    #pragma HLS DATAFLOW
+    
+    // 并行处理10个kernel
+    for (int k = 0; k < nk; k++) {
+        #pragma HLS UNROLL factor=2  // 限制并行度避免资源超限
+        
+        // 每个kernel独立流水线
+        embed_kernel_stream(k, fft_in_stream[k]);
+        fft_2d_stream(fft_in_stream[k], fft_out_stream[k], true);
+        accumulate_stream(fft_out_stream[k], tmpImg_stream[k], scales[k]);
+    }
+    
+    // 最终合并
+    merge_intensity(tmpImg_stream, output);
+}
+```
+
+**实现挑战**：
+- **BRAM资源**：需要10份tmpImg缓冲（10×128×128×4B = 640KB，超限）
+- **DDR带宽**：并行读取10个kernel数据（需AXI burst优化）
+- **折衷方案**：UNROLL factor=2（2个kernel并行），降低资源压力
+
+#### ⭐ 方案3：适配golden_1024.json配置（用户要求）
+
+**新配置参数**（`input/config/golden_1024.json`）：
+- **Lx/Ly**: 1024×1024（相比512提升4倍分辨率）
+- **NA**: 0.8
+- **wavelength**: 193nm
+- **σ_outer**: 0.9
+- **nk**: 10
+
+**Nx动态计算**：
+$$N_x = \lfloor \frac{NA \times L_x \times (1+\sigma_{outer})}{\lambda} \rfloor = \lfloor \frac{0.8 \times 1024 \times 1.9}{193} \rfloor \approx 8$$
+
+**对应尺寸**：
+- **kerX**: 2×Nx+1 = 17
+- **convX**: 4×Nx+1 = 33
+- **FFT尺寸**: 128×128（固定尺寸，支持Nx最大到24）
+
+**优势**：
+- 分辨率提升（1024×1024 mask），成像质量更好
+- FFT尺寸固定（128×128），支持更大Nx范围（Nx=2~24）
+
+**验证流程**：
+```bash
+# 生成golden数据
+python3 validation/golden/run_verification.py --config input/config/golden_1024.json
+
+# 预期输出文件
+# - mskf_r/i.bin: 1024×1024×4B = 4MB（相比512×512提升4倍）
+# - scales.bin: nk×4B = 40B
+# - kernels_r/i: nk×17×17×4B = 11.56KB
+# - tmpImgp_full_128.bin: 128×128×4B = 65.5KB
+```
+
+#### 方案4：使用LUT替代DSP（备选）
 
 适用于DSP严重受限但LUT资源充足的场景：
 
@@ -184,16 +486,10 @@ cd e:\fpga-litho-accel\source\SOCS_HLS
 #pragma HLS bind_storage variable=fft_input type=RAM_2P impl=LUTRAM
 ```
 
-或在HLS config中设置：
-
-```ini
-FFT_COMPLEX_MULT_TYPE=use_luts
-```
-
 - **DSP消耗**：接近0
 - **代价**：LUT消耗增加约200%
 
-#### 方案3：降低FFT精度（固定点）
+#### 方案5：降低FFT精度（固定点）（备选）
 
 将float改为ap_fixed：
 
@@ -203,13 +499,6 @@ typedef ap_fixed<18, 8> fixed_t; // 18位总精度，8位整数部分
 
 - **DSP消耗**：降低约50%
 - **需验证**：精度是否满足光刻计算要求（当前RMSE=1.033e-07）
-
-#### 方案4：减小FFT尺寸
-
-如果数据特性允许：
-
-- 32-point → 16-point：DSP降低约75%
-- 需评估对成像精度的影响
 
 #### 两种推荐的 C 综合（C Synthesis）方式
 

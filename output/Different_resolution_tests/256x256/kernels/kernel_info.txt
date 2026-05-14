@@ -1,0 +1,30 @@
+# Kernel Information
+## Kernel Size and Count
+- Kernel Size: 5x5
+- Number of Kernels: 25
+## Eigenvalues of Each Kernel
+Eigenvalue 0: 1.87585
+Eigenvalue 1: 0.610938
+Eigenvalue 2: 0.610938
+Eigenvalue 3: 0.235479
+Eigenvalue 4: 0.127952
+Eigenvalue 5: 0.0611231
+Eigenvalue 6: 0.0478472
+Eigenvalue 7: 0.0478472
+Eigenvalue 8: 0.0171729
+Eigenvalue 9: 0.000280911
+Eigenvalue 10: 0.000280431
+Eigenvalue 11: 0.000280431
+Eigenvalue 12: 0.000277637
+Eigenvalue 13: 1.12263e-16
+Eigenvalue 14: 9.63687e-18
+Eigenvalue 15: 1.96214e-18
+Eigenvalue 16: 1.01163e-18
+Eigenvalue 17: 6.3833e-23
+Eigenvalue 18: 0
+Eigenvalue 19: 0
+Eigenvalue 20: 0
+Eigenvalue 21: 0
+Eigenvalue 22: 0
+Eigenvalue 23: 0
+Eigenvalue 24: 0

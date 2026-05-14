@@ -1,0 +1,67 @@
+{
+    "simulation": {
+        "description": "Batch test: 1024x1024",
+        "version": "1.0"
+    },
+    "mask": {
+        "period": {
+            "Lx": 1024,
+            "Ly": 1024
+        },
+        "size": {
+            "maskSizeX": 1024,
+            "maskSizeY": 1024
+        },
+        "type": "Import",
+        "lineSpace": {
+            "lineWidth": 128,
+            "spaceWidth": 128,
+            "isHorizontal": false
+        },
+        "inputFile": "input/mask/Different_resolution_tests/1024x1024.bin",
+        "dose": 1.0
+    },
+    "source": {
+        "gridSize": 101,
+        "type": "Annular",
+        "annular": {
+            "innerRadius": 0.6,
+            "outerRadius": 0.9
+        },
+        "dipole": {
+            "radius": 0.5,
+            "offset": 0.3,
+            "onXAxis": true
+        },
+        "crossQuadrupole": {
+            "radius": 0.5,
+            "offset": 0.3
+        },
+        "point": {
+            "x": 0.0,
+            "y": 0.0
+        },
+        "inputFile": ""
+    },
+    "optics": {
+        "NA": 0.8,
+        "wavelength": 193,
+        "defocus": 0.2
+    },
+    "kernel": {
+        "count": 128,
+        "targetIntensity": 0.225
+    },
+    "output": {
+        "baseDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024",
+        "kernelsDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/kernels",
+        "kernelsPngDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/kernels/png",
+        "imageFile": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/image.bin",
+        "imagePng": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/image.png",
+        "imageSegmentedPng": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/image_s.png",
+        "maskPng": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/mask.png",
+        "sourcePng": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/source.png",
+        "tccRealPng": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/tcc_r.png",
+        "tccImagPng": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024/tcc_i.png"
+    }
+}

@@ -1,0 +1,32 @@
+{
+  "10_kernels": {
+    "max_absolute_error": 0.010465696454048157,
+    "min_absolute_error": 0.003180183470249176,
+    "mean_absolute_error": 0.0053700050339102745,
+    "max_relative_error": 0.9425181150436401,
+    "min_relative_error": 0.008983085863292217,
+    "mean_relative_error": 0.2702770531177521,
+    "rmse": 0.005473779048770666,
+    "num_pixels": 1048576
+  },
+  "50_kernels": {
+    "max_absolute_error": 0.0013234522193670273,
+    "min_absolute_error": 0.0005856752395629883,
+    "mean_absolute_error": 0.0009201340144500136,
+    "max_relative_error": 0.22584375739097595,
+    "min_relative_error": 0.0016499125631526113,
+    "mean_relative_error": 0.05211743339896202,
+    "rmse": 0.0009272932657040656,
+    "num_pixels": 1048576
+  },
+  "400_kernels": {
+    "max_absolute_error": 2.9802322387695312e-08,
+    "min_absolute_error": 0.0,
+    "mean_absolute_error": 3.9146064167994155e-10,
+    "max_relative_error": 1.192067173860778e-07,
+    "min_relative_error": 0.0,
+    "mean_relative_error": 5.178161455177133e-09,
+    "rmse": 2.569707779898067e-09,
+    "num_pixels": 1048576
+  }
+}

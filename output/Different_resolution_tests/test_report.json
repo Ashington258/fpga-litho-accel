@@ -1,0 +1,73 @@
+{
+  "testSuite": "Different_resolution_tests",
+  "timestamp": "2026-05-09T17:01:07.730605",
+  "summary": {
+    "total": 6,
+    "success": 5,
+    "failed": 1,
+    "successRate": "83.3%"
+  },
+  "totalDuration": 733.484391450882,
+  "results": [
+    {
+      "testName": "256x256",
+      "description": "Low resolution test (256x256)",
+      "status": "success",
+      "startTime": "2026-05-09T16:48:54.245836",
+      "duration": 0.13585400581359863,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/256x256",
+      "errors": [],
+      "endTime": "2026-05-09T16:48:54.381687"
+    },
+    {
+      "testName": "512x512",
+      "description": "Medium resolution test (512x512)",
+      "status": "success",
+      "startTime": "2026-05-09T16:48:54.381744",
+      "duration": 0.4232766628265381,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/512x512",
+      "errors": [],
+      "endTime": "2026-05-09T16:48:54.805024"
+    },
+    {
+      "testName": "1024x1024",
+      "description": "High resolution test (1024x1024)",
+      "status": "success",
+      "startTime": "2026-05-09T16:48:54.805099",
+      "duration": 1.0476553440093994,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/1024x1024",
+      "errors": [],
+      "endTime": "2026-05-09T16:48:55.852755"
+    },
+    {
+      "testName": "2048x2048",
+      "description": "Ultra-high resolution test (2048x2048)",
+      "status": "success",
+      "startTime": "2026-05-09T16:48:55.852800",
+      "duration": 5.543248653411865,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/2048x2048",
+      "errors": [],
+      "endTime": "2026-05-09T16:49:01.396051"
+    },
+    {
+      "testName": "4096x4096",
+      "description": "Extreme resolution test (4096x4096)",
+      "status": "success",
+      "startTime": "2026-05-09T16:49:01.396098",
+      "duration": 124.89263439178467,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/4096x4096",
+      "errors": [],
+      "endTime": "2026-05-09T16:51:06.288735"
+    },
+    {
+      "testName": "8192x8192",
+      "description": "Maximum resolution test (8192x8192)",
+      "status": "execution_failed",
+      "startTime": "2026-05-09T16:51:06.288787",
+      "duration": 601.4417223930359,
+      "outputDir": "/home/ashington/project/optimization/fpga-litho-accel/output/Different_resolution_tests/8192x8192",
+      "errors": [],
+      "endTime": "2026-05-09T17:01:07.730514"
+    }
+  ]
+}

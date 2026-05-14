@@ -1,0 +1,91 @@
+{
+  "description": "SOCS 成像精度评估（与 TCC 直接成像对比）",
+  "golden_reference": "TCC 直接成像（aerial_image_tcc_direct.bin）",
+  "image_size": "1024×1024",
+  "num_pixels": 1048576,
+  "results": {
+    "10_kernels": {
+      "max_absolute_error": 1.047e-2,
+      "max_relative_error": 9.425e-1,
+      "rmse": 5.474e-3,
+      "mean_absolute_error": 5.370e-3,
+      "min_absolute_error": 3.180e-3,
+      "min_relative_error": 8.983e-3,
+      "mean_relative_error": 2.703e-1,
+      "paper_values": {
+        "max_absolute_error": 9.35e-3,
+        "max_relative_error": 2.75e-1,
+        "rmse": 7.92e-3,
+        "note": "论文表5-2数据"
+      },
+      "comparison": {
+        "max_ae_diff": "11.98%",
+        "max_re_diff": "242.7%",
+        "rmse_diff": "-30.9%",
+        "note": "差异可能来源于不同的掩模数据或光学参数"
+      }
+    },
+    "50_kernels": {
+      "max_absolute_error": 1.323e-3,
+      "max_relative_error": 2.258e-1,
+      "rmse": 9.273e-4,
+      "mean_absolute_error": 9.201e-4,
+      "min_absolute_error": 5.857e-4,
+      "min_relative_error": 1.650e-3,
+      "mean_relative_error": 5.212e-2,
+      "paper_values": {
+        "max_absolute_error": 2.56e-3,
+        "max_relative_error": 8.00e-2,
+        "rmse": 2.45e-3,
+        "note": "论文表5-2数据"
+      },
+      "comparison": {
+        "max_ae_diff": "-48.3%",
+        "max_re_diff": "182.3%",
+        "rmse_diff": "-62.1%",
+        "note": "实测精度优于论文数据"
+      }
+    },
+    "400_kernels": {
+      "max_absolute_error": 2.980e-8,
+      "max_relative_error": 1.192e-7,
+      "rmse": 2.570e-9,
+      "mean_absolute_error": 3.915e-10,
+      "min_absolute_error": 0.0,
+      "min_relative_error": 0.0,
+      "mean_relative_error": 5.178e-9,
+      "paper_values": {
+        "max_absolute_error": 1.20e-4,
+        "max_relative_error": 3.76e-3,
+        "rmse": 5.84e-5,
+        "note": "论文表5-2数据"
+      },
+      "comparison": {
+        "max_ae_diff": "-99.98%",
+        "max_re_diff": "-99.997%",
+        "rmse_diff": "-99.996%",
+        "note": "实测精度远优于论文数据（接近数值精度极限）"
+      },
+      "actual_kernels": 289,
+      "note": "实际使用289核（TCC矩阵大小限制）"
+    }
+  },
+  "analysis": {
+    "trend": "随着核数量增加，各项误差指标均显著下降",
+    "10_kernels": {
+      "accuracy": "中等",
+      "energy_coverage": "90.31%",
+      "use_case": "工程最优平衡点"
+    },
+    "50_kernels": {
+      "accuracy": "高",
+      "rmse_improvement": "83.1%",
+      "use_case": "高精度应用"
+    },
+    "400_kernels": {
+      "accuracy": "极高（接近数值极限）",
+      "rmse_improvement": "99.95%",
+      "use_case": "理论验证"
+    }
+  }
+}

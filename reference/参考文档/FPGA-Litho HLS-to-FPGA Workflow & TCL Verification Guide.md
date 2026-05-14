@@ -93,7 +93,7 @@ open_project hls_litho_system_bram_proj
 open_solution solution1
 
 # 可选：设置器件/时钟
-set_part xcku3p-ffvb676-2-e
+set_part xcku5p-ffvb676-2-e
 create_clock -period 5
 
 csynth_design

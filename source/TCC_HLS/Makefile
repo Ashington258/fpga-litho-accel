@@ -2,7 +2,7 @@
 # TCC HLS重构项目 - Makefile
 # ============================================================================
 # 参考：reference/参考文档/FPGA-Litho HLS-to-FPGA Workflow & TCL Verification Guide.md
-# 器件：xcku3p-ffvb676-2-e
+# 器件：xcku5p-ffvb676-2-e
 # 时钟：5ns (200 MHz)
 # ============================================================================
 
@@ -136,7 +136,7 @@ help:
 	@echo "  - Config: hls/script/config/hls_config.cfg"
 	@echo "  - Work dir: $(HLS_WORK_DIR)"
 	@echo ""
-	@echo "Device: xcku3p-ffvb676-2-e"
+	@echo "Device: xcku5p-ffvb676-2-e"
 	@echo "Clock: 5ns (200 MHz)"
 
 # ============================================================================
