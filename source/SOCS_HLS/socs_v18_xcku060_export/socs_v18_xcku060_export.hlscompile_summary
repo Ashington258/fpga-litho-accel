@@ -1,0 +1,247 @@
+<ENTRY>
+{
+ "thisFile": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/socs_v18_xcku060_export.hlscompile_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Wed May 27 16:18:03 2026",
+ "timestampMillis": "1779869883187",
+ "buildStep": {
+  "cmdId": "ab8d0b24-4087-49e8-8122-526db916245c",
+  "name": "v++",
+  "logFile": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/logs/socs_v18_xcku060_export.steps.log",
+  "commandLine": "/home/ashington/AMDDesignTools/2025.2/Vitis/bin/unwrapped/lnx64.o/v++  -c --mode hls --config script/config/hls_config_socs_v18_xsim.cfg --work_dir socs_v18_xcku060_export ",
+  "args": [
+   "-c",
+   "--mode",
+   "hls",
+   "--config",
+   "script/config/hls_config_socs_v18_xsim.cfg",
+   "--work_dir",
+   "socs_v18_xcku060_export"
+  ],
+  "iniFiles": [
+   {
+    "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/script/config/hls_config_socs_v18_xsim.cfg",
+    "content": "part=xcku060-ffva1156-2-i\n\n[hls]\nclock=3.333ns\nflow_target=vivado\npackage.output.format=rtl\nsyn.file=../../src/socs_2048_stream_refactored_v18_hls_fft.cpp\nsyn.file=../../src/socs_2048_stream_refactored_v18_hls_fft.h\nsyn.file=../../src/hls_fft_config_2048_v16.h\nsyn.top=calc_socs_2048_hls_stream_refactored_v18\ntb.file=../../tb/tb_socs_1024_stream_refactored_v18.cpp\ncosim.tool=xsim\ncosim.rtl=verilog\ncosim.trace_level=port\n"
+   }
+  ],
+  "cwd": "/home/ashington/fpga-litho-accel/source/SOCS_HLS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:18:03 2026",
+ "timestampMillis": "1779869883187",
+ "status": {
+  "cmdId": "ab8d0b24-4087-49e8-8122-526db916245c",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "Wed May 27 16:18:10 2026",
+ "timestampMillis": "1779869890703",
+ "buildSummary": {
+  "hardwarePlatform": "",
+  "hardwareDsa": "",
+  "platformDirectory": "",
+  "runtime": "",
+  "systemConfig": "",
+  "flow": "BF_COMPILE",
+  "target": "TT_HW",
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "calc_socs_2048_hls_stream_refactored_v18",
+     "file": "",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "/home/ashington/fpga-litho-accel/source/SOCS_HLS/src/socs_2048_stream_refactored_v18_hls_fft.cpp",
+     "/home/ashington/fpga-litho-accel/source/SOCS_HLS/src/socs_2048_stream_refactored_v18_hls_fft.h",
+     "/home/ashington/fpga-litho-accel/source/SOCS_HLS/src/hls_fft_config_2048_v16.h"
+    ],
+    "psSources": [],
+    "cuNames": [],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "2025.2"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Wed May 27 16:18:10 2026",
+ "timestampMillis": "1779869890705",
+ "buildStep": {
+  "cmdId": "cee044b1-1574-4f64-b744-7cd99820a155",
+  "name": "",
+  "logFile": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls/hls.log",
+  "commandLine": "",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/home/ashington/fpga-litho-accel/source/SOCS_HLS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:18:10 2026",
+ "timestampMillis": "1779869890706",
+ "status": {
+  "cmdId": "cee044b1-1574-4f64-b744-7cd99820a155",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:18:10 2026",
+ "timestampMillis": "1779869890706",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls/hls_data.json",
+  "name": "",
+  "fileType": "JSON",
+  "reportType": "HLS_SYNTHESIS",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:18:10 2026",
+ "timestampMillis": "1779869890707",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls/syn/report/csynth.rpt",
+  "name": "",
+  "fileType": "TEXT",
+  "reportType": "HLS_SYNTHESIS",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:18:10 2026",
+ "timestampMillis": "1779869890708",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls/syn/report/csynth.xml",
+  "name": "",
+  "fileType": "XML",
+  "reportType": "HLS_SYNTHESIS",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:19:25 2026",
+ "timestampMillis": "1779869965658",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls",
+  "name": "",
+  "fileType": "DIR",
+  "reportType": "HLS_DATAFLOW",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:19:25 2026",
+ "timestampMillis": "1779869965660",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls",
+  "name": "",
+  "fileType": "DIR",
+  "reportType": "HLS_FUNCTION_CALL_GRAPH",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:19:25 2026",
+ "timestampMillis": "1779869965661",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls",
+  "name": "",
+  "fileType": "DIR",
+  "reportType": "HLS_SCHEDULE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:19:25 2026",
+ "timestampMillis": "1779869965662",
+ "status": {
+  "cmdId": "cee044b1-1574-4f64-b744-7cd99820a155",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:19:26 2026",
+ "timestampMillis": "1779869966077",
+ "status": {
+  "cmdId": "ab8d0b24-4087-49e8-8122-526db916245c",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:19:26 2026",
+ "timestampMillis": "1779869966168",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/reports/v++_compile_socs_v18_xcku060_export_guidance.html",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:19:26 2026",
+ "timestampMillis": "1779869966170",
+ "report": {
+  "path": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/reports/.db/v++_compile_socs_v18_xcku060_export_guidance.pb3",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>

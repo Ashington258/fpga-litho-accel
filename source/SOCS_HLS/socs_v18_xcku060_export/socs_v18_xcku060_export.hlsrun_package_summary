@@ -1,0 +1,158 @@
+<ENTRY>
+{
+ "thisFile": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/socs_v18_xcku060_export.hlsrun_package_summary",
+ "connectId": "",
+ "serverToken": "",
+ "timestamp": "0"
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_CmdStep",
+ "dateTimestamp": "Wed May 27 16:21:58 2026",
+ "timestampMillis": "1779870118492",
+ "buildStep": {
+  "cmdId": "d8a1954f-0a6a-4a1f-853a-fdf72df5c593",
+  "name": "vitis-run",
+  "logFile": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/logs/socs_v18_xcku060_export.steps.log",
+  "commandLine": "/home/ashington/AMDDesignTools/2025.2/Vitis/bin/unwrapped/lnx64.o/vitis-run  --mode hls --package --config script/config/hls_config_socs_v18_xsim.cfg --work_dir socs_v18_xcku060_export ",
+  "args": [
+   "--mode",
+   "hls",
+   "--package",
+   "--config",
+   "script/config/hls_config_socs_v18_xsim.cfg",
+   "--work_dir",
+   "socs_v18_xcku060_export"
+  ],
+  "iniFiles": [],
+  "cwd": "/home/ashington/fpga-litho-accel/source/SOCS_HLS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:21:58 2026",
+ "timestampMillis": "1779870118492",
+ "status": {
+  "cmdId": "d8a1954f-0a6a-4a1f-853a-fdf72df5c593",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_FlowMetaData",
+ "dateTimestamp": "Wed May 27 16:22:06 2026",
+ "timestampMillis": "1779870126553",
+ "buildSummary": {
+  "hardwarePlatform": "",
+  "hardwareDsa": "",
+  "platformDirectory": "",
+  "runtime": "",
+  "systemConfig": "",
+  "flow": "BF_RUN",
+  "target": "TT_HLS_IP",
+  "kernels": [
+   {
+    "base": {
+     "type": "KERNEL",
+     "name": "calc_socs_2048_hls_stream_refactored_v18",
+     "file": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/calc_socs_2048_hls_stream_refactored_v18.zip",
+     "reports": [],
+     "uuid": ""
+    },
+    "sources": [
+     "/home/ashington/fpga-litho-accel/source/SOCS_HLS/src/socs_2048_stream_refactored_v18_hls_fft.cpp",
+     "/home/ashington/fpga-litho-accel/source/SOCS_HLS/src/socs_2048_stream_refactored_v18_hls_fft.h",
+     "/home/ashington/fpga-litho-accel/source/SOCS_HLS/src/hls_fft_config_2048_v16.h"
+    ],
+    "psSources": [],
+    "cuNames": [],
+    "type": "HLS",
+    "frequency": 0,
+    "freqUnits": ""
+   }
+  ],
+  "toolVersion": "2025.2"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_SubCmdStep",
+ "dateTimestamp": "Wed May 27 16:22:06 2026",
+ "timestampMillis": "1779870126556",
+ "buildStep": {
+  "cmdId": "bbac88e4-8570-4ff7-96d8-52b2f2a4a3ae",
+  "name": "",
+  "logFile": "/home/ashington/fpga-litho-accel/source/SOCS_HLS/socs_v18_xcku060_export/hls/hls.log",
+  "commandLine": "",
+  "args": [],
+  "iniFiles": [],
+  "cwd": "/home/ashington/fpga-litho-accel/source/SOCS_HLS"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:22:06 2026",
+ "timestampMillis": "1779870126556",
+ "status": {
+  "cmdId": "bbac88e4-8570-4ff7-96d8-52b2f2a4a3ae",
+  "state": "CS_RUNNING"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:22:58 2026",
+ "timestampMillis": "1779870178929",
+ "status": {
+  "cmdId": "bbac88e4-8570-4ff7-96d8-52b2f2a4a3ae",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Status",
+ "dateTimestamp": "Wed May 27 16:22:59 2026",
+ "timestampMillis": "1779870179203",
+ "status": {
+  "cmdId": "d8a1954f-0a6a-4a1f-853a-fdf72df5c593",
+  "state": "CS_PASSED"
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:22:59 2026",
+ "timestampMillis": "1779870179204",
+ "report": {
+  "path": "",
+  "name": "",
+  "fileType": "HTML",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
+<ENTRY>
+{
+ "type": "ET_Report",
+ "dateTimestamp": "Wed May 27 16:22:59 2026",
+ "timestampMillis": "1779870179205",
+ "report": {
+  "path": "",
+  "name": "",
+  "fileType": "BINARY_PROTOBUF",
+  "reportType": "GLOBAL_RULECHECK_GUIDANCE",
+  "cmdId": ""
+ }
+}
+</ENTRY>
