@@ -14,22 +14,17 @@ TCC-SOCS 空中像计算是 OPC/SMO 等计算光刻流程中的关键环节，�
 
 **关键词：**计算光刻；TCC-SOCS；空中像计算；FPGA；HLS；二维 IFFT；能效。
 
-## 1. 引言(待补充相关领域最新的论文和工作)
+## 1. 引言
 
-计算光刻已成为先进半导体制造中的关键支撑技术。在光学邻近效应校正（OPC）、光源掩模联合优化（SMO）和逆向光刻技术（ILT）中，空中像仿真会被反复调用，用于评估给定照明与投影系统下掩模图形能否在晶圆上形成期望图形。随着工艺窗口不断缩小、版图复杂度持续提升，重复空中像评估带来的延迟和能耗已成为光刻优化流程中的重要瓶颈。
+计算光刻已成为先进半导体制造中连接光学成像、工艺窗口和版图优化的关键技术。随着工艺节点持续缩小，单纯依靠投影光学系统提升分辨率愈发困难，光学邻近效应校正（OPC）、源掩模协同优化（SMO）和反向光刻技术（ILT）等方法被广泛用于补偿邻近效应、优化照明与掩模形状并扩大可制造窗口 [1]-[11]。这些方法通常以模型反馈或反问题优化的形式工作，需要在大量版图窗口、多种工艺条件和多轮迭代中反复调用空中像计算 [2], [3], [5], [8]。当工艺窗口缩小、掩模复杂度提高且优化变量从边缘移动扩展到像素化或曲线图形时，空中像计算的延迟、吞吐和能耗逐渐成为计算光刻工程部署中的核心瓶颈。
 
-Hopkins 传输交叉系数（TCC）模型通过将照明光源、光瞳函数、像差以及掩模频谱统一编码为频域算子，为部分相干成像提供了严格的数学描述 [1]。在光学条件固定时，TCC 可被预计算并在不同掩模图形之间重复使用。然而，直接基于 TCC 的成像计算涉及密集的频率对耦合，带来较高的计算和存储开销。相干系统之和（SOCS）方法通过将 TCC 矩阵分解为有限个主导相干本征核，将部分相干成像转化为多个相干成像系统的加权求和，从而降低计算复杂度。
+部分相干光刻成像通常以 Hopkins 理论为基础，其传输交叉系数（TCC）可将照明光源、投影光瞳、像差、薄膜效应以及掩模频谱耦合统一表示为频域算子 [12]-[18]。在光学参数固定时，TCC 可离线预计算并在不同掩模图形间复用；然而，直接 TCC 成像涉及频率对之间的密集耦合，计算和存储开销较高。Sum of coherent systems（SOCS）方法通过对 TCC 进行特征分解或低秩近似，将部分相干成像转化为多个相干本征核的加权求和，从而在保持物理模型解释性的同时降低在线计算复杂度 [12], [13], [16], [19]。因此，TCC-SOCS 已成为空中像计算中兼顾准确性和效率的重要技术路线。
 
-尽管 SOCS 显著降低了算法复杂度，其在线重构阶段仍包含重复的频域乘法、二维逆 FFT（2D IFFT）以及逐像素强度累加。这些操作具有规则性和数据并行性，但需要针对每个保留的 SOCS 本征核以及迭代 OPC/SMO 流程中的大量掩模窗口重复执行。CPU 具备较高灵活性，但能效有限；GPU 具备较高吞吐量，但通常功耗较高且延迟确定性不足。FPGA 则可通过定制流水线、确定性数据搬移和低功耗空间计算提供另一种设计选择。
+尽管 SOCS 显著降低了直接 TCC 计算的复杂度，离线分解之后的在线重构阶段仍是高频计算热点。对于每个 SOCS 本征核，在线重构都需要执行掩模频谱与本征核相乘、2D IFFT、模平方、特征值加权以及多核强度累加；这些操作会随本征核数量、掩模窗口数量和 OPC/SMO/ILT 迭代次数重复放大 [19]-[23]。已有工作从数值近似、对称性利用、GPU 加速和学习型模型等方向提升光刻仿真或掩模优化效率 [20], [22]-[30]。CPU 平台具有较高灵活性，但在规则频域运算下能效有限；GPU 在大批量吞吐场景中优势明显，但在小批量、低延迟、功耗受限或需要确定性执行的场景中，数据搬移和系统功耗仍可能带来约束。
 
-本文聚焦于离线 TCC 分解之后的在线 SOCS 空中像重构加速。本文提出一种 CPU-FPGA 协同架构：CPU 执行光学参数解析、TCC 矩阵构建、特征分解以及 SOCS 本征核生成；FPGA 加速高频调用的在线重构路径。本文的主要贡献如下：
+FPGA 为 TCC-SOCS 在线重构提供了 CPU/GPU 之外的补充方案。复数乘法、二维 IFFT、模平方和累加均具有规则数据通路和清晰依赖关系，适合映射为定制流水线；片上 BRAM 可缓存中间矩阵以减少 DDR 往返访问，多 AXI-MM 接口也可缓解掩模频谱、SOCS 本征核、权重和输出缓冲之间的带宽竞争。已有研究验证了 FPGA 在光刻空中像仿真和二维 FFT 加速中的潜力，并指出外部存储访问、行列转置、并行度和能效之间的权衡对 FFT 类硬件加速器至关重要 [31]-[38]。然而，现有计算光刻加速工作更多关注算法近似、CPU/GPU 实现、学习型 OPC/ILT 或非 TCC-SOCS 的 FPGA 光刻仿真；如何在有限 FPGA 资源下为 TCC-SOCS 在线空中像重构系统平衡延迟、带宽、资源和精度，仍缺少端到端架构设计和板级验证。
 
-1. 提出一种面向 TCC-SOCS 空中像重构的 CPU-FPGA 协同框架，将离线 TCC 分解与在线 FPGA 加速解耦。
-2. 基于 HLS FFT IP、块浮点缩放和 LUT 映射 FFT 乘法实现资源高效的二维 IFFT 数据通路，将 DSP 使用量从 8,064 个降低至 34 个。
-3. 设计多端口 DDR 与 BRAM 缓冲架构，通过 7 个 AXI-MM 接口降低存储竞争并提升数据搬移效率。
-4. 在 Kintex UltraScale+ FPGA 上通过 C 仿真、C/RTL 联合仿真和板级测试完成验证，并从精度、运行时间、资源利用率和能效等方面进行定量分析。
-
-本文其余部分组织如下：第 2 节介绍 TCC-SOCS 成像模型并定义加速问题；第 3 节给出所提出的 FPGA/HLS 架构；第 4 节报告实验结果，并讨论精度、性能、资源、能效和局限性；第 5 节总结全文。
+本文聚焦于离线 TCC 构建和 SOCS 本征核提取之后的在线重构阶段，而非加速完整 TCC 生成、特征分解、完整 OPC/SMO 系统或 Host-FPGA 全链路传输。本文提出一种 CPU-FPGA 协同架构：CPU 负责离线 TCC 构建、特征分解和 SOCS 本征核生成，FPGA 负责在线频域嵌入、128 x 128 二维 IFFT、加权累加、FFTshift 和结果写回。主要贡献包括：提出面向在线 TCC-SOCS 重构的协同计算框架；基于 HLS FFT IP、块浮点缩放和 LUT 映射乘法设计资源高效流水线；采用 7 个 AXI-MM 接口和 BRAM 缓冲优化存储访问；在 Kintex UltraScale+ xcku5p 上完成 C 仿真、C/RTL 联合仿真和板级验证。实验表明，10 核 SOCS 在线重构在 250 MHz 下延迟为 10.57 ms，相较 C++ SOCS 基准加速 3.37 倍，能效提升约 67.4 倍，C/RTL RMSE 为 $8.324 \times 10^{-7}$，板级 RMSE 为 $2.93 \times 10^{-8}$，资源占用为 17% LUT、9% FF、2% DSP 和 42% BRAM。本文其余部分组织如下：第 2 节介绍 TCC-SOCS 模型与所提出架构，第 3 节给出实验结果，第 4 节总结全文。
 
 ## 2. 原理与方法
 
@@ -257,15 +252,43 @@ FPGA 功耗估计约为 4 W，包括静态功耗和动态功耗。C++ CPU 基准
 
 
 
-## 参考文献(待补充更新)
+## 参考文献
 
-1. H. H. Hopkins, "On the diffraction theory of optical images," *Proceedings of the Royal Society of London. Series A. Mathematical and Physical Sciences*, vol. 217, no. 1130, pp. 408-432, 1953.
-2. C. Mack, *Fundamental Principles of Optical Lithography: The Science of Microfabrication*. Wiley, 2008.
-3. P. Yu and D. Z. Pan, "ELIAS: An accurate and extensible lithography aerial image simulator with improved numerical algorithms," *IEEE Transactions on Semiconductor Manufacturing*, vol. 22, no. 2, pp. 276-289, 2009.
-4. J. Cong and Y. Zou, "FPGA-based hardware acceleration of lithographic aerial image simulation," *ACM Transactions on Reconfigurable Technology and Systems*, vol. 2, no. 3, pp. 1-29, 2009.
-5. G. Chen, Z. Wang, B. Yu, et al., "Ultrafast source mask optimization via conditional discrete diffusion," *IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems*, vol. 43, no. 7, pp. 2140-2150, 2024.
-6. G. Chen, Z. Pei, H. Yang, et al., "Physics-informed optical kernel regression using complex-valued neural fields," in *Proceedings of the 60th ACM/IEEE Design Automation Conference*, 2023, pp. 1-6.
-7. H. Tanabe, A. Jinguji, and A. Takahashi, "Accelerating EUV lithography simulation with weakly guiding approximation and STCC formula," in *International Conference on Extreme Ultraviolet Lithography 2023*, SPIE, vol. 12750, pp. 115-122, 2023.
-8. Q. Jin, Q. Peng, Y. Liu, et al., "Recent advances in computational lithography technology," *Moore and More*, vol. 2, no. 1, pp. 1-18, 2025.
-9. NVIDIA, "TSMC and Synopsys Bring Breakthrough NVIDIA Computational Lithography Platform to Production," 2024.
-10. M. Lin, W. He, J. Liu, et al., "An Improved YOLOv5 Model for Lithographic Hotspot Detection," *Micromachines*, vol. 16, no. 5, 568, 2025.
+1. Y. Granik, "Fast pixel-based mask optimization for inverse lithography," 2006, doi: 10.1117/1.2399537.
+2. N. B. Cobb, A. Zakhor, and E. A. Miloslavsky, "Mathematical and CAD framework for proximity correction," 1996, doi: 10.1117/12.240907.
+3. N. Jia and E. Y. Lam, "Pixelated source mask optimization for process robustness in optical lithography," 2011, doi: 10.1364/OE.19.019384.
+4. Z. Li, L. Dong, X. Ma, and Y. Wei, "Fast source mask co-optimization method for high-NA EUV lithography," 2024, doi: 10.29026/OEA.2024.230235.
+5. Y. Shen, N. Wong, and E. Y. Lam, "Level-set-based inverse lithography for photomask synthesis," 2009, doi: 10.1364/OE.17.023690.
+6. D. S. Abrams and L. Pang, "Fast inverse lithography technology," 2006, doi: 10.1117/12.658876.
+7. L. Pang, Y. Liu, and D. Abrams, "Inverse Lithography Technology (ILT): what is the impact to the photomask industry?," 2006, doi: 10.1117/12.681857.
+8. J.-R. Gao, X. Xu, B. Yu, and D. Z. Pan, "MOSAIC: Mask optimizing solution with process window aware inverse correction," 2014, doi: 10.1145/2593069.2593163.
+9. B.-G. Kim et al., "Trade-off between inverse lithography mask complexity and lithographic performance," 2009, doi: 10.1117/12.824299.
+10. L. Pang, Y. Liu, and D. Abrams, "Inverse lithography technology (ILT): a natural solution for model-based SRAF at 45nm and 32nm," 2007, doi: 10.1117/12.729028.
+11. C.-Y. Hung et al., "Pushing the lithography limit: applying inverse lithography technology (ILT) at the 65nm generation," 2006, doi: 10.1117/12.655728.
+12. X. Ma and G. R. Arce, "Binary mask optimization for inverse lithography with partially coherent illumination," 2008, doi: 10.1364/JOSAA.25.002960.
+13. X. Ma and G. R. Arce, "PSM design for inverse lithography with partially coherent illumination," 2008, doi: 10.1364/OE.16.020126.
+14. M. Yeung, D. Lee, R. S. Lee, and A. R. Neureuther, "Extension of the Hopkins theory of partially coherent imaging to include thin-film interference effects," 1993, doi: 10.1117/12.150443.
+15. K. Adam, Y. Granik, A. Torres, and N. B. Cobb, "Improved modeling performance with an adapted vectorial formulation of the Hopkins imaging equation," 2003, doi: 10.1117/12.485357.
+16. P. Gong, S. Liu, W. Lv, and X. Zhou, "Fast aerial image simulations for partially coherent systems by transmission cross coefficient decomposition with analytical kernels," 2012, doi: 10.1116/1.4767442.
+17. R. Koehle, "Fast TCC algorithm for the model building of high NA lithography simulation," 2005, doi: 10.1117/12.599591.
+18. X. Wu, S. Liu, W. Liu, T. Zhou, and L. Wang, "Comparison of three TCC calculation algorithms for partially coherent imaging simulation," 2010, doi: 10.1117/12.885227.
+19. P. Yu and D. Z. Pan, "ELIAS: An Accurate and Extensible Lithography Aerial Image Simulator With Improved Numerical Algorithms," 2009, doi: 10.1109/TSM.2009.2017652.
+20. P. Yu, W. Qiu, and D. Z. Pan, "Fast Lithography Image Simulation By Exploiting Symmetries in Lithography Systems," 2008, doi: 10.1109/TSM.2008.2005380.
+21. D. A. Bernard, J. Li, J. C. Rey, K. Rouz, and V. Axelrad, "Efficient computational techniques for aerial imaging simulation," 1996, doi: 10.1117/12.240963.
+22. R. Rodrigues, A. Sreedhar, and S. Kundu, "Optical lithography simulation using wavelet transform," 2009, doi: 10.1109/ICCD.2009.5413120.
+23. X. Zheng, X. Ma, Q. Zhao, Y. Pan, and G. R. Arce, "Model-informed deep learning for computational lithography with partially coherent illumination," 2020, doi: 10.1364/OE.413721.
+24. I. Torunoglu et al., "OPC on a single desktop: a GPU-based OPC and verification tool for fabs and designers," 2010, doi: 10.1117/12.846636.
+25. Z. Yu, G. Chen, Y. Ma, and B. Yu, "A GPU-Enabled Level-Set Method for Mask Optimization," 2022, doi: 10.1109/TCAD.2022.3175939.
+26. H. Yang, S. Li, Z. Deng, Y. Ma, B. Yu, and E. F. Y. Young, "GAN-OPC: Mask Optimization With Lithography-Guided Generative Adversarial Nets," 2019, doi: 10.1109/TCAD.2019.2939329.
+27. W. Ye, M. B. Alawieh, Y. Lin, and D. Z. Pan, "LithoGAN," 2019, doi: 10.1145/3316781.3317852.
+28. B. Jiang, L. Liu, Y. Ma, B. Yu, and E. F. Y. Young, "Neural-ILT 2.0: Migrating ILT to Domain-Specific and Multitask-Enabled Neural Network," 2021, doi: 10.1109/TCAD.2021.3109556.
+29. G. Chen, W. Chen, Q. Sun, Y. Ma, H. Yang, and B. Yu, "DAMO: Deep Agile Mask Optimization for Full-Chip Scale," 2021, doi: 10.1109/TCAD.2021.3116511.
+30. H. Yang et al., "Generic lithography modeling with dual-band optics-inspired neural networks," 2022, doi: 10.1145/3489517.3530580.
+31. J. Cong and Y. Zou, "FPGA-Based Hardware Acceleration of Lithographic Aerial Image Simulation," 2009, doi: 10.1145/1575774.1575776.
+32. J. Cong and Y. Zou, "Lithographic aerial image simulation with FPGA-based hardware acceleration," 2008, doi: 10.1145/1344671.1344683.
+33. B. Akin, P. Milder, F. Franchetti, and J. C. Hoe, "Memory Bandwidth Efficient Two-Dimensional Fast Fourier Transform Algorithm and Implementation for Large Problem Sizes," 2012, doi: 10.1109/FCCM.2012.40.
+34. B. Akin, F. Franchetti, and J. C. Hoe, "Understanding the design space of DRAM-optimized hardware FFT accelerators," 2014, doi: 10.1109/ASAP.2014.6868669.
+35. R. Chen and V. K. Prasanna, "Energy optimizations for FPGA-based 2-D FFT architecture," 2014, doi: 10.1109/HPEC.2014.7040967.
+36. R. Chen, H. Le, and V. K. Prasanna, "Energy efficient parameterized FFT architecture," 2013, doi: 10.1109/FPL.2013.6645545.
+37. S. Choi, G. Govindu, J.-W. Jang, and V. K. Prasanna, "Energy-efficient and parameterized designs for fast Fourier transform on FPGAs," 2003, doi: 10.1109/ICASSP.2003.1202418.
+38. S.-N. Tang, C.-H. Liao, and T.-Y. Chang, "An Area- and Energy-Efficient Multimode FFT Processor for WPAN/WLAN/WMAN Systems," 2012, doi: 10.1109/JSSC.2012.2187406.
