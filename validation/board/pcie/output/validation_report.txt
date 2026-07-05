@@ -1,10 +1,12 @@
 PCIe board validation report
-Date: 2026-06-30
+Date: 2026-07-05
 
 Board detected:
-- 5e:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
-- XDMA driver loaded: xdma v2020.2.2
-- PCIe link: Gen3 x8
+- 01:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+- XDMA driver loaded: Xilinx XDMA Reference Driver v2020.2.2
+- Driver source: /root/xdma_test/dma_ip_drivers/XDMA/linux-kernel/xdma
+- PCIe link: Gen3 x2 reported by lspci on this host
+- Updated bitstream BAR detection: identify_bars: 2 BARs: config 1, user 0, bypass -1
 
 Golden configuration:
 - input/config/golden_1024.json
@@ -13,23 +15,41 @@ Golden configuration:
 
 Completed successfully:
 - Dry-run validation passed.
-- XDMA device nodes were present:
-  /dev/xdma0_h2c_0, /dev/xdma0_c2h_0, /dev/xdma0_control
-- PCIe DDR writes completed:
+- Correct XDMA character driver was rebuilt for kernel 6.8.0-124-generic.
+- XDMA device nodes were created:
+  /dev/xdma0_h2c_0, /dev/xdma0_c2h_0, /dev/xdma0_control, /dev/xdma0_user
+- PCIe validation scripts now cover:
+  - Golden/config compatibility checks.
+  - Non-overlap DDR layout checks.
+  - XDMA H2C writes and representative C2H DDR readback.
+  - HLS AXI-Lite register write/readback for control/control_r.
+  - Full output readback and RMSE/max-abs/max-rel comparison when HLS control is reachable.
+- PCIe DMA-only validation completed successfully:
   mskf_r 4.00 MiB @ 0x40000000
   mskf_i 4.00 MiB @ 0x40400000
   scales 40 B @ 0x40800000
   krn_r 11,560 B @ 0x40880000
   krn_i 11,560 B @ 0x40900000
   tmpImg_ddr/output clear writes @ 0x40980000/0x40990000
+- Representative C2H readback passed for all input and cleared output buffers.
+- Observed DMA-only H2C throughput: mskf_r 708.09 MiB/s, mskf_i 838.00 MiB/s.
+- Full PCIe board validation completed successfully:
+  - AXI-Lite control/control_r register configuration readback PASS.
+  - ap_ctrl before start: 0x00000004.
+  - ap_ctrl done: 0x0000000e.
+  - Output C2H throughput: 319.10 MiB/s for 64 KiB output.
+  - Output saved: validation/board/pcie/output/aerial_image_output.bin.
 
-Blocking issue:
-- HLS AXI-Lite control registers are not reachable through the current PCIe mapping.
-- /dev/xdma0_control is the XDMA config BAR, not an HLS user BAR.
-- dmesg reports: identify_bars: 1 BARs: config 0, user -1, bypass -1.
-- Reads/writes to 0x00000000 and 0x00010000 through XDMA H2C/C2H time out.
-- Because ap_ctrl and pointer/scalar registers cannot be configured, the HLS IP cannot be started from PCIe in the current bitstream/driver mapping.
+Comparison result:
+- Reference: output/verification/tmpImgp_full_128.bin.
+- RMSE: 2.9303560514e-08.
+- Max abs: 3.5762786865e-07.
+- Max rel: 2.6540381633e-06.
+- HLS range: [3.286132e-04, 3.803265e-01].
+- Reference range: [3.286132e-04, 3.803264e-01].
+- Result: PASS.
 
 Conclusion:
-- PCIe data transfer to DDR is working.
-- Full board validation against golden cannot complete until the bitstream exposes HLS AXI-Lite control to the host, either through XDMA M_AXI at the documented addresses or through a PCIe user BAR.
+- PCIe data transfer to DDR is verified on the real 01:00.0 board.
+- HLS AXI-Lite control/control_r is reachable through the updated PCIe mapping.
+- Full PCIe board validation against golden passed.

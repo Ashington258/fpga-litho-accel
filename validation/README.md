@@ -25,7 +25,7 @@ validation/
     │   ├── socs_hls_validation.tcl
     │   ├── bin_to_tcl_converter.py
     │   └── data/                # 验证数据文件
-    └── pcie/                    # 🔲 PCIe DMA 验证（待开发）
+    └── pcie/                    # PCIe XDMA 验证（高速板级验证）
 ```
 
 ---

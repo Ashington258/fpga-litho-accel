@@ -21,8 +21,10 @@ validation/board/
 │       ├── socs_data.tcl       # 小型数据（scales/kernels/tmpImgp）
 │       ├── socs_data_batch.tcl # 大型数据（mskf_r/i，分批）
 │       └── data_usage.tcl      # 数据使用说明
-└── pcie/                       # PCIe DMA 验证方式（待开发）
-    └── README.md               # PCIe 验证使用指南
+└── pcie/                       # PCIe XDMA 验证方式
+    ├── README.md               # PCIe 验证使用指南
+    ├── config/pcie_validation_config.json
+    └── scripts/python/         # XDMA 访问、数据加载、输出对比脚本
 ```
 
 ## 验证方式对比
@@ -30,7 +32,7 @@ validation/board/
 | 方式            | 适用场景             | 数据传输速度        | 开发状态 |
 | --------------- | -------------------- | ------------------- | -------- |
 | **JTAG-to-AXI** | 调试阶段、小规模验证 | 较慢（~30分钟/1MB） | ✅ 已完成 |
-| **PCIe DMA**    | 生产验证、大规模数据 | 快速（~秒级）       | 🔲 待开发 |
+| **PCIe DMA**    | 生产验证、大规模数据 | 快速（~秒级）       | ✅ 脚本完成，完整上板需 AXI-Lite 可达 |
 
 ## 快速开始
 
@@ -39,10 +41,20 @@ validation/board/
 1. 在 Vivado Hardware Manager 中连接 FPGA
 2. 参考 `jtag/README.md` 执行验证流程
 
-### PCIe 验证（待开发）
+### PCIe 验证
 
-- 预计通过 Xilinx DMA IP 实现高速数据传输
-- 需要开发 Host 驱动程序和 DMA 控制逻辑
+```bash
+# 无硬件检查 Golden 数据和地址布局
+validation/board/pcie/run.sh --config input/config/golden_1024.json --dry-run
+
+# 板卡主机上只验证 DMA/DDR 链路
+sudo validation/board/pcie/run.sh --config input/config/golden_1024.json --dma-only
+
+# 板卡主机上完整验证：写 DDR → 配置 HLS → 启动 → 回读 → 对比 Golden
+sudo validation/board/pcie/run.sh --config input/config/golden_1024.json
+```
+
+完整 PCIe 验证要求 XDMA `M_AXI` 或 user BAR 能访问 HLS `s_axi_control` (`0x00000000`) 和 `s_axi_control_r` (`0x00010000`)。
 
 ## 相关文档
 

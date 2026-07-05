@@ -21,7 +21,8 @@ DEFAULT_CONFIG_PATH = (
 class DevicePaths:
     h2c: str
     c2h: str
-    user: str
+    register: str
+    register_access: str
 
 
 @dataclass(frozen=True)
@@ -40,9 +41,12 @@ class AddressMap:
 @dataclass(frozen=True)
 class ValidationLimits:
     max_kernel_size: int
+    max_mask_floats: int
+    max_kernel_floats: int
     max_output_floats: int
     output_floats: int
     dma_chunk_bytes: int
+    ddr_readback_bytes: int
     poll_interval_seconds: float
     timeout_seconds: float
 
@@ -111,7 +115,8 @@ def load_pcie_config(path: Path = DEFAULT_CONFIG_PATH) -> PCIeValidationConfig:
         devices=DevicePaths(
             h2c=devices["h2c"],
             c2h=devices["c2h"],
-            user=devices["user"],
+            register=devices.get("register", devices.get("user", "")),
+            register_access=devices.get("register_access", "dma"),
         ),
         addresses=AddressMap(
             control=parse_int(addresses["control"]),
@@ -126,9 +131,12 @@ def load_pcie_config(path: Path = DEFAULT_CONFIG_PATH) -> PCIeValidationConfig:
         ),
         limits=ValidationLimits(
             max_kernel_size=parse_int(limits["max_kernel_size"]),
+            max_mask_floats=parse_int(limits.get("max_mask_floats", 1048576)),
+            max_kernel_floats=parse_int(limits.get("max_kernel_floats", 76832)),
             max_output_floats=parse_int(limits["max_output_floats"]),
             output_floats=parse_int(limits["output_floats"]),
             dma_chunk_bytes=parse_int(limits["dma_chunk_bytes"]),
+            ddr_readback_bytes=parse_int(limits.get("ddr_readback_bytes", 4096)),
             poll_interval_seconds=float(limits["poll_interval_seconds"]),
             timeout_seconds=float(limits["timeout_seconds"]),
         ),
@@ -298,6 +306,11 @@ def validate_golden_against_config(
         problems.append(
             f"kernel height {golden.meta.kernel_size_y} exceeds HLS limit {pcie_config.limits.max_kernel_size}"
         )
+    if golden.golden_output.size > pcie_config.limits.max_output_floats:
+        problems.append(
+            f"golden output length {golden.golden_output.size} exceeds HLS output limit "
+            f"{pcie_config.limits.max_output_floats}"
+        )
     if golden.golden_output.size != pcie_config.limits.output_floats:
         problems.append(
             f"golden output length {golden.golden_output.size} from "
@@ -307,6 +320,11 @@ def validate_golden_against_config(
         )
 
     expected_mask_floats = golden.meta.lx * golden.meta.ly
+    if expected_mask_floats > pcie_config.limits.max_mask_floats:
+        problems.append(
+            f"mask length Lx*Ly={expected_mask_floats} exceeds HLS AXI depth "
+            f"{pcie_config.limits.max_mask_floats}"
+        )
     if golden.mskf_r.size != expected_mask_floats:
         problems.append(
             f"mskf_r length {golden.mskf_r.size} != Lx*Ly {expected_mask_floats}"
@@ -319,6 +337,11 @@ def validate_golden_against_config(
     expected_kernel_floats = (
         golden.meta.kernel_count * golden.meta.kernel_size_x * golden.meta.kernel_size_y
     )
+    if expected_kernel_floats > pcie_config.limits.max_kernel_floats:
+        problems.append(
+            f"kernel bank length {expected_kernel_floats} exceeds HLS AXI depth "
+            f"{pcie_config.limits.max_kernel_floats}"
+        )
     if golden.krn_r.size != expected_kernel_floats:
         problems.append(
             f"krn_r length {golden.krn_r.size} != expected {expected_kernel_floats}"
@@ -331,3 +354,36 @@ def validate_golden_against_config(
     if problems:
         joined = "\n  - ".join(problems)
         raise ValueError(f"golden data is not compatible:\n  - {joined}")
+
+    validate_ddr_layout(golden, pcie_config)
+
+
+def validate_ddr_layout(golden: GoldenData, pcie_config: PCIeValidationConfig) -> None:
+    """Ensure configured DDR regions do not overlap for the loaded dataset."""
+
+    addresses = pcie_config.addresses
+    regions = [
+        ("mskf_r", addresses.mskf_r, golden.mskf_r.nbytes),
+        ("mskf_i", addresses.mskf_i, golden.mskf_i.nbytes),
+        ("scales", addresses.scales, golden.scales.nbytes),
+        ("krn_r", addresses.krn_r, golden.krn_r.nbytes),
+        ("krn_i", addresses.krn_i, golden.krn_i.nbytes),
+        ("tmpImg_ddr", addresses.tmpImg_ddr, pcie_config.limits.output_floats * 4),
+        ("output", addresses.output, pcie_config.limits.output_floats * 4),
+    ]
+    ordered = sorted(regions, key=lambda item: item[1])
+    problems: list[str] = []
+
+    for (name, start, size), (next_name, next_start, _next_size) in zip(
+        ordered, ordered[1:]
+    ):
+        end = start + size
+        if end > next_start:
+            problems.append(
+                f"{name} [0x{start:08x}, 0x{end:08x}) overlaps {next_name} "
+                f"@ 0x{next_start:08x}"
+            )
+
+    if problems:
+        joined = "\n  - ".join(problems)
+        raise ValueError(f"PCIe DDR layout overlaps:\n  - {joined}")

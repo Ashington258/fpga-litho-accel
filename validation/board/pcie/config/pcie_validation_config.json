@@ -4,7 +4,8 @@
   "devices": {
     "h2c": "/dev/xdma0_h2c_0",
     "c2h": "/dev/xdma0_c2h_0",
-    "user": ""
+    "register": "",
+    "register_access": "dma"
   },
   "address_map": {
     "control": "0x00000000",
@@ -19,9 +20,12 @@
   },
   "limits": {
     "max_kernel_size": 17,
+    "max_mask_floats": 1048576,
+    "max_kernel_floats": 76832,
     "max_output_floats": 16384,
     "output_floats": 16384,
     "dma_chunk_bytes": 4194304,
+    "ddr_readback_bytes": 4096,
     "poll_interval_seconds": 0.01,
     "timeout_seconds": 10.0
   },

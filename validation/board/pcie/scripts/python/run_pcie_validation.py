@@ -26,7 +26,7 @@ from pcie_config import (  # noqa: E402
     resolve_project_path,
     validate_golden_against_config,
 )
-from xdma import XDMADevice  # noqa: E402
+from xdma import XDMADevice, XDMAError  # noqa: E402
 
 
 CONTROL_REGS = {
@@ -47,6 +47,64 @@ CONTROL_R_REGS = {
     "tmpImg_ddr": 0x4C,
     "output": 0x58,
 }
+
+
+def write_checked_reg32(dev: XDMADevice, address: int, value: int, label: str) -> None:
+    """Write an AXI-Lite register and verify by immediate readback."""
+
+    expected = value & 0xFFFFFFFF
+    dev.write_reg32(address, expected)
+    actual = dev.read_reg32(address)
+    if actual != expected:
+        raise RuntimeError(
+            f"register readback mismatch for {label} @ 0x{address:08x}: "
+            f"wrote 0x{expected:08x}, read 0x{actual:08x}"
+        )
+
+
+def verify_float_array_readback(
+    dev: XDMADevice,
+    name: str,
+    address: int,
+    array: np.ndarray,
+    max_bytes: int,
+) -> None:
+    """Read back representative array chunks after DMA write."""
+
+    expected = np.ascontiguousarray(array, dtype=np.float32)
+    if expected.size == 0 or max_bytes <= 0:
+        return
+
+    sample_count = min(expected.size, max(1, max_bytes // np.dtype(np.float32).itemsize))
+    max_start = max(0, expected.size - sample_count)
+    starts = {0}
+
+    nonzero = np.flatnonzero(expected != 0.0)
+    if nonzero.size:
+        starts.add(min(int(nonzero[0]), max_start))
+        starts.add(min(int(nonzero[-1]), max_start))
+
+    for start in sorted(starts):
+        actual = dev.read_float_array(address + start * 4, sample_count)
+        ref = expected[start : start + sample_count]
+        if actual.size != ref.size:
+            raise RuntimeError(
+                f"{name} readback size mismatch at float offset {start}: "
+                f"actual={actual.size}, expected={ref.size}"
+            )
+        diff = np.abs(actual.astype(np.float64) - ref.astype(np.float64))
+        max_abs = float(np.max(diff)) if diff.size else 0.0
+        if max_abs != 0.0:
+            raise RuntimeError(
+                f"{name} DDR readback mismatch at float offset {start}: "
+                f"max_abs={max_abs:.10e}"
+            )
+
+    print(
+        f"[DMA C2H] {name:7s}: readback PASS "
+        f"({len(starts)} sample window(s), {sample_count} floats/window)",
+        flush=True,
+    )
 
 
 def generate_golden(config_path: Path, output_dir: Path, no_clean: bool) -> None:
@@ -70,6 +128,12 @@ def generate_golden(config_path: Path, output_dir: Path, no_clean: bool) -> None
 
 def print_layout(config: PCIeValidationConfig, golden: GoldenData) -> None:
     addresses = config.addresses
+    print("[DEVICE] XDMA access")
+    print(f"  h2c:             {config.devices.h2c}")
+    print(f"  c2h:             {config.devices.c2h}")
+    print(f"  register_access: {config.devices.register_access}")
+    print(f"  register:        {config.devices.register or '<via h2c/c2h DMA>'}")
+
     print("[LAYOUT] DDR regions")
     rows = [
         ("mskf_r", addresses.mskf_r, golden.mskf_r.nbytes),
@@ -111,7 +175,31 @@ def configure_hls(dev: XDMADevice, config: PCIeValidationConfig, golden: GoldenD
         "output": addresses.output,
     }
     for name, value in pointer_values.items():
-        dev.write_u64_split(ptr_base, CONTROL_R_REGS[name], value)
+        offset = CONTROL_R_REGS[name]
+        try:
+            write_checked_reg32(
+                dev,
+                ptr_base + offset,
+                value & 0xFFFFFFFF,
+                f"control_r.{name}.low",
+            )
+            write_checked_reg32(
+                dev,
+                ptr_base + offset + 4,
+                (value >> 32) & 0xFFFFFFFF,
+                f"control_r.{name}.high",
+            )
+        except (OSError, XDMAError) as exc:
+            raise RuntimeError(
+                "HLS AXI-Lite pointer register access failed. "
+                f"Register control_r.{name} is mapped at base 0x{ptr_base:08x}, "
+                f"offset 0x{offset:02x}; current register_access="
+                f"{config.devices.register_access!r}. If DDR DMA works but this "
+                "times out, the bitstream/PCIe BAR mapping does not expose "
+                "HLS s_axi_control_r to XDMA. Use --dma-only for data-path "
+                "validation or rebuild the Vivado BD so XDMA M_AXI/user BAR "
+                "can reach 0x00010000."
+            ) from exc
 
     scalar_values = {
         "nk": golden.meta.kernel_count,
@@ -121,10 +209,29 @@ def configure_hls(dev: XDMADevice, config: PCIeValidationConfig, golden: GoldenD
         "Ly": golden.meta.ly,
     }
     for name, value in scalar_values.items():
-        dev.write_reg32(base + CONTROL_REGS[name], value)
+        try:
+            write_checked_reg32(dev, base + CONTROL_REGS[name], value, f"control.{name}")
+        except (OSError, XDMAError) as exc:
+            raise RuntimeError(
+                "HLS AXI-Lite scalar register access failed. "
+                f"Register control.{name} is mapped at base 0x{base:08x}, "
+                f"offset 0x{CONTROL_REGS[name]:02x}; current register_access="
+                f"{config.devices.register_access!r}. If DDR DMA works but this "
+                "times out, the bitstream/PCIe BAR mapping does not expose "
+                "HLS s_axi_control to XDMA. Use --dma-only for data-path "
+                "validation or rebuild the Vivado BD so XDMA M_AXI/user BAR "
+                "can reach 0x00000000."
+            ) from exc
+
+    print("[HLS] AXI-Lite register configuration readback PASS", flush=True)
 
 
-def write_inputs(dev: XDMADevice, config: PCIeValidationConfig, golden: GoldenData) -> None:
+def write_inputs(
+    dev: XDMADevice,
+    config: PCIeValidationConfig,
+    golden: GoldenData,
+    verify_readback: bool,
+) -> None:
     addresses = config.addresses
     transfers = [
         ("mskf_r", addresses.mskf_r, golden.mskf_r),
@@ -141,11 +248,34 @@ def write_inputs(dev: XDMADevice, config: PCIeValidationConfig, golden: GoldenDa
         mib = array.nbytes / (1024 * 1024)
         rate = mib / elapsed if elapsed > 0 else 0.0
         print(f"[DMA H2C] {name:7s}: {mib:7.2f} MiB in {elapsed:.3f}s ({rate:.2f} MiB/s)", flush=True)
+        if verify_readback:
+            verify_float_array_readback(
+                dev,
+                name,
+                address,
+                array,
+                config.limits.ddr_readback_bytes,
+            )
 
     zero = np.zeros(config.limits.output_floats, dtype=np.float32)
     print("[DMA H2C] tmp/output: clearing output buffers", flush=True)
     dev.write_float_array(addresses.tmpImg_ddr, zero)
     dev.write_float_array(addresses.output, zero)
+    if verify_readback:
+        verify_float_array_readback(
+            dev,
+            "tmpImg",
+            addresses.tmpImg_ddr,
+            zero,
+            config.limits.ddr_readback_bytes,
+        )
+        verify_float_array_readback(
+            dev,
+            "output",
+            addresses.output,
+            zero,
+            config.limits.ddr_readback_bytes,
+        )
 
 
 def start_and_wait(dev: XDMADevice, config: PCIeValidationConfig) -> int:
@@ -235,17 +365,25 @@ def run_validation(args: argparse.Namespace) -> int:
     device_paths = [
         pcie_config.devices.h2c,
         pcie_config.devices.c2h,
-        pcie_config.devices.user,
     ]
+    if pcie_config.devices.register_access in {"user", "control"}:
+        device_paths.append(pcie_config.devices.register)
     XDMADevice.ensure_devices_exist(device_paths)
 
     with XDMADevice(
         h2c_path=pcie_config.devices.h2c,
         c2h_path=pcie_config.devices.c2h,
-        user_path=pcie_config.devices.user,
+        register_path=pcie_config.devices.register,
+        register_access=pcie_config.devices.register_access,
         chunk_bytes=pcie_config.limits.dma_chunk_bytes,
     ) as dev:
-        write_inputs(dev, pcie_config, golden)
+        write_inputs(dev, pcie_config, golden, not args.skip_ddr_readback)
+        if args.dma_only:
+            print(
+                "[DMA-ONLY] Input DMA and DDR readback completed; "
+                "HLS AXI-Lite start was skipped."
+            )
+            return 0
         configure_hls(dev, pcie_config, golden)
         start_and_wait(dev, pcie_config)
         hls_output = read_output(dev, pcie_config)
@@ -293,6 +431,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run",
         action="store_true",
         help="Validate files and layout without accessing XDMA devices",
+    )
+    parser.add_argument(
+        "--dma-only",
+        action="store_true",
+        help="Write/readback DDR via XDMA but skip HLS AXI-Lite configuration and execution",
+    )
+    parser.add_argument(
+        "--skip-ddr-readback",
+        action="store_true",
+        help="Skip representative DDR readback checks after each DMA write",
     )
     return parser
 
