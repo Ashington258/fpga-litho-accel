@@ -1,2 +1,2 @@
-*
-!.gitignore
+# Keep generated full-platform validation outputs under version control.
+!*
