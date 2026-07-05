@@ -1,0 +1,35 @@
+PCIe board validation report
+Date: 2026-06-30
+
+Board detected:
+- 5e:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:9038]
+- XDMA driver loaded: xdma v2020.2.2
+- PCIe link: Gen3 x8
+
+Golden configuration:
+- input/config/golden_1024.json
+- Lx=1024, Ly=1024, Nx=8, Ny=8, nk=10
+- Expected output: 128x128 float32, compared against output/verification/tmpImgp_full_128.bin
+
+Completed successfully:
+- Dry-run validation passed.
+- XDMA device nodes were present:
+  /dev/xdma0_h2c_0, /dev/xdma0_c2h_0, /dev/xdma0_control
+- PCIe DDR writes completed:
+  mskf_r 4.00 MiB @ 0x40000000
+  mskf_i 4.00 MiB @ 0x40400000
+  scales 40 B @ 0x40800000
+  krn_r 11,560 B @ 0x40880000
+  krn_i 11,560 B @ 0x40900000
+  tmpImg_ddr/output clear writes @ 0x40980000/0x40990000
+
+Blocking issue:
+- HLS AXI-Lite control registers are not reachable through the current PCIe mapping.
+- /dev/xdma0_control is the XDMA config BAR, not an HLS user BAR.
+- dmesg reports: identify_bars: 1 BARs: config 0, user -1, bypass -1.
+- Reads/writes to 0x00000000 and 0x00010000 through XDMA H2C/C2H time out.
+- Because ap_ctrl and pointer/scalar registers cannot be configured, the HLS IP cannot be started from PCIe in the current bitstream/driver mapping.
+
+Conclusion:
+- PCIe data transfer to DDR is working.
+- Full board validation against golden cannot complete until the bitstream exposes HLS AXI-Lite control to the host, either through XDMA M_AXI at the documented addresses or through a PCIe user BAR.
