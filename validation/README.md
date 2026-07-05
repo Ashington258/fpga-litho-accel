@@ -35,7 +35,7 @@ validation/
 | 流程                | 目录      | 目的                           | 输出                                       | 适用阶段           |
 | ------------------- | --------- | ------------------------------ | ------------------------------------------ | ------------------ |
 | **Golden 数据生成** | `golden/` | 验证算法正确性，生成参考数据   | BIN 格式参考数据（`output/verification/`） | HLS C 仿真、Co-Sim |
-| **板级验证**        | `board/`  | 验证 HLS IP 在真实硬件上的行为 | 硬件运行结果（通过 JTAG 读取）             | FPGA 板级测试      |
+| **板级验证**        | `board/`  | 验证 HLS IP 在真实硬件上的行为 | 硬件运行结果与性能/精度报告               | FPGA 板级测试      |
 
 ---
 
@@ -84,6 +84,23 @@ source socs_hls_validation.tcl
 
 **详细操作**：参见 [`board/jtag/README.md`](board/jtag/README.md)
 
+### 3. Host 全平台验证
+
+**用途**：完成从 JSON 配置到 FPGA 计算、主机侧 FI 空中像恢复、Golden 模型对比的端到端验证。该流程属于 Host 运行流程，位于 `source/host/full_platform/`。
+
+```bash
+source/host/full_platform/run.sh --config input/config/golden_1024.json
+```
+
+脚本会记录每个阶段耗时和数据量，并输出：
+
+- `source/host/full_platform/output/timing.csv`
+- `source/host/full_platform/output/metrics.csv`
+- `source/host/full_platform/output/full_platform_report.md`
+- `source/host/full_platform/output/*.png`
+
+**详细操作**：参见 [`../source/host/full_platform/README.md`](../source/host/full_platform/README.md)
+
 ---
 
 ## 数据流向示意
@@ -111,7 +128,13 @@ source socs_hls_validation.tcl
                                        ▼
                             ┌──────────────────────┐
                             │  FPGA Hardware       │
-                            │  (JTAG-to-AXI)       │
+                            │  (JTAG / PCIe XDMA)  │
+                            └──────────────────────┘
+                                       │
+                                       ▼
+                            ┌──────────────────────┐
+                            │ Host FI + Golden比对 │
+                            │ timing/metrics/report│
                             └──────────────────────┘
 ```
 

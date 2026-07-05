@@ -21,7 +21,7 @@ validation/board/
 │       ├── socs_data.tcl       # 小型数据（scales/kernels/tmpImgp）
 │       ├── socs_data_batch.tcl # 大型数据（mskf_r/i，分批）
 │       └── data_usage.tcl      # 数据使用说明
-└── pcie/                       # PCIe XDMA 验证方式
+└── pcie/                       # PCIe XDMA 基础验证方式
     ├── README.md               # PCIe 验证使用指南
     ├── config/pcie_validation_config.json
     └── scripts/python/         # XDMA 访问、数据加载、输出对比脚本
@@ -32,7 +32,8 @@ validation/board/
 | 方式            | 适用场景             | 数据传输速度        | 开发状态 |
 | --------------- | -------------------- | ------------------- | -------- |
 | **JTAG-to-AXI** | 调试阶段、小规模验证 | 较慢（~30分钟/1MB） | ✅ 已完成 |
-| **PCIe DMA**    | 生产验证、大规模数据 | 快速（~秒级）       | ✅ 脚本完成，完整上板需 AXI-Lite 可达 |
+| **PCIe DMA**    | 生产验证、大规模数据 | 快速（~秒级）       | ✅ 已完成 |
+| **Host Full Platform** | 系统级验收、论文数据 | 快速（含Host FI） | ✅ 已完成，位于 `source/host/full_platform/` |
 
 ## 快速开始
 
@@ -55,6 +56,23 @@ sudo validation/board/pcie/run.sh --config input/config/golden_1024.json
 ```
 
 完整 PCIe 验证要求 XDMA `M_AXI` 或 user BAR 能访问 HLS `s_axi_control` (`0x00000000`) 和 `s_axi_control_r` (`0x00010000`)。
+
+### Host 全平台验证（PCIe → FPGA → Host FI → Golden）
+
+该流程包含 Host 侧 FI、报告和可视化，位置已调整到 `source/host/full_platform/`。
+
+```bash
+# 只检查配置和布局
+source/host/full_platform/run.sh --config input/config/golden_1024.json --dry-run
+
+# 完整系统验证：推送数据 → FPGA计算 → 回读tmpImgp → Host FI → 对比Golden
+source/host/full_platform/run.sh --config input/config/golden_1024.json
+
+# 切换不同mask/source/config
+source/host/full_platform/run.sh --config input/config/Different_mask_tests/config_T1.json --generate-golden
+```
+
+输出包含：`timing.csv`、`metrics.csv`、`summary.json`、`full_platform_report.md` 和 matplotlib PNG 可视化。
 
 ## 相关文档
 

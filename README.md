@@ -39,7 +39,7 @@ FPGA-Litho/
 │   │   └── debug_nan_source.py # NaN 问题调试工具
 │   └── board/                  # 板级验证（硬件功能验证）
 │       ├── jtag/               # JTAG-to-AXI 验证脚本
-│       ├── pcie/               # PCIe 验证（待开发）
+│       ├── pcie/               # PCIe XDMA 验证
 │       ├── common/             # AXI 内存测试工具
 │       └── scripts/            # 辅助脚本
 │
@@ -53,7 +53,8 @@ FPGA-Litho/
 │   │   ├── vivado_bd/          # Vivado Block Design 引用
 │   │   └── versions/           # 版本迭代记录
 │   ├── TCC_HLS/                # TCC HLS IP 开发（独立模块）
-│   └── host/                   # 主机端程序（驱动、文件 IO）
+│   └── host/                   # 主机端程序（驱动、文件 IO、全平台流程）
+│       └── full_platform/      # PCIe→FPGA→Host FI→Golden 系统验证
 │
 ├── input/                      # 【输入数据】配置与 Mask 数据
 │   ├── config/                 # 光学参数配置（JSON）
@@ -90,7 +91,8 @@ FPGA-Litho/
 | ------------- | -------------- | --------------------------- | --------------------------- | --------------------------- |
 | `golden/`     | 算法正确性验证 | `input/config/*.json`       | `output/verification/*.bin` | HLS C 仿真、Co-Sim 对比基准 |
 | `board/jtag/` | JTAG 硬件验证  | `output/verification/*.bin` | FPGA 寄存器值               | 板级功能验证                |
-| `board/pcie/` | PCIe 高速验证  | （待开发）                  | （待开发）                  | 大数据量验证                |
+| `board/pcie/` | PCIe 高速验证  | `output/verification/*.bin` | `validation/board/pcie/output/*.bin` | 大数据量验证                |
+| `source/host/full_platform/` | 全平台验证 | `input/config/*.json` | `timing.csv`, `metrics.csv`, `full_platform_report.md`, PNG可视化 | 系统级验收与性能/精度统计 |
 
 **使用方式**：
 ```bash
