@@ -532,6 +532,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--generate-golden", action="store_true")
     parser.add_argument("--no-clean", action="store_true")
     parser.add_argument("--skip-ddr-readback", action="store_true")
+    parser.add_argument(
+        "--tmpimgp-only",
+        action="store_true",
+        help="Only validate the FPGA 128x128 tmpImgp output; skip host FI and full 1024x1024 comparisons",
+    )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Fast iteration mode: skip DDR readback, visualization, host FI, and full aerial comparisons",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--reuse-fpga-output", default=None, help="Use existing tmpImgp bin instead of accessing FPGA")
     parser.add_argument("--rmse-threshold", type=float, default=1e-5)
@@ -542,6 +552,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+    if args.fast:
+        args.skip_ddr_readback = True
+        args.no_visualize = True
+        args.tmpimgp_only = True
+
     timeline = Timeline()
 
     config_path = resolve_project_path(args.config)
@@ -587,6 +602,61 @@ def main() -> int:
         timeline.add("save_fpga_tmpimgp", time.perf_counter() - start, path=str(tmpimgp_path), bytes=int(fpga_tmpimgp.nbytes))
 
         fpga_tmpimgp_2d = fpga_tmpimgp.reshape(tmpimgp_shape)
+
+        if args.tmpimgp_only:
+            golden_tmpimgp = golden.golden_output.reshape(tmpimgp_shape)
+            start = time.perf_counter()
+            metrics = {
+                "tmpImgp_vs_golden": compute_metrics(
+                    fpga_tmpimgp_2d,
+                    golden_tmpimgp,
+                    args.rmse_threshold,
+                    args.max_abs_threshold,
+                    args.max_rel_threshold,
+                ),
+            }
+            timeline.add("compare_tmpimgp_only", time.perf_counter() - start)
+
+            metrics_csv = output_dir / "metrics.csv"
+            timing_csv = output_dir / "timing.csv"
+            report_path = output_dir / "full_platform_report.md"
+            summary_json = output_dir / "summary.json"
+            save_metrics_csv(metrics_csv, metrics)
+            save_timing_csv(timing_csv, timeline)
+            output_paths = {
+                "fpga_tmpimgp": tmpimgp_path,
+                "metrics_csv": metrics_csv,
+                "timing_csv": timing_csv,
+                "report": report_path,
+            }
+            write_report(report_path, args, timeline, metrics, output_paths, golden, tmpimgp_shape)
+            summary_json.write_text(
+                json.dumps(
+                    {
+                        "config": args.config,
+                        "mode": "fast" if args.fast else "tmpimgp-only",
+                        "golden_output_dir": str(golden.output_dir),
+                        "steps": [asdict(step) for step in timeline.steps],
+                        "metrics": {key: asdict(value) for key, value in metrics.items()},
+                        "outputs": {key: str(value) for key, value in output_paths.items()},
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            print("\n[SUMMARY]")
+            for key, value in metrics.items():
+                print(
+                    f"  {key}: {'PASS' if value.passed else 'FAIL'} "
+                    f"RMSE={value.rmse:.10e}, MaxAbs={value.max_abs:.10e}, MaxRel={value.max_rel:.10e}"
+                )
+            print(f"  Mode: {'fast' if args.fast else 'tmpimgp-only'}")
+            print(f"  Report: {report_path}")
+            print(f"  Timing: {timing_csv}")
+            print(f"  Metrics: {metrics_csv}")
+            return 0 if metrics["tmpImgp_vs_golden"].passed else 2
 
         start = time.perf_counter()
         fpga_aerial = fourier_interpolation(fpga_tmpimgp_2d, golden.meta.lx, golden.meta.ly)

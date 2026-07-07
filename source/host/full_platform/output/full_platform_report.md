@@ -12,26 +12,17 @@
 
 | Step | Status | Time (s) | Details |
 | --- | --- | ---: | --- |
-| load_json_config | PASS | 0.000079 | `{}` |
-| load_golden_data | PASS | 0.003965 | `{}` |
-| pcie_h2c_write_mskf_r | PASS | 0.005846 | `{"address": "0x40000000", "bytes": 4194304, "mib_per_second": 684.2019644818095}` |
-| pcie_h2c_write_mskf_i | PASS | 0.006412 | `{"address": "0x40400000", "bytes": 4194304, "mib_per_second": 623.7986027093111}` |
-| pcie_h2c_write_scales | PASS | 0.000071 | `{"address": "0x40800000", "bytes": 40, "mib_per_second": 0.5373191169563368}` |
-| pcie_h2c_write_krn_r | PASS | 0.000066 | `{"address": "0x40880000", "bytes": 11560, "mib_per_second": 166.02625774677165}` |
-| pcie_h2c_write_krn_i | PASS | 0.000050 | `{"address": "0x40900000", "bytes": 11560, "mib_per_second": 219.0916874150766}` |
-| pcie_h2c_clear_tmpImg_ddr | PASS | 0.000118 | `{"address": "0x40980000", "bytes": 65536}` |
-| pcie_h2c_clear_output | PASS | 0.000080 | `{"address": "0x40990000", "bytes": 65536}` |
-| hls_configure_axilite | PASS | 0.000772 | `{}` |
-| fpga_compute | PASS | 0.020726 | `{"ap_ctrl": "0x0000000e"}` |
-| pcie_c2h_read_tmpimgp | PASS | 0.000359 | `{"bytes": 65536}` |
-| save_fpga_tmpimgp | PASS | 0.000563 | `{"bytes": 65536, "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_tmpimgp_full_128.bin"}` |
-| host_fi_inverse_aerial | PASS | 0.033450 | `{"input_shape": [128, 128], "output_shape": [1024, 1024]}` |
-| save_host_fi_aerial | PASS | 0.003018 | `{"bytes": 4194304, "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_aerial_fi.bin"}` |
-| load_golden_socs_aerial | PASS | 0.000918 | `{}` |
-| load_golden_tcc_aerial | PASS | 0.000923 | `{}` |
-| compare_against_golden | PASS | 0.086550 | `{}` |
+| load_json_config | PASS | 0.000084 | `{}` |
+| load_golden_data | PASS | 0.004019 | `{}` |
+| load_reused_fpga_tmpimgp | PASS | 0.000066 | `{"path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_tmpimgp_full_128.bin"}` |
+| save_fpga_tmpimgp | PASS | 0.000211 | `{"bytes": 65536, "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_tmpimgp_full_128.bin"}` |
+| host_fi_inverse_aerial | PASS | 0.031004 | `{"input_shape": [128, 128], "output_shape": [1024, 1024]}` |
+| save_host_fi_aerial | PASS | 0.002949 | `{"bytes": 4194304, "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_aerial_fi.bin"}` |
+| load_golden_socs_aerial | PASS | 0.000843 | `{}` |
+| load_golden_tcc_aerial | PASS | 0.000894 | `{}` |
+| compare_against_golden | PASS | 0.086230 | `{}` |
 
-Total measured time: `0.163968s`
+Total measured time: `0.126301s`
 
 ## 对比结果
 
@@ -48,5 +39,3 @@ Total measured time: `0.163968s`
 - metrics_csv: `source/host/full_platform/output/metrics.csv`
 - timing_csv: `source/host/full_platform/output/timing.csv`
 - report: `source/host/full_platform/output/full_platform_report.md`
-- tmpimgp_visual: `source/host/full_platform/output/tmpimgp_comparison.png`
-- aerial_visual: `source/host/full_platform/output/aerial_comparison.png`

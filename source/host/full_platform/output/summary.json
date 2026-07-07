@@ -4,109 +4,27 @@
   "steps": [
     {
       "name": "load_json_config",
-      "elapsed_seconds": 7.873099821154028e-05,
+      "elapsed_seconds": 8.432799995716778e-05,
       "status": "PASS",
       "details": {}
     },
     {
       "name": "load_golden_data",
-      "elapsed_seconds": 0.003965135998441838,
+      "elapsed_seconds": 0.0040191719999711495,
       "status": "PASS",
       "details": {}
     },
     {
-      "name": "pcie_h2c_write_mskf_r",
-      "elapsed_seconds": 0.005846227002621163,
+      "name": "load_reused_fpga_tmpimgp",
+      "elapsed_seconds": 6.593099999463448e-05,
       "status": "PASS",
       "details": {
-        "bytes": 4194304,
-        "address": "0x40000000",
-        "mib_per_second": 684.2019644818095
-      }
-    },
-    {
-      "name": "pcie_h2c_write_mskf_i",
-      "elapsed_seconds": 0.006412326001736801,
-      "status": "PASS",
-      "details": {
-        "bytes": 4194304,
-        "address": "0x40400000",
-        "mib_per_second": 623.7986027093111
-      }
-    },
-    {
-      "name": "pcie_h2c_write_scales",
-      "elapsed_seconds": 7.099500362528488e-05,
-      "status": "PASS",
-      "details": {
-        "bytes": 40,
-        "address": "0x40800000",
-        "mib_per_second": 0.5373191169563368
-      }
-    },
-    {
-      "name": "pcie_h2c_write_krn_r",
-      "elapsed_seconds": 6.640199717367068e-05,
-      "status": "PASS",
-      "details": {
-        "bytes": 11560,
-        "address": "0x40880000",
-        "mib_per_second": 166.02625774677165
-      }
-    },
-    {
-      "name": "pcie_h2c_write_krn_i",
-      "elapsed_seconds": 5.031900218455121e-05,
-      "status": "PASS",
-      "details": {
-        "bytes": 11560,
-        "address": "0x40900000",
-        "mib_per_second": 219.0916874150766
-      }
-    },
-    {
-      "name": "pcie_h2c_clear_tmpImg_ddr",
-      "elapsed_seconds": 0.00011762700160034001,
-      "status": "PASS",
-      "details": {
-        "bytes": 65536,
-        "address": "0x40980000"
-      }
-    },
-    {
-      "name": "pcie_h2c_clear_output",
-      "elapsed_seconds": 8.04029987193644e-05,
-      "status": "PASS",
-      "details": {
-        "bytes": 65536,
-        "address": "0x40990000"
-      }
-    },
-    {
-      "name": "hls_configure_axilite",
-      "elapsed_seconds": 0.0007719940040260553,
-      "status": "PASS",
-      "details": {}
-    },
-    {
-      "name": "fpga_compute",
-      "elapsed_seconds": 0.02072627000598004,
-      "status": "PASS",
-      "details": {
-        "ap_ctrl": "0x0000000e"
-      }
-    },
-    {
-      "name": "pcie_c2h_read_tmpimgp",
-      "elapsed_seconds": 0.0003587160026654601,
-      "status": "PASS",
-      "details": {
-        "bytes": 65536
+        "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_tmpimgp_full_128.bin"
       }
     },
     {
       "name": "save_fpga_tmpimgp",
-      "elapsed_seconds": 0.0005633330001728609,
+      "elapsed_seconds": 0.00021097700005157094,
       "status": "PASS",
       "details": {
         "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_tmpimgp_full_128.bin",
@@ -115,7 +33,7 @@
     },
     {
       "name": "host_fi_inverse_aerial",
-      "elapsed_seconds": 0.03345047699986026,
+      "elapsed_seconds": 0.031004424000002473,
       "status": "PASS",
       "details": {
         "input_shape": [
@@ -130,7 +48,7 @@
     },
     {
       "name": "save_host_fi_aerial",
-      "elapsed_seconds": 0.0030178219967638142,
+      "elapsed_seconds": 0.0029490180000948385,
       "status": "PASS",
       "details": {
         "path": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_aerial_fi.bin",
@@ -139,19 +57,19 @@
     },
     {
       "name": "load_golden_socs_aerial",
-      "elapsed_seconds": 0.0009180859997286461,
+      "elapsed_seconds": 0.0008429380000052333,
       "status": "PASS",
       "details": {}
     },
     {
       "name": "load_golden_tcc_aerial",
-      "elapsed_seconds": 0.0009233309974661097,
+      "elapsed_seconds": 0.0008942570000272099,
       "status": "PASS",
       "details": {}
     },
     {
       "name": "compare_against_golden",
-      "elapsed_seconds": 0.086550226995314,
+      "elapsed_seconds": 0.08622975600007976,
       "status": "PASS",
       "details": {}
     }
@@ -211,8 +129,6 @@
     "host_fi_aerial": "/root/project/fpga-litho-accel/source/host/full_platform/output/fpga_aerial_fi.bin",
     "metrics_csv": "/root/project/fpga-litho-accel/source/host/full_platform/output/metrics.csv",
     "timing_csv": "/root/project/fpga-litho-accel/source/host/full_platform/output/timing.csv",
-    "report": "/root/project/fpga-litho-accel/source/host/full_platform/output/full_platform_report.md",
-    "tmpimgp_visual": "/root/project/fpga-litho-accel/source/host/full_platform/output/tmpimgp_comparison.png",
-    "aerial_visual": "/root/project/fpga-litho-accel/source/host/full_platform/output/aerial_comparison.png"
+    "report": "/root/project/fpga-litho-accel/source/host/full_platform/output/full_platform_report.md"
   }
 }
