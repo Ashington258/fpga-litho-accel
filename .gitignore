@@ -289,9 +289,13 @@ output/verification/png/
 !output/**/*.png
 !output/**/*.jpg
 !output/**/*.jpeg
-!doc/论文/*.png
-!doc/论文/*.jpg
-!doc/论文/*.jpeg
+!doc/image/**/*.png
+!doc/image/**/*.jpg
+!doc/image/**/*.jpeg
+!doc/image/**/*.gif
+!doc/image/**/*.svg
+!doc/image/**/*.webp
+!doc/image/**/*.bmp
 
 # 临时二进制文件（Phase 5+可提交golden数据）
 # golden/*.bin 在Phase 1-4需要保留
