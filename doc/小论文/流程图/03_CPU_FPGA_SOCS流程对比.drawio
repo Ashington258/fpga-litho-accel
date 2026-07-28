@@ -1,0 +1,229 @@
+<mxfile host="65bd71144e">
+    <diagram id="cpu-fpga-socs" name="CPU-FPGA SOCS Flow">
+        <mxGraphModel dx="1433" dy="993" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1820" pageHeight="1020" math="1" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="&lt;b&gt;Conventional CPU-SOCS versus the Proposed CPU-FPGA Collaborative Reconstruction Flow&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=0;fontFamily=Helvetica;fontSize=24;fontColor=#111827;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="15" width="1740" height="42" as="geometry"/>
+                </mxCell>
+                <mxCell id="subtitle" value="Same SOCS model, identical inputs, 10 coherent kernels, and consistent output definition" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=13;fontColor=#4B5563;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="55" width="1340" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-band" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#9CA3AF;strokeWidth=1.5;dashed=1;dashPattern=6 4;" parent="1" vertex="1">
+                    <mxGeometry x="95" y="92" width="1630" height="145" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-title" value="&lt;b&gt;Offline optical preprocessing on Host CPU&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#6B7280&quot;&gt;Updated only when the optical configuration changes&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=14;fontColor=#374151;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="102" width="380" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-config" value="&lt;b&gt;Optical configuration&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#6B7280&quot;&gt;source, pupil, aberration&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6B7280;strokeWidth=1.4;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="190" y="158" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-tcc" value="&lt;b&gt;TCC construction&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#6B7280&quot;&gt;289 × 289 Hermitian matrix&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6B7280;strokeWidth=1.4;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="515" y="158" width="210" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-eigen" value="&lt;b&gt;Eigenvalue decomposition&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#6B7280&quot;&gt;low-rank SOCS approximation&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6B7280;strokeWidth=1.4;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="840" y="158" width="230" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-data" value="&lt;b&gt;SOCS kernel library&lt;/b&gt;&lt;br&gt;Φ&lt;sub&gt;k&lt;/sub&gt; (17 × 17) and weights σ&lt;sub&gt;k&lt;/sub&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EDF4FB;strokeColor=#3B6E9F;strokeWidth=1.6;fontFamily=Helvetica;fontSize=13;fontColor=#17324D;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1190" y="153" width="250" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="offline-reuse" value="&lt;b&gt;Reusable across mask windows&lt;/b&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3B6E9F;strokeWidth=1.2;dashed=1;fontFamily=Helvetica;fontSize=12;fontColor=#315D86;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1490" y="168" width="195" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="off-e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6B7280;strokeWidth=1.5;" parent="1" source="offline-config" target="offline-tcc" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="off-e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6B7280;strokeWidth=1.5;" parent="1" source="offline-tcc" target="offline-eigen" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="off-e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6B7280;strokeWidth=1.5;" parent="1" source="offline-eigen" target="offline-data" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="off-e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeColor=#3B6E9F;strokeWidth=1.3;dashed=1;" parent="1" source="offline-data" target="offline-reuse" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-lane" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F7F8FA;strokeColor=#6B7280;strokeWidth=1.6;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="270" width="1740" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-title" value="&lt;b&gt;Conventional CPU-SOCS Flow&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#6B7280&quot;&gt;Per-kernel software loop with repeated memory accesses&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=17;fontColor=#1F2937;" parent="1" vertex="1">
+                    <mxGeometry x="65" y="282" width="480" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-a" value="&lt;b&gt;(a) Input mask&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B5563;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="105" y="350" width="185" height="145" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-mask-bg" value="" style="rounded=0;fillColor=#FFFFFF;strokeColor=#9CA3AF;strokeWidth=1;" parent="1" vertex="1">
+                    <mxGeometry x="142" y="382" width="110" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-mask-r1" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="155" y="393" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-mask-r2" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="201" y="393" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-mask-r3" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="178" y="416" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-mask-r4" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="155" y="439" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-mask-r5" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="201" y="439" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-a-size" value="1024 × 1024" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#6B7280;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="466" width="135" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-b" value="&lt;b&gt;(b) Frequency inputs&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#315D86&quot;&gt;Mask spectrum M&lt;/font&gt;&lt;br&gt;Φ&lt;sub&gt;k&lt;/sub&gt; kernel library&lt;br&gt;σ&lt;sub&gt;k&lt;/sub&gt; eigenvalue weights" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B5563;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="405" y="350" width="205" height="145" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-b-dot1" value="" style="ellipse;fillColor=#F2C94C;strokeColor=#D39E00;" parent="1" vertex="1">
+                    <mxGeometry x="98" y="92" width="22" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-b-dot2" value="" style="ellipse;fillColor=#2F80ED;strokeColor=#1F5EA8;" parent="1" vertex="1">
+                    <mxGeometry x="43" y="570" width="22" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-b-dot3" value="" style="ellipse;fillColor=#56CCF2;strokeColor=#2D9CDB;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="270" width="22" height="22" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-c" value="&lt;b&gt;(c) Per-kernel CPU reconstruction&lt;/b&gt;&lt;br&gt;&lt;br&gt;17 × 17 frequency product&lt;br&gt;↓&lt;br&gt;fixed 128 × 128 FFT grid&lt;br&gt;↓&lt;br&gt;&lt;b&gt;FFTW 2D IFFT&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#9A3412&quot;&gt;for k = 1 ... N&lt;sub&gt;k&lt;/sub&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B5563;strokeWidth=1.8;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="710" y="340" width="285" height="165" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-d" value="&lt;b&gt;(d) Weighted accumulation&lt;/b&gt;&lt;br&gt;&lt;br&gt;|E&lt;sub&gt;k&lt;/sub&gt;|&lt;sup&gt;2&lt;/sup&gt;&lt;br&gt;↓&lt;br&gt;σ&lt;sub&gt;k&lt;/sub&gt; weighting&lt;br&gt;↓&lt;br&gt;software accumulation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B5563;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="1090" y="350" width="220" height="145" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-e" value="&lt;b&gt;(e) Final aerial image&lt;/b&gt;&lt;br&gt;&lt;br&gt;FFTshift + Fourier interpolation&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#276749&quot;&gt;1024 × 1024 output&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4FAF7;strokeColor=#3A7D5D;strokeWidth=1.7;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="1410" y="350" width="225" height="145" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-perf" value="&lt;b&gt;35.6 ms&lt;/b&gt;&lt;br&gt;10 kernels&lt;br&gt;&lt;font color=&quot;#6B7280&quot;&gt;CPU C++ online SOCS&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B5563;strokeWidth=1.3;fontFamily=Helvetica;fontSize=12;fontColor=#111827;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1650" y="378" width="110" height="88" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-e1" value="Mask FFT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4B5563;strokeWidth=1.8;fontFamily=Helvetica;fontSize=11;fontColor=#374151;labelBackgroundColor=#F7F8FA;" parent="1" source="cpu-a" target="cpu-b" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-e2" value="Load M, Φ&lt;sub&gt;k&lt;/sub&gt;, σ&lt;sub&gt;k&lt;/sub&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4B5563;strokeWidth=1.8;fontFamily=Helvetica;fontSize=11;fontColor=#374151;labelBackgroundColor=#F7F8FA;" parent="1" source="cpu-b" target="cpu-c" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-e3" value="|E&lt;sub&gt;k&lt;/sub&gt;|&lt;sup&gt;2&lt;/sup&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4B5563;strokeWidth=1.8;fontFamily=Helvetica;fontSize=11;fontColor=#374151;labelBackgroundColor=#F7F8FA;" parent="1" source="cpu-c" target="cpu-d" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cpu-e4" value="FI + crop" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4B5563;strokeWidth=1.8;fontFamily=Helvetica;fontSize=11;fontColor=#374151;labelBackgroundColor=#F7F8FA;" parent="1" source="cpu-d" target="cpu-e" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-lane" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F1F7FC;strokeColor=#2F6690;strokeWidth=2;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="565" width="1740" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-title" value="&lt;b&gt;Proposed CPU-FPGA Collaborative Flow&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#315D86&quot;&gt;Fixed-grid online reconstruction mapped to a pipelined hardware datapath&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=17;fontColor=#17324D;" parent="1" vertex="1">
+                    <mxGeometry x="65" y="578" width="650" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-a" value="&lt;b&gt;(a) Input mask&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2F6690;strokeWidth=1.6;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="105" y="655" width="185" height="155" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-mask-bg" value="" style="rounded=0;fillColor=#FFFFFF;strokeColor=#7CA5C5;strokeWidth=1;" parent="1" vertex="1">
+                    <mxGeometry x="142" y="690" width="110" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-mask-r1" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="155" y="701" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-mask-r2" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="201" y="701" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-mask-r3" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="178" y="724" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-mask-r4" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="155" y="747" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-mask-r5" value="" style="rounded=0;fillColor=#334155;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="201" y="747" width="27" height="9" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-a-size" value="1024 × 1024" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#6B7280;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="778" width="135" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-b" value="&lt;b&gt;(b) Online data package&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mask spectrum M&lt;br&gt;10 SOCS kernels Φ&lt;sub&gt;k&lt;/sub&gt;&lt;br&gt;weights σ&lt;sub&gt;k&lt;/sub&gt;&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#315D86&quot;&gt;Reusable optical data&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2F6690;strokeWidth=1.6;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="405" y="655" width="205" height="155" as="geometry"/>
+                </mxCell>
+                <mxCell id="xdma-h2c" value="&lt;b&gt;PCIe XDMA&lt;/b&gt;&lt;br&gt;H2C" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF4E8;strokeColor=#C96B1B;strokeWidth=1.6;fontFamily=Helvetica;fontSize=11;fontColor=#8A3F08;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="630" y="704" width="75" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-c" value="&lt;b&gt;(c) FPGA embedding and 2D IFFT&lt;/b&gt;&lt;br&gt;&lt;br&gt;17 × 17 frequency product&lt;br&gt;↓&lt;br&gt;&lt;b&gt;fixed 128 × 128 FFT grid&lt;/b&gt;&lt;br&gt;↓&lt;br&gt;row IFFT → BRAM transpose → column IFFT&lt;br&gt;↓&lt;br&gt;block-floating-point compensation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F5F8B;strokeWidth=2.2;fontFamily=Helvetica;fontSize=13;fontColor=#102A43;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="735" y="640" width="330" height="185" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-d" value="&lt;b&gt;(d) On-chip intensity accumulation&lt;/b&gt;&lt;br&gt;&lt;br&gt;|E&lt;sub&gt;k&lt;/sub&gt;|&lt;sup&gt;2&lt;/sup&gt; and σ&lt;sub&gt;k&lt;/sub&gt; weighting&lt;br&gt;↓&lt;br&gt;dual-port BRAM accumulation&lt;br&gt;↓&lt;br&gt;FFTshift and AXI-MM writeback&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#315D86&quot;&gt;kernel time multiplexing&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F5F8B;strokeWidth=2;fontFamily=Helvetica;fontSize=13;fontColor=#102A43;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="1125" y="650" width="250" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="xdma-c2h" value="&lt;b&gt;XDMA&lt;/b&gt;&lt;br&gt;C2H" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF4E8;strokeColor=#C96B1B;strokeWidth=1.6;fontFamily=Helvetica;fontSize=11;fontColor=#8A3F08;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1395" y="704" width="68" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e" value="&lt;b&gt;(e) Host-FI aerial image&lt;/b&gt;&lt;br&gt;&lt;br&gt;128 × 128 FPGA output&lt;br&gt;↓&lt;br&gt;Host Fourier interpolation&lt;br&gt;↓&lt;br&gt;&lt;font color=&quot;#276749&quot;&gt;1024 × 1024 output&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F4FAF7;strokeColor=#3A7D5D;strokeWidth=1.8;fontFamily=Helvetica;fontSize=13;fontColor=#111827;align=center;verticalAlign=top;spacingTop=8;" parent="1" vertex="1">
+                    <mxGeometry x="1485" y="650" width="185" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-perf" value="&lt;b&gt;10.57 ms&lt;/b&gt;&lt;br&gt;10 kernels&lt;br&gt;&lt;font color=&quot;#315D86&quot;&gt;FPGA kernel only&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;3.37×&lt;/b&gt; speedup" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E7F2FA;strokeColor=#1F5F8B;strokeWidth=1.5;fontFamily=Helvetica;fontSize=12;fontColor=#17324D;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1680" y="665" width="85" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e1" value="Mask FFT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2F6690;strokeWidth=2;fontFamily=Helvetica;fontSize=11;fontColor=#315D86;labelBackgroundColor=#F1F7FC;" parent="1" source="fpga-a" target="fpga-b" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#C96B1B;strokeWidth=2;" parent="1" source="fpga-b" target="xdma-h2c" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e3" value="FPGA DDR / AXI-MM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#C96B1B;strokeWidth=2;fontFamily=Helvetica;fontSize=10;fontColor=#8A3F08;labelBackgroundColor=#F1F7FC;" parent="1" source="xdma-h2c" target="fpga-c" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e4" value="streamed field data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#2F6690;strokeWidth=2;fontFamily=Helvetica;fontSize=10;fontColor=#315D86;labelBackgroundColor=#F1F7FC;" parent="1" source="fpga-c" target="fpga-d" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#C96B1B;strokeWidth=2;" parent="1" source="fpga-d" target="xdma-c2h" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="fpga-e6" value="Host FI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#C96B1B;strokeWidth=2;fontFamily=Helvetica;fontSize=10;fontColor=#8A3F08;labelBackgroundColor=#F1F7FC;" parent="1" source="xdma-c2h" target="fpga-e" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="reuse-cpu" value="precomputed and reused" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeColor=#6B7280;strokeWidth=1.3;dashed=1;fontFamily=Helvetica;fontSize=10;fontColor=#6B7280;labelBackgroundColor=#FFFFFF;" parent="1" source="offline-data" target="cpu-b" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1315" y="252"/>
+                            <mxPoint x="508" y="252"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="reuse-fpga" value="reuse across windows" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeColor=#2F6690;strokeWidth=1.4;dashed=1;fontFamily=Helvetica;fontSize=10;fontColor=#315D86;labelBackgroundColor=#F1F7FC;" parent="1" source="offline-data" target="fpga-b" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1320" y="245"/>
+                            <mxPoint x="1720" y="245"/>
+                            <mxPoint x="1720" y="555"/>
+                            <mxPoint x="508" y="555"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="c1" value="C1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1F5F8B;strokeColor=#17324D;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontStyle=1;fontColor=#FFFFFF;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1460" y="120" width="34" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c1-label" value="Offline/online workload decoupling" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#315D86;" parent="1" vertex="1">
+                    <mxGeometry x="1498" y="120" width="200" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c2" value="C2" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1F5F8B;strokeColor=#17324D;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontStyle=1;fontColor=#FFFFFF;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="750" y="842" width="34" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c2-label" value="Fixed-grid frequency embedding" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#315D86;" parent="1" vertex="1">
+                    <mxGeometry x="790" y="842" width="190" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c3" value="C3" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1F5F8B;strokeColor=#17324D;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontStyle=1;fontColor=#FFFFFF;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="750" y="885" width="34" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c3-label" value="Area-efficient block-floating-point 2D IFFT" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#315D86;" parent="1" vertex="1">
+                    <mxGeometry x="790" y="885" width="255" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c4" value="C4" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1F5F8B;strokeColor=#17324D;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontStyle=1;fontColor=#FFFFFF;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="1125" y="842" width="34" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="c4-label" value="BRAM buffering and multi-AXI data movement" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#315D86;" parent="1" vertex="1">
+                    <mxGeometry x="1165" y="842" width="260" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="footer" value="Online-kernel comparison: identical 10-kernel SOCS reconstruction scope. PCIe transfer and Host Fourier interpolation are excluded from the 10.57 ms FPGA kernel latency." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#4B5563;fontStyle=2;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="952" width="1460" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
