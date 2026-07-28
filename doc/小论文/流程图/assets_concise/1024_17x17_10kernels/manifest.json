@@ -1,0 +1,514 @@
+[
+  {
+    "id": "I01-mask",
+    "file": "I01_frequency_inputs/mask_spectrum.png",
+    "source": "output/verification/mskf_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      1024,
+      1024
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18678495287895203,
+    "sha256": "f84e4b7dd4d6061c557e2e397abb15c9c4ffcbfbc3f515c528dadfaabd3ccf6a"
+  },
+  {
+    "id": "I01-K01",
+    "file": "I01_frequency_inputs/kernels/K01.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "18e8596af73f9c0a53be56272bf5bcbd452ff3aaf51839b4d972ad6b3a73db8d"
+  },
+  {
+    "id": "I01-K02",
+    "file": "I01_frequency_inputs/kernels/K02.png",
+    "source": "output/verification/kernels/krn_1_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "df3eb997ea0f345e50f0c913718f9da010d6463f45f38ec87d8e6b607c59b193"
+  },
+  {
+    "id": "I01-K03",
+    "file": "I01_frequency_inputs/kernels/K03.png",
+    "source": "output/verification/kernels/krn_2_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "32607ead3f2116ceaeec75264c6dfe88d920a4698d4c5f2f2b0b37a38a30e73e"
+  },
+  {
+    "id": "I01-K04",
+    "file": "I01_frequency_inputs/kernels/K04.png",
+    "source": "output/verification/kernels/krn_3_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "7c3b0841e49e822c01ec25b9e0aca72a3bf1a625122d58993d16a4b442638f42"
+  },
+  {
+    "id": "I01-K05",
+    "file": "I01_frequency_inputs/kernels/K05.png",
+    "source": "output/verification/kernels/krn_4_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "c8c8ebceac6b8e745770a7edc5d6b5139ae3a0e39cf859ee0d1bc58d2425212a"
+  },
+  {
+    "id": "I01-K06",
+    "file": "I01_frequency_inputs/kernels/K06.png",
+    "source": "output/verification/kernels/krn_5_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "e36e1a502b2028533c4f39e254c0b2a250e0efb38321c8eaed44eed8b0a3aded"
+  },
+  {
+    "id": "I01-K07",
+    "file": "I01_frequency_inputs/kernels/K07.png",
+    "source": "output/verification/kernels/krn_6_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "f9be9e74b050c020716727d18eacd0ed77432cece8f97acdb7d22def6d4e1d8e"
+  },
+  {
+    "id": "I01-K08",
+    "file": "I01_frequency_inputs/kernels/K08.png",
+    "source": "output/verification/kernels/krn_7_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "c3ead3395361d1cb0aa5a7130c43fda801b96a2da17fc21c29a5a0df4296adca"
+  },
+  {
+    "id": "I01-K09",
+    "file": "I01_frequency_inputs/kernels/K09.png",
+    "source": "output/verification/kernels/krn_8_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "0cd518e049cb8a491e9935c055792b7f5f64bc8ccf3c465f51b6a1aef10f5976"
+  },
+  {
+    "id": "I01-K10",
+    "file": "I01_frequency_inputs/kernels/K10.png",
+    "source": "output/verification/kernels/krn_9_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "3952a988f9744ecee6bd758f371b9a8673bbabfce4161eca85f493e964382216"
+  },
+  {
+    "id": "I02-window",
+    "file": "I02_frequency_product/K01_mask_window.png",
+    "source": "output/verification/mskf_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0005974163650535047,
+    "vmax": 0.18678495287895203,
+    "sha256": "652820de31a7247eb91e1f98915f331d792fd85672972f4449ad9308f57c0106"
+  },
+  {
+    "id": "I02-kernel",
+    "file": "I02_frequency_product/K01_kernel.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "18e8596af73f9c0a53be56272bf5bcbd452ff3aaf51839b4d972ad6b3a73db8d"
+  },
+  {
+    "id": "I02-product",
+    "file": "I02_frequency_product/K01_product.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.04159512743353844,
+    "sha256": "f167d3b8112de145d41ddb8480e4014e1a6359197bacf5b6fcda6189b07cd9cc"
+  },
+  {
+    "id": "I03",
+    "file": "I03_single_kernel_intensity/K01_intensity.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      128,
+      128
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 1.6945974493864924e-05,
+    "vmax": 0.368833065032959,
+    "sha256": "0985d7ffbca1ffb5223756a5da1aa95c38ff5faf43d08415f4daccb08d62311c"
+  },
+  {
+    "id": "I04",
+    "file": "I04_cpu_weighted_sum/cpu_tmpimgp_128.png",
+    "source": "output/verification/tmpImgp_full_128.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      128,
+      128
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 0.00032861315412446856,
+    "vmax": 0.3803265392780304,
+    "sha256": "22dc832a1bbeec34b2ffa32ab5e4b3ca4e342072b25527d89d6e0b6a43c192bf"
+  },
+  {
+    "id": "I05",
+    "file": "I05_cpu_aerial/cpu_aerial_1024.png",
+    "source": "output/verification/aerial_image_socs_kernel.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      1024,
+      1024
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 0.00032766032381914556,
+    "vmax": 0.3803532123565674,
+    "sha256": "045c8b9d23cc023620ac3d179e2814ca1a27b3a5adb30d05cc14f3a6db6c2c49"
+  },
+  {
+    "id": "I09",
+    "file": "I09_fpga_weighted_sum/fpga_tmpimgp_128.png",
+    "source": "source/host/full_platform/output/fpga_tmpimgp_full_128.bin",
+    "source_type": "FPGA_BOARD",
+    "dtype": "float32",
+    "shape": [
+      128,
+      128
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 0.00032861315412446856,
+    "vmax": 0.3803265392780304,
+    "sha256": "22dc832a1bbeec34b2ffa32ab5e4b3ca4e342072b25527d89d6e0b6a43c192bf"
+  },
+  {
+    "id": "I10",
+    "file": "I10_fpga_host_fi/fpga_aerial_1024.png",
+    "source": "source/host/full_platform/output/fpga_aerial_fi.bin",
+    "source_type": "FPGA_BOARD",
+    "dtype": "float32",
+    "shape": [
+      1024,
+      1024
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 0.00032766032381914556,
+    "vmax": 0.3803532123565674,
+    "sha256": "3a34543b4ccf4ca7ea2f817e42d29bcc13f36c2b52d121d8e1094b895b5dfd83"
+  },
+  {
+    "id": "I07",
+    "file": "I07_fixed_grid_embedding/K01_embedded_128.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      128,
+      128
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.04247232526540756,
+    "sha256": "49667632c60c7b64132e5253455ecfb5242d92d9bd8394b7a15f20310180ba3d"
+  },
+  {
+    "id": "I06-mask",
+    "file": "I06_frequency_inputs/mask_spectrum.png",
+    "source": "output/verification/mskf_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      1024,
+      1024
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18678495287895203,
+    "sha256": "f84e4b7dd4d6061c557e2e397abb15c9c4ffcbfbc3f515c528dadfaabd3ccf6a"
+  },
+  {
+    "id": "I06-K01",
+    "file": "I06_frequency_inputs/kernels/K01.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "18e8596af73f9c0a53be56272bf5bcbd452ff3aaf51839b4d972ad6b3a73db8d"
+  },
+  {
+    "id": "I06-K02",
+    "file": "I06_frequency_inputs/kernels/K02.png",
+    "source": "output/verification/kernels/krn_1_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "df3eb997ea0f345e50f0c913718f9da010d6463f45f38ec87d8e6b607c59b193"
+  },
+  {
+    "id": "I06-K03",
+    "file": "I06_frequency_inputs/kernels/K03.png",
+    "source": "output/verification/kernels/krn_2_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "32607ead3f2116ceaeec75264c6dfe88d920a4698d4c5f2f2b0b37a38a30e73e"
+  },
+  {
+    "id": "I06-K04",
+    "file": "I06_frequency_inputs/kernels/K04.png",
+    "source": "output/verification/kernels/krn_3_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "7c3b0841e49e822c01ec25b9e0aca72a3bf1a625122d58993d16a4b442638f42"
+  },
+  {
+    "id": "I06-K05",
+    "file": "I06_frequency_inputs/kernels/K05.png",
+    "source": "output/verification/kernels/krn_4_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "c8c8ebceac6b8e745770a7edc5d6b5139ae3a0e39cf859ee0d1bc58d2425212a"
+  },
+  {
+    "id": "I06-K06",
+    "file": "I06_frequency_inputs/kernels/K06.png",
+    "source": "output/verification/kernels/krn_5_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "e36e1a502b2028533c4f39e254c0b2a250e0efb38321c8eaed44eed8b0a3aded"
+  },
+  {
+    "id": "I06-K07",
+    "file": "I06_frequency_inputs/kernels/K07.png",
+    "source": "output/verification/kernels/krn_6_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "f9be9e74b050c020716727d18eacd0ed77432cece8f97acdb7d22def6d4e1d8e"
+  },
+  {
+    "id": "I06-K08",
+    "file": "I06_frequency_inputs/kernels/K08.png",
+    "source": "output/verification/kernels/krn_7_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "c3ead3395361d1cb0aa5a7130c43fda801b96a2da17fc21c29a5a0df4296adca"
+  },
+  {
+    "id": "I06-K09",
+    "file": "I06_frequency_inputs/kernels/K09.png",
+    "source": "output/verification/kernels/krn_8_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "0cd518e049cb8a491e9935c055792b7f5f64bc8ccf3c465f51b6a1aef10f5976"
+  },
+  {
+    "id": "I06-K10",
+    "file": "I06_frequency_inputs/kernels/K10.png",
+    "source": "output/verification/kernels/krn_9_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      17,
+      17
+    ],
+    "display_transform": "log1p(abs)",
+    "colormap": "viridis",
+    "vmin": 0.0,
+    "vmax": 0.18798118829727173,
+    "sha256": "3952a988f9744ecee6bd758f371b9a8673bbabfce4161eca85f493e964382216"
+  },
+  {
+    "id": "I08",
+    "file": "I08_single_kernel_intensity/K01_intensity.png",
+    "source": "output/verification/kernels/krn_0_r.bin",
+    "source_type": "CPU_GOLDEN",
+    "dtype": "float32",
+    "shape": [
+      128,
+      128
+    ],
+    "display_transform": "linear",
+    "colormap": "viridis",
+    "vmin": 1.6945974493864924e-05,
+    "vmax": 0.368833065032959,
+    "sha256": "0985d7ffbca1ffb5223756a5da1aa95c38ff5faf43d08415f4daccb08d62311c"
+  }
+]

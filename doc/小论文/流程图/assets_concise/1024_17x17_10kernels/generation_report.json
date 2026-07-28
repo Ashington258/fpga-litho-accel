@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "git_sha": "e110e883d01b9af6e6e1fd10fa1beabc0ba79309",
+  "config_sha256": "2af139536d9d112dfceb3d725c52880d9993142557721178eac778b3b1ef34a8",
+  "utc": "2026-07-28T11:12:00.657317+00:00",
+  "python": "3.11.7 (main, Dec 15 2023, 18:12:31) [GCC 11.2.0]",
+  "numpy": "1.26.4",
+  "matplotlib": "3.8.0",
+  "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.35",
+  "kernel_count": 10,
+  "kernel_shape": [
+    17,
+    17
+  ],
+  "rmse_recomputed_tmpimgp": 5.4918372524035435e-09,
+  "rmse_fpga_tmpimgp": 2.9303560513803195e-08,
+  "rmse_fpga_aerial": 2.952802745941517e-08,
+  "generated_assets": 32
+}

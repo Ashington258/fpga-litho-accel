@@ -650,10 +650,16 @@ I05_cpu_aerial/
 
 ```text
 I06_frequency_inputs/
+├── mask_spectrum.png
+├── weights.csv
+├── kernels/
+│   ├── K01.png
+│   ├── ...
+│   └── K10.png
 └── shared_with_I01.json
 ```
 
-内容指向 I01，不重复生成数据图。CPU 和 FPGA 使用完全相同的频谱、核与权重。
+图片和权重与 I01 使用相同原始数据及显示范围，便于直接替换 Draw.io 占位框；JSON 同时记录共享关系。CPU 和 FPGA 使用完全相同的频谱、核与权重。
 
 ### I07：固定网格嵌入
 
@@ -672,10 +678,11 @@ I07_fixed_grid_embedding/
 
 ```text
 I08_single_kernel_intensity/
+├── K01_intensity.png
 └── shared_with_I03.json
 ```
 
-数学结果与 I03 共用。区别由 Draw.io 中的 CPU 软件循环和 FPGA 流水线标签表达。
+`K01_intensity.png` 与 I03 使用相同数值结果及显示范围，便于直接排版；JSON 同时记录共享关系。区别由 Draw.io 中的 CPU 软件循环和 FPGA 流水线标签表达。
 
 ### I09：FPGA 10 核板上累加
 
