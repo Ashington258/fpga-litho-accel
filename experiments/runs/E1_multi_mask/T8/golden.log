@@ -1,0 +1,151 @@
+============================================================
+  Litho-Full: Integrated TCC + SOCS Verification Program
+============================================================
+
+[CONFIG] Simulation Parameters:
+  Mask Period: 1024 x 1024
+  Mask Size: 1024 x 1024
+  NA: 0.8
+  Defocus: 0.2
+  Number of Kernels: 10
+  Output Directory: /root/project/fpga-litho-accel/experiments/data/E1_multi_mask/golden/T8
+  FFT Padded Size: 1024 x 1024
+
+============================================================
+[MODULE 1] Creating Source...
+[STATISTICS] Source:
+  Mean:    0.000098
+  StdDev:  0.000134
+  Max:     0.000282
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000
+[TIME] Source creation: 109 us
+
+============================================================
+[MODULE 2] Creating Mask...
+Read Mask: /root/project/fpga-litho-accel/experiments/../input/mask/Different_mask_tests/T8.bin
+[STATISTICS] Mask:
+  Mean:    0.122589
+  StdDev:  0.327965
+  Max:     1.000000
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000
+[TIME] Mask creation: 12838 us
+
+[PARAM] TCC Parameters:
+  Outer Sigma: 0.900000
+  Nx: 8, Ny: 8
+  TCC Size: 289 x 289
+
+============================================================
+[MODULE 3] Computing FFT of Mask...
+[SAMPLES] FFT Mask (center region):
+  [511,511] = (-0.010115, 0.027675)
+  [511,512] = (0.065732, -0.005584)
+  [511,513] = (0.042990, 0.012382)
+  [512,511] = (0.044076, -0.010043)
+  [512,512] = (0.122589, 0.000000)
+[TIME] FFT Mask: 56866 us
+
+============================================================
+[MODULE 4] Computing TCC Matrix...
+[STATISTICS] TCC Real:
+  Mean:    0.036434
+  StdDev:  0.085118
+  Max:     1.000000
+  Min:     0.000000
+  Diagonal[0]: (0.000000, 0.000000)
+  Diagonal[1]: (0.000000, 0.000000)
+[TIME] TCC computation: 41757 us
+
+============================================================
+[MODULE 5] Computing Aerial Image (TCC-based)...
+[STATISTICS] Aerial Image (TCC):
+  Mean:    0.057934
+  StdDev:  0.091422
+  Max:     0.432748
+  Min:     0.002806
+  Samples: 0.003685 0.003685 0.003686 0.003685 0.003685
+[TIME] TCC Image: 31715 us
+
+============================================================
+[MODULE 6] Extracting SOCS Kernels...
+[STATISTICS] SOCS Kernel Eigenvalues:
+  Scale[0]: 23.010136
+  Scale[1]: 9.634128
+  Scale[2]: 9.634128
+  Scale[3]: 2.661961
+  Scale[4]: 2.638622
+  Scale[5]: 1.067181
+  Scale[6]: 1.067181
+  Scale[7]: 0.554192
+  Scale[8]: 0.553295
+  Scale[9]: 0.322799
+[TIME] Kernel extraction: 31466 us
+
+============================================================
+[MODULE 7] Computing Aerial Image (SOCS)...
+[STATISTICS] Aerial Image (SOCS):
+  Mean:    0.054467
+  StdDev:  0.091428
+  Max:     0.428800
+  Min:     0.000123
+  Samples: 0.000515 0.000516 0.000517 0.000518 0.000519
+[TIME] SOCS Image: 26415 us
+
+============================================================
+[SUMMARY] Performance Breakdown:
+  Module 1 (Source):     109 us
+  Module 2 (Mask):       12838 us
+  Module 3 (FFT Mask):   56866 us
+  Module 4 (TCC):        41757 us
+  Module 5 (TCC Image):  31715 us
+  Module 6 (Kernels):    31466 us
+  Module 7 (SOCS Image): 26415 us
+  ----------------------------------------
+  Total:                 505181 us (0.505181 s)
+============================================================
+
+[VERIFICATION SUMMARY] For HLS Golden Reference:
+  TCC Mean (Real): 0.036434
+  TCC StdDev (Real): 0.085118
+  Image Mean (TCC): 0.057934
+  Image Mean (SOCS): 0.054467
+  Recommended tolerance: relative error < 1e-5
+
+[DONE] Output saved to: /root/project/fpga-litho-accel/experiments/data/E1_multi_mask/golden/T8
+==================================================
+  FPGA-Litho Verification
+==================================================
+[COMPILE] Building Litho...
+[COMPILE] Litho build successful!
+
+[RUN] Starting litho Verification...
+  Config: /root/project/fpga-litho-accel/experiments/config/multi_mask/config_T8_1024_nk10.json
+  Output: /root/project/fpga-litho-accel/experiments/data/E1_multi_mask/golden/T8
+
+[ANALYSIS] Verification Results
+==================================================
+  ✓ source.png (712 bytes)
+  ✓ mask.png (10848 bytes)
+  ✓ tcc_r.bin (334084 bytes)
+  ✓ tcc_i.bin (334084 bytes)
+  ✓ mskf_r.bin (4194304 bytes)
+  ✓ mskf_i.bin (4194304 bytes)
+  ✓ scales.bin (40 bytes)
+  ✓ aerial_image_tcc_direct.bin (4194304 bytes)
+  ✓ aerial_image_tcc_direct.png (319450 bytes)
+  ✓ aerial_image_socs_kernel.bin (4194304 bytes)
+  ✓ aerial_image_socs_kernel.png (313461 bytes)
+  ✓ kernels/kernel_info.txt (344 bytes)
+
+[COMPARISON] TCC vs SOCS:
+  TCC  Mean: 0.057934
+  SOCS Mean: 0.054467
+  Max Relative Diff: 1.3451e-02
+  ✓ VERIFICATION PASSED (within nk truncation tolerance)
+
+==================================================
+[SUCCESS] Verification passed!
+Results: /root/project/fpga-litho-accel/experiments/data/E1_multi_mask/golden/T8
+==================================================

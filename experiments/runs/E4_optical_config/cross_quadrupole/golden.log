@@ -1,0 +1,152 @@
+============================================================
+  Litho-Full: Integrated TCC + SOCS Verification Program
+============================================================
+
+[CONFIG] Simulation Parameters:
+  Mask Period: 1024 x 1024
+  Mask Size: 1024 x 1024
+  NA: 0.8
+  Defocus: 0.2
+  Number of Kernels: 10
+  Output Directory: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/cross_quadrupole
+  FFT Padded Size: 1024 x 1024
+
+============================================================
+[MODULE 1] Creating Source...
+[STATISTICS] Source:
+  Mean:    0.000098
+  StdDev:  0.000394
+  Max:     0.001678
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000
+[TIME] Source creation: 275 us
+
+============================================================
+[MODULE 2] Creating Mask...
+Read Mask: /root/project/fpga-litho-accel/experiments/../input/mask/1024x1024.bin
+[STATISTICS] Mask:
+  Mean:    0.205368
+  StdDev:  0.403970
+  Max:     1.000000
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000
+[TIME] Mask creation: 12710 us
+
+[PARAM] TCC Parameters:
+  Outer Sigma: 0.780000
+  Nx: 7, Ny: 7
+  TCC Size: 225 x 225
+
+============================================================
+[MODULE 3] Computing FFT of Mask...
+[SAMPLES] FFT Mask (center region):
+  [511,511] = (0.026167, -0.002220)
+  [511,512] = (0.063272, 0.000934)
+  [511,513] = (0.017988, -0.001101)
+  [512,511] = (0.099257, 0.036346)
+  [512,512] = (0.205368, 0.000000)
+[TIME] FFT Mask: 49562 us
+
+============================================================
+[MODULE 4] Computing TCC Matrix...
+[STATISTICS] TCC Real:
+  Mean:    0.060102
+  StdDev:  0.123095
+  Max:     1.000000
+  Min:     0.000000
+  Diagonal[0]: (0.000000, 0.000000)
+  Diagonal[1]: (0.000000, 0.000000)
+[TIME] TCC computation: 16025 us
+
+============================================================
+[MODULE 5] Computing Aerial Image (TCC-based)...
+[STATISTICS] Aerial Image (TCC):
+  Mean:    0.098818
+  StdDev:  0.112804
+  Max:     0.474017
+  Min:     0.001645
+  Samples: 0.003853 0.003886 0.003918 0.003948 0.003976
+[TIME] TCC Image: 31403 us
+
+============================================================
+[MODULE 6] Extracting SOCS Kernels...
+[STATISTICS] SOCS Kernel Eigenvalues:
+  Scale[0]: 27.868830
+  Scale[1]: 9.777976
+  Scale[2]: 9.777976
+  Scale[3]: 4.468877
+  Scale[4]: 0.490121
+  Scale[5]: 0.400982
+  Scale[6]: 0.400982
+  Scale[7]: 0.384421
+  Scale[8]: 0.337884
+  Scale[9]: 0.309840
+[TIME] Kernel extraction: 16773 us
+
+============================================================
+[MODULE 7] Computing Aerial Image (SOCS)...
+[STATISTICS] Aerial Image (SOCS):
+  Mean:    0.097256
+  StdDev:  0.112506
+  Max:     0.472849
+  Min:     0.000439
+  Samples: 0.002881 0.002910 0.002937 0.002962 0.002984
+[TIME] SOCS Image: 27557 us
+
+============================================================
+[SUMMARY] Performance Breakdown:
+  Module 1 (Source):     275 us
+  Module 2 (Mask):       12710 us
+  Module 3 (FFT Mask):   49562 us
+  Module 4 (TCC):        16025 us
+  Module 5 (TCC Image):  31403 us
+  Module 6 (Kernels):    16773 us
+  Module 7 (SOCS Image): 27557 us
+  ----------------------------------------
+  Total:                 485277 us (0.485277 s)
+============================================================
+
+[VERIFICATION SUMMARY] For HLS Golden Reference:
+  TCC Mean (Real): 0.060102
+  TCC StdDev (Real): 0.123095
+  Image Mean (TCC): 0.098818
+  Image Mean (SOCS): 0.097256
+  Recommended tolerance: relative error < 1e-5
+
+[DONE] Output saved to: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/cross_quadrupole
+[CLEAN] Removing existing output directory: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/cross_quadrupole
+==================================================
+  FPGA-Litho Verification
+==================================================
+[COMPILE] Building Litho...
+[COMPILE] Litho build successful!
+
+[RUN] Starting litho Verification...
+  Config: /root/project/fpga-litho-accel/experiments/config/E4_optical_config/cross_quadrupole.json
+  Output: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/cross_quadrupole
+
+[ANALYSIS] Verification Results
+==================================================
+  ✓ source.png (321 bytes)
+  ✓ mask.png (10930 bytes)
+  ✓ tcc_r.bin (202500 bytes)
+  ✓ tcc_i.bin (202500 bytes)
+  ✓ mskf_r.bin (4194304 bytes)
+  ✓ mskf_i.bin (4194304 bytes)
+  ✓ scales.bin (40 bytes)
+  ✓ aerial_image_tcc_direct.bin (4194304 bytes)
+  ✓ aerial_image_tcc_direct.png (430395 bytes)
+  ✓ aerial_image_socs_kernel.bin (4194304 bytes)
+  ✓ aerial_image_socs_kernel.png (429266 bytes)
+  ✓ kernels/kernel_info.txt (346 bytes)
+
+[COMPARISON] TCC vs SOCS:
+  TCC  Mean: 0.098818
+  SOCS Mean: 0.097256
+  Max Relative Diff: 9.6346e-03
+  ✓ VERIFICATION PASSED (within nk truncation tolerance)
+
+==================================================
+[SUCCESS] Verification passed!
+Results: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/cross_quadrupole
+==================================================

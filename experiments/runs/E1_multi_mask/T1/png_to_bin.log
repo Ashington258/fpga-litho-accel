@@ -1,0 +1,6 @@
+Image info:
+  Mode: L
+  Size: 1024 x 1024
+  Shape: (1024, 1024)
+Written 1048576 float32 values (4194304 bytes) to /root/project/fpga-litho-accel/input/mask/Different_mask_tests/T1.bin
+Converted /root/project/fpga-litho-accel/input/mask/Different_mask_tests/T1.png -> /root/project/fpga-litho-accel/input/mask/Different_mask_tests/T1.bin

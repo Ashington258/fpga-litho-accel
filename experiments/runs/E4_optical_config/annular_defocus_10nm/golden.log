@@ -1,0 +1,150 @@
+============================================================
+  Litho-Full: Integrated TCC + SOCS Verification Program
+============================================================
+
+[CONFIG] Simulation Parameters:
+  Mask Period: 1024 x 1024
+  Mask Size: 1024 x 1024
+  NA: 0.8
+  Defocus: 10
+  Number of Kernels: 10
+  Output Directory: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/annular_defocus_10nm
+  FFT Padded Size: 1024 x 1024
+
+============================================================
+[MODULE 1] Creating Source...
+[STATISTICS] Source:
+  Mean:    0.000098
+  StdDev:  0.000134
+  Max:     0.000282
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000
+[TIME] Source creation: 129 us
+
+============================================================
+[MODULE 2] Creating Mask...
+Read Mask: /root/project/fpga-litho-accel/experiments/../input/mask/1024x1024.bin
+[STATISTICS] Mask:
+  Mean:    0.205368
+  StdDev:  0.403970
+  Max:     1.000000
+  Min:     0.000000
+  Samples: 0.000000 0.000000 0.000000 0.000000 0.000000
+[TIME] Mask creation: 13785 us
+
+[PARAM] TCC Parameters:
+  Outer Sigma: 0.900000
+  Nx: 8, Ny: 8
+  TCC Size: 289 x 289
+
+============================================================
+[MODULE 3] Computing FFT of Mask...
+[SAMPLES] FFT Mask (center region):
+  [511,511] = (0.026167, -0.002220)
+  [511,512] = (0.063272, 0.000934)
+  [511,513] = (0.017988, -0.001101)
+  [512,511] = (0.099257, 0.036346)
+  [512,512] = (0.205368, 0.000000)
+[TIME] FFT Mask: 49809 us
+
+============================================================
+[MODULE 4] Computing TCC Matrix...
+[STATISTICS] TCC Real:
+  Mean:    0.000626
+  StdDev:  0.016959
+  Max:     1.000000
+  Min:     -0.032045
+  Diagonal[0]: (0.000000, 0.000000)
+  Diagonal[1]: (0.000000, 0.000000)
+[TIME] TCC computation: 43775 us
+
+============================================================
+[MODULE 5] Computing Aerial Image (TCC-based)...
+[STATISTICS] Aerial Image (TCC):
+  Mean:    0.094496
+  StdDev:  0.001576
+  Max:     0.097378
+  Min:     0.089554
+  Samples: 0.093482 0.093466 0.093450 0.093434 0.093418
+[TIME] TCC Image: 32065 us
+
+============================================================
+[MODULE 6] Extracting SOCS Kernels...
+[STATISTICS] SOCS Kernel Eigenvalues:
+  Scale[0]: 1.020301
+  Scale[1]: 0.921517
+  Scale[2]: 0.889320
+  Scale[3]: 0.889320
+  Scale[4]: 0.817908
+  Scale[5]: 0.786311
+  Scale[6]: 0.752182
+  Scale[7]: 0.752182
+  Scale[8]: 0.703656
+  Scale[9]: 0.632946
+[TIME] Kernel extraction: 31639 us
+
+============================================================
+[MODULE 7] Computing Aerial Image (SOCS)...
+[STATISTICS] Aerial Image (SOCS):
+  Mean:    0.070070
+  StdDev:  0.002704
+  Max:     0.075092
+  Min:     0.061941
+  Samples: 0.068638 0.068627 0.068614 0.068602 0.068589
+[TIME] SOCS Image: 26364 us
+
+============================================================
+[SUMMARY] Performance Breakdown:
+  Module 1 (Source):     129 us
+  Module 2 (Mask):       13785 us
+  Module 3 (FFT Mask):   49809 us
+  Module 4 (TCC):        43775 us
+  Module 5 (TCC Image):  32065 us
+  Module 6 (Kernels):    31639 us
+  Module 7 (SOCS Image): 26364 us
+  ----------------------------------------
+  Total:                 570425 us (0.570425 s)
+============================================================
+
+[VERIFICATION SUMMARY] For HLS Golden Reference:
+  TCC Mean (Real): 0.000626
+  TCC StdDev (Real): 0.016959
+  Image Mean (TCC): 0.094496
+  Image Mean (SOCS): 0.070070
+  Recommended tolerance: relative error < 1e-5
+
+[DONE] Output saved to: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/annular_defocus_10nm
+==================================================
+  FPGA-Litho Verification
+==================================================
+[COMPILE] Building Litho...
+[COMPILE] Litho build successful!
+
+[RUN] Starting litho Verification...
+  Config: /root/project/fpga-litho-accel/experiments/config/E4_optical_config/annular_defocus_10nm.json
+  Output: /root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/annular_defocus_10nm
+
+[ANALYSIS] Verification Results
+==================================================
+  ✓ source.png (712 bytes)
+  ✓ mask.png (10930 bytes)
+  ✓ tcc_r.bin (334084 bytes)
+  ✓ tcc_i.bin (334084 bytes)
+  ✓ mskf_r.bin (4194304 bytes)
+  ✓ mskf_i.bin (4194304 bytes)
+  ✓ scales.bin (40 bytes)
+  ✓ aerial_image_tcc_direct.bin (4194304 bytes)
+  ✓ aerial_image_tcc_direct.png (531813 bytes)
+  ✓ aerial_image_socs_kernel.bin (4194304 bytes)
+  ✓ aerial_image_socs_kernel.png (530023 bytes)
+  ✓ kernels/kernel_info.txt (347 bytes)
+
+[COMPARISON] TCC vs SOCS:
+  TCC  Mean: 0.094496
+  SOCS Mean: 0.070070
+  Max Relative Diff: 2.9543e-01
+  ✗ VERIFICATION FAILED
+
+==================================================
+[FAILED] Verification failed!
+==================================================

@@ -1,0 +1,38 @@
+[DEVICE] XDMA access
+  h2c:             /dev/xdma0_h2c_0
+  c2h:             /dev/xdma0_c2h_0
+  register_access: dma
+  register:        <via h2c/c2h DMA>
+[LAYOUT] DDR regions
+  mskf_r     0x40000000   4,194,304 bytes
+  mskf_i     0x40400000   4,194,304 bytes
+  scales     0x40800000          40 bytes
+  krn_r      0x40880000      11,560 bytes
+  krn_i      0x40900000      11,560 bytes
+  tmpImg_ddr 0x40980000      65,536 bytes
+  output     0x40990000      65,536 bytes
+[LAYOUT] HLS parameters
+  Lx=1024, Ly=1024, Nx=8, Ny=8, nk=10
+  kernel=17x17, output=16384 floats
+[DMA H2C] mskf_r : writing 4,194,304 bytes
+[DMA H2C] mskf_r :    4.00 MiB in 0.006s (702.23 MiB/s)
+[DMA H2C] mskf_i : writing 4,194,304 bytes
+[DMA H2C] mskf_i :    4.00 MiB in 0.008s (474.92 MiB/s)
+[DMA H2C] scales : writing 40 bytes
+[DMA H2C] scales :    0.00 MiB in 0.000s (0.21 MiB/s)
+[DMA H2C] krn_r  : writing 11,560 bytes
+[DMA H2C] krn_r  :    0.01 MiB in 0.000s (77.87 MiB/s)
+[DMA H2C] krn_i  : writing 11,560 bytes
+[DMA H2C] krn_i  :    0.01 MiB in 0.000s (64.09 MiB/s)
+[HLS] AXI-Lite register configuration readback PASS
+[HLS] ap_ctrl before start: 0x00000004
+[HLS] ap_ctrl done:         0x0000000e
+[DMA C2H] output :    0.06 MiB in 0.000s (238.69 MiB/s)
+
+[SUMMARY]
+  tmpImgp_vs_golden: PASS RMSE=2.9303560514e-08, MaxAbs=3.5762786865e-07, MaxRel=2.6540381633e-06
+  host_FI_vs_golden_SOCS: PASS RMSE=2.9528027459e-08, MaxAbs=4.1723251343e-07, MaxRel=8.6624720582e-06
+  host_FI_vs_TCC_direct: PASS RMSE=5.4737755323e-03, MaxAbs=1.0465636849e-02, MaxRel=9.4251801039e-01
+  Report: /root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/full_platform_report.md
+  Timing: /root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/timing.csv
+  Metrics: /root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/metrics.csv
