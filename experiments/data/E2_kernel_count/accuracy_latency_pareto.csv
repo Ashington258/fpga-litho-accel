@@ -1,0 +1,4 @@
+kernel_count,model_rmse_vs_tcc,model_max_abs_vs_tcc,kernel_mean_ms,energy_j,energy_status
+1,0.025138369803295747,0.07923603802919388,1.6113966519999998,,blocked: no synchronized FPGA board power trace
+5,0.007452242496012535,0.016608983278274536,6.937104938,,blocked: no synchronized FPGA board power trace
+10,0.0054737769141198645,0.010465696454048157,13.61000317,,blocked: no synchronized FPGA board power trace

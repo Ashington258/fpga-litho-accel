@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T12:46:34.849074+00:00",
+  "configuration": "Annular 0.6/0.9, NA=0.8, wavelength=193 nm, nk=10",
+  "measurement_warning": "fpga_host_observed_seconds includes host polling quantization and is not an FPGA hardware cycle measurement",
+  "resolutions": [
+    {
+      "resolution_x": 256,
+      "resolution_y": 256,
+      "nx": 2,
+      "ny": 2,
+      "kernel_count": 10,
+      "mask_bytes": 524288,
+      "h2c_seconds": 0.0009511970000000001,
+      "axilite_config_seconds": 0.000449938,
+      "fpga_host_observed_seconds": 0.020734676,
+      "c2h_seconds": 0.000334319,
+      "rmse": 9.987043667419807e-09,
+      "max_abs": 7.450580596923828e-08,
+      "psnr_db": 142.20452555121898,
+      "passed": "True",
+      "measurement_scope": "single run; resident generated Golden; 10 ms host busy-poll interval",
+      "raw_run": "experiments/runs/E5_resolution/256x256"
+    },
+    {
+      "resolution_x": 512,
+      "resolution_y": 512,
+      "nx": 4,
+      "ny": 4,
+      "kernel_count": 10,
+      "mask_bytes": 2097152,
+      "h2c_seconds": 0.003112254,
+      "axilite_config_seconds": 0.000764917,
+      "fpga_host_observed_seconds": 0.020416273,
+      "c2h_seconds": 0.000225959,
+      "rmse": 1.3601567429224438e-08,
+      "max_abs": 7.450580596923828e-08,
+      "psnr_db": 141.84738507765485,
+      "passed": "True",
+      "measurement_scope": "single run; resident generated Golden; 10 ms host busy-poll interval",
+      "raw_run": "experiments/runs/E5_resolution/512x512"
+    },
+    {
+      "resolution_x": 1024,
+      "resolution_y": 1024,
+      "nx": 8,
+      "ny": 8,
+      "kernel_count": 10,
+      "mask_bytes": 8388608,
+      "h2c_seconds": 0.014123155000000002,
+      "axilite_config_seconds": 0.001138191,
+      "fpga_host_observed_seconds": 0.020537306,
+      "c2h_seconds": 0.000286118,
+      "rmse": 2.9303560513803195e-08,
+      "max_abs": 3.5762786865234375e-07,
+      "psnr_db": 142.26472274530363,
+      "passed": "True",
+      "measurement_scope": "single run; resident generated Golden; 10 ms host busy-poll interval",
+      "raw_run": "experiments/runs/E5_resolution/1024x1024"
+    }
+  ]
+}

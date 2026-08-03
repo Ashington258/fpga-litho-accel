@@ -1,0 +1,7 @@
+{
+  "measured_on_board_samples": 10,
+  "minimum_requested_samples": 30,
+  "remaining_samples": 20,
+  "reason": "The repository currently provides 10 independent ICCAD mask windows.",
+  "required_action": "Archive and measure at least 20 additional independent mask windows."
+}

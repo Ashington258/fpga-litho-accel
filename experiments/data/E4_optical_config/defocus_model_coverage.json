@@ -1,0 +1,19 @@
+{
+  "evidence_type": "software model truncation negative result",
+  "configuration": "Annular 0.6/0.9, NA=0.8, wavelength=193 nm, nk=10, 1024x1024",
+  "cases": [
+    {
+      "defocus_nm": 10.0,
+      "max_relative_difference_socs_vs_tcc": 0.29543,
+      "status": "failed software model tolerance; not sent to FPGA",
+      "raw_log": "experiments/runs/E4_optical_config/annular_defocus_10nm/golden.log"
+    },
+    {
+      "defocus_nm": 100.0,
+      "max_relative_difference_socs_vs_tcc": 0.43531,
+      "status": "failed software model tolerance; not sent to FPGA",
+      "raw_log": "experiments/runs/E4_optical_config/annular_defocus_100nm/golden.log"
+    }
+  ],
+  "interpretation": "The 10-kernel SOCS model is insufficient for these defocus settings; this is not an FPGA implementation error."
+}

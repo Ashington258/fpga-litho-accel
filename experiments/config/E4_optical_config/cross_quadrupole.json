@@ -1,0 +1,39 @@
+{
+  "simulation": {
+    "description": "Paper evidence: cross_quadrupole",
+    "version": "1.0"
+  },
+  "mask": {
+    "period": {
+      "Lx": 1024,
+      "Ly": 1024
+    },
+    "size": {
+      "maskSizeX": 1024,
+      "maskSizeY": 1024
+    },
+    "type": "Import",
+    "inputFile": "../input/mask/1024x1024.bin",
+    "dose": 1.0
+  },
+  "source": {
+    "gridSize": 101,
+    "type": "CrossQuadrupole",
+    "crossQuadrupole": {
+      "radius": 0.15,
+      "offset": 0.65
+    }
+  },
+  "optics": {
+    "NA": 0.8,
+    "wavelength": 193,
+    "defocus": 0.2
+  },
+  "kernel": {
+    "count": 10,
+    "targetIntensity": 0.225
+  },
+  "output": {
+    "baseDir": "out"
+  }
+}

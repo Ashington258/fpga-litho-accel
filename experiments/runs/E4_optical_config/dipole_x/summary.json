@@ -1,0 +1,216 @@
+{
+  "config": "experiments/config/E4_optical_config/dipole_x.json",
+  "golden_output_dir": "/root/project/fpga-litho-accel/experiments/data/E4_optical_config/golden/dipole_x",
+  "steps": [
+    {
+      "name": "load_json_config",
+      "elapsed_seconds": 6.632399890804663e-05,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "load_golden_data",
+      "elapsed_seconds": 0.003955904001486488,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "pcie_h2c_write_mskf_r",
+      "elapsed_seconds": 0.005408895005530212,
+      "status": "PASS",
+      "details": {
+        "bytes": 4194304,
+        "address": "0x40000000",
+        "mib_per_second": 739.5225819525584
+      }
+    },
+    {
+      "name": "pcie_h2c_write_mskf_i",
+      "elapsed_seconds": 0.006158730000606738,
+      "status": "PASS",
+      "details": {
+        "bytes": 4194304,
+        "address": "0x40400000",
+        "mib_per_second": 649.4845527577817
+      }
+    },
+    {
+      "name": "pcie_h2c_write_scales",
+      "elapsed_seconds": 0.00014868200378259644,
+      "status": "PASS",
+      "details": {
+        "bytes": 40,
+        "address": "0x40800000",
+        "mib_per_second": 0.2565675178283761
+      }
+    },
+    {
+      "name": "pcie_h2c_write_krn_r",
+      "elapsed_seconds": 0.00011902199912583455,
+      "status": "PASS",
+      "details": {
+        "bytes": 9000,
+        "address": "0x40880000",
+        "mib_per_second": 72.11329763149
+      }
+    },
+    {
+      "name": "pcie_h2c_write_krn_i",
+      "elapsed_seconds": 0.0001342779942206107,
+      "status": "PASS",
+      "details": {
+        "bytes": 9000,
+        "address": "0x40900000",
+        "mib_per_second": 63.92014490144067
+      }
+    },
+    {
+      "name": "pcie_h2c_clear_tmpImg_ddr",
+      "elapsed_seconds": 0.0001555519993416965,
+      "status": "PASS",
+      "details": {
+        "bytes": 65536,
+        "address": "0x40980000"
+      }
+    },
+    {
+      "name": "pcie_h2c_clear_output",
+      "elapsed_seconds": 0.00017916100478032604,
+      "status": "PASS",
+      "details": {
+        "bytes": 65536,
+        "address": "0x40990000"
+      }
+    },
+    {
+      "name": "hls_configure_axilite",
+      "elapsed_seconds": 0.0012441960061551072,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "fpga_compute",
+      "elapsed_seconds": 0.020674683997640386,
+      "status": "PASS",
+      "details": {
+        "ap_ctrl": "0x0000000e"
+      }
+    },
+    {
+      "name": "pcie_c2h_read_tmpimgp",
+      "elapsed_seconds": 0.00029512100445572287,
+      "status": "PASS",
+      "details": {
+        "bytes": 65536
+      }
+    },
+    {
+      "name": "save_fpga_tmpimgp",
+      "elapsed_seconds": 0.0005463619963848032,
+      "status": "PASS",
+      "details": {
+        "path": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/fpga_tmpimgp_full_128.bin",
+        "bytes": 65536
+      }
+    },
+    {
+      "name": "host_fi_inverse_aerial",
+      "elapsed_seconds": 0.03462321899860399,
+      "status": "PASS",
+      "details": {
+        "input_shape": [
+          128,
+          128
+        ],
+        "output_shape": [
+          1024,
+          1024
+        ]
+      }
+    },
+    {
+      "name": "save_host_fi_aerial",
+      "elapsed_seconds": 0.0029655089965672232,
+      "status": "PASS",
+      "details": {
+        "path": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/fpga_aerial_fi.bin",
+        "bytes": 4194304
+      }
+    },
+    {
+      "name": "load_golden_socs_aerial",
+      "elapsed_seconds": 0.0008260339964181185,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "load_golden_tcc_aerial",
+      "elapsed_seconds": 0.0009538009981042705,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "compare_against_golden",
+      "elapsed_seconds": 0.0853300910021062,
+      "status": "PASS",
+      "details": {}
+    }
+  ],
+  "metrics": {
+    "tmpImgp_vs_golden": {
+      "rmse": 3.739509121788866e-08,
+      "max_abs": 3.8743019104003906e-07,
+      "max_rel": 2.981331553975284e-06,
+      "mean_abs": 2.0446117687811238e-08,
+      "correlation": 0.999999999999966,
+      "psnr": 140.82907666027683,
+      "reference_min": 0.00036064544110558927,
+      "reference_max": 0.41140392422676086,
+      "actual_min": 0.00036064532469026744,
+      "actual_max": 0.4114038646221161,
+      "threshold_rmse": 1e-05,
+      "threshold_max_abs": 0.0001,
+      "threshold_max_rel": 0.01,
+      "passed": true
+    },
+    "host_FI_vs_golden_SOCS": {
+      "rmse": 3.765492525075504e-08,
+      "max_abs": 3.8743019104003906e-07,
+      "max_rel": 7.6490967146921e-06,
+      "mean_abs": 2.0927690885796935e-08,
+      "correlation": 0.9999999999999643,
+      "psnr": 140.77015527273068,
+      "reference_min": 0.0003539570316206664,
+      "reference_max": 0.41146183013916016,
+      "actual_min": 0.0003539583121892065,
+      "actual_max": 0.411461740732193,
+      "threshold_rmse": 1e-05,
+      "threshold_max_abs": 0.0001,
+      "threshold_max_rel": 0.01,
+      "passed": true
+    },
+    "host_FI_vs_TCC_direct": {
+      "rmse": 0.001057437774242373,
+      "max_abs": 0.002192288637161255,
+      "max_rel": 0.7614312446788751,
+      "mean_abs": 0.0010326322075562,
+      "correlation": 0.9999979909041206,
+      "psnr": 51.82671411537139,
+      "reference_min": 0.001324114971794188,
+      "reference_max": 0.4126582443714142,
+      "actual_min": 0.0003539583121892065,
+      "actual_max": 0.411461740732193,
+      "threshold_rmse": 0.01,
+      "threshold_max_abs": 0.02,
+      "threshold_max_rel": 5.0,
+      "passed": true
+    }
+  },
+  "outputs": {
+    "fpga_tmpimgp": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/fpga_tmpimgp_full_128.bin",
+    "host_fi_aerial": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/fpga_aerial_fi.bin",
+    "metrics_csv": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/metrics.csv",
+    "timing_csv": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/timing.csv",
+    "report": "/root/project/fpga-litho-accel/experiments/runs/E4_optical_config/dipole_x/full_platform_report.md"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "archive_ready": false,
+  "reason": "Core board-cycle, FPGA board-power, submission-scale sample coverage, controlled ablation, and final xcku5p implementation evidence remain unavailable.",
+  "completed_since_previous_review": [
+    "10-mask software Golden, on-board FPGA, Host FI, and accuracy evidence",
+    "Nx=2/4/8 runtime kernel-size board evidence",
+    "four supported optical-configuration board runs plus defocus negative results",
+    "256/512/1024 resolution stage breakdown and board accuracy"
+  ],
+  "remaining_blockers": [
+    "ap_start-to-ap_done hardware cycle counter is not mapped in the current bitstream",
+    "no FPGA rail or board power sensor is exposed to this host",
+    "multi-mask coverage is 10 samples, below the requested minimum of 30",
+    "current V18 limits prevent 20/50-kernel and Nx>8 board tests",
+    "controlled ablation variants and matching reports do not exist",
+    "final xcku5p utilization, timing, and bitstream manifest are missing",
+    "working tree is not fixed to a clean archival tag"
+  ],
+  "manifest": "experiments/data/F3_archive/archive_manifest.json"
+}

@@ -1,0 +1,5 @@
+{
+  "missing_source_type": "Quasar",
+  "reason": "The current source generator implements Annular, Dipole, CrossQuadrupole, Point, and Import, but no Quasar model.",
+  "required_action": "Define and validate a Quasar source parameterization before claiming Quasar support."
+}

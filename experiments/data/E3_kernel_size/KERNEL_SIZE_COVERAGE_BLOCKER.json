@@ -1,0 +1,15 @@
+{
+  "measured_nx": [
+    2,
+    4,
+    8
+  ],
+  "current_v18_max_nx": 8,
+  "missing_requested_nx": [
+    12,
+    16,
+    24
+  ],
+  "reason": "The validated V18 bitstream has MAX_KERNEL_SIZE=17, so Nx and Ny cannot exceed 8.",
+  "required_action": "Build and validate a larger-kernel bitstream before collecting Nx=12/16/24 board data."
+}

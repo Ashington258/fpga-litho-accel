@@ -1,0 +1,11 @@
+mask_id,description,software_pipeline_status,duration_seconds,input_path,input_sha256,output_directory,floating_point_outputs_available,fpga_board_measured
+T1,ICCAD 2013 benchmark mask T1,success,5.218336343765259,input/mask/Different_mask_tests/T1.bin,missing,output/Different_mask_tests/T1,False,False
+T2,ICCAD 2013 benchmark mask T2,success,5.22488808631897,input/mask/Different_mask_tests/T2.bin,missing,output/Different_mask_tests/T2,False,False
+T3,ICCAD 2013 benchmark mask T3,success,5.230520486831665,input/mask/Different_mask_tests/T3.bin,missing,output/Different_mask_tests/T3,False,False
+T4,ICCAD 2013 benchmark mask T4,success,5.221364259719849,input/mask/Different_mask_tests/T4.bin,missing,output/Different_mask_tests/T4,False,False
+T5,ICCAD 2013 benchmark mask T5,success,5.259628534317017,input/mask/Different_mask_tests/T5.bin,missing,output/Different_mask_tests/T5,False,False
+T6,ICCAD 2013 benchmark mask T6,success,5.250327110290527,input/mask/Different_mask_tests/T6.bin,missing,output/Different_mask_tests/T6,False,False
+T7,ICCAD 2013 benchmark mask T7,success,5.20756721496582,input/mask/Different_mask_tests/T7.bin,missing,output/Different_mask_tests/T7,False,False
+T8,ICCAD 2013 benchmark mask T8,success,5.21767520904541,input/mask/Different_mask_tests/T8.bin,missing,output/Different_mask_tests/T8,False,False
+T9,ICCAD 2013 benchmark mask T9,success,5.256922483444214,input/mask/Different_mask_tests/T9.bin,missing,output/Different_mask_tests/T9,False,False
+T10,ICCAD 2013 benchmark mask T10,success,5.190678119659424,input/mask/Different_mask_tests/T10.bin,missing,output/Different_mask_tests/T10,False,False

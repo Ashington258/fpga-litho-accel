@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T12:05:17.868984+00:00",
+  "cpu_reference": {
+    "statistics_ms": {
+      "samples": 1000,
+      "mean": 15.7830791,
+      "median": 15.568200000000001,
+      "stddev": 0.8105647164247298,
+      "min": 15.4215,
+      "max": 24.5922,
+      "p5": 15.4694,
+      "p95": 16.80848,
+      "ci95_low": 15.732839778380535,
+      "ci95_high": 15.833318421619465
+    },
+    "warmup_iterations": 20,
+    "measured_iterations": 1000,
+    "precision": "float input/output with double FFTW and double intermediate accumulation",
+    "scope": "FFTW_ESTIMATE plan creation, 10x 128x128 SOCS reconstruction, 128-to-1024 Fourier interpolation, and final 1024x1024 float output formation",
+    "excluded": "input loading, mask FFT, kernel extraction, logging, PNG and binary file writing",
+    "raw_file": "experiments/data/D3_end_to_end/cpu_e2e_latency_raw.csv"
+  },
+  "fpga": {
+    "resident_inputs": {
+      "statistics_ms": {
+        "samples": 1000,
+        "mean": 43.765215524,
+        "median": 43.4063545,
+        "stddev": 1.7859925752938401,
+        "min": 41.804393,
+        "max": 67.189754,
+        "p5": 42.28327975,
+        "p95": 46.21434495,
+        "ci95_low": 43.654518557327265,
+        "ci95_high": 43.87591249067273
+      },
+      "measured_iterations": 1000,
+      "scope": "ap_start/ap_done busy-poll, C2H 128x128 output, Host 128-to-1024 FI"
+    },
+    "retransmit_inputs": {
+      "statistics_ms": {
+        "samples": 1000,
+        "mean": 54.444352611,
+        "median": 54.3171855,
+        "stddev": 1.6107519573140876,
+        "min": 51.330818,
+        "max": 68.135483,
+        "p5": 52.4138361,
+        "p95": 56.764035050000004,
+        "ci95_low": 54.344517170358536,
+        "ci95_high": 54.54418805164146
+      },
+      "measured_iterations": 1000,
+      "scope": "H2C mask/kernels/scales, output clear, AXI-Lite configuration, ap_start/ap_done busy-poll, C2H output, Host FI"
+    }
+  },
+  "comparison_caution": "CPU and FPGA both form 1024x1024 outputs, but the CPU reference consumes host-resident arrays while the FPGA retransmit scenario additionally includes PCIe input movement and AXI-Lite configuration."
+}

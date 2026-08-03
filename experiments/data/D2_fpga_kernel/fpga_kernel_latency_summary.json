@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "generated_at_utc": "2026-08-03T06:21:10.183835+00:00",
+  "board": "Xilinx 10ee:9038; target design xcku5p",
+  "host": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+  "git_commit": "61811930ee580f5acc05b6864b8f290e7e693557",
+  "git_dirty": true,
+  "clock_assumption_mhz": 250.0,
+  "hardware_cycle_counter": {
+    "available": false,
+    "reason": "Current bitstream exposes HLS control/control_r and DDR only; no ap_start-to-ap_done cycle counter register is mapped.",
+    "required_action": "Add and map a hardware cycle counter, rebuild the bitstream, then collect fpga_kernel_cycles_raw.csv."
+  },
+  "host_wall_clock": {
+    "samples": 1000,
+    "mean_ms": 13.603854057000001,
+    "median_ms": 13.600688,
+    "stddev_ms": 0.051213021153701146,
+    "min_ms": 13.587574,
+    "max_ms": 15.029405,
+    "p5_ms": 13.59340565,
+    "p95_ms": 13.60953905
+  },
+  "warmup_iterations": 20,
+  "measured_iterations": 1000,
+  "polling": "busy-poll AXI-Lite ap_done; no sleep interval",
+  "raw_file": "experiments/data/D2_fpga_kernel/fpga_kernel_host_wall_raw.csv"
+}

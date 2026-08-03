@@ -1,0 +1,4 @@
+resolution_x,resolution_y,nx,ny,kernel_count,mask_bytes,h2c_seconds,axilite_config_seconds,fpga_host_observed_seconds,c2h_seconds,rmse,max_abs,psnr_db,passed,measurement_scope,raw_run
+256,256,2,2,10,524288,0.0009511970000000001,0.000449938,0.020734676,0.000334319,9.987043667419807e-09,7.450580596923828e-08,142.20452555121898,True,single run; resident generated Golden; 10 ms host busy-poll interval,experiments/runs/E5_resolution/256x256
+512,512,4,4,10,2097152,0.003112254,0.000764917,0.020416273,0.000225959,1.3601567429224438e-08,7.450580596923828e-08,141.84738507765485,True,single run; resident generated Golden; 10 ms host busy-poll interval,experiments/runs/E5_resolution/512x512
+1024,1024,8,8,10,8388608,0.014123155000000002,0.001138191,0.020537306,0.000286118,2.9303560513803195e-08,3.5762786865234375e-07,142.26472274530363,True,single run; resident generated Golden; 10 ms host busy-poll interval,experiments/runs/E5_resolution/1024x1024

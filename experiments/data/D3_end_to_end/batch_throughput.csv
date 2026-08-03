@@ -1,0 +1,5 @@
+batch_size,elapsed_seconds,images_per_second,data_residency,measurement_type
+1,0.01361369,73.45547019213748,mask kernels weights resident in DDR,host-observed repeated ap_start/ap_done busy-poll
+10,0.136024563,73.51613399412282,mask kernels weights resident in DDR,host-observed repeated ap_start/ap_done busy-poll
+100,1.359891701,73.53526749701078,mask kernels weights resident in DDR,host-observed repeated ap_start/ap_done busy-poll
+1000,13.606817727,73.49256968554084,mask kernels weights resident in DDR,host-observed repeated ap_start/ap_done busy-poll

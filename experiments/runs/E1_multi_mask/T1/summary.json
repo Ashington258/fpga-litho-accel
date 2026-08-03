@@ -1,0 +1,216 @@
+{
+  "config": "experiments/config/multi_mask/config_T1_1024_nk10.json",
+  "golden_output_dir": "/root/project/fpga-litho-accel/experiments/data/E1_multi_mask/golden/T1",
+  "steps": [
+    {
+      "name": "load_json_config",
+      "elapsed_seconds": 8.27429976197891e-05,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "load_golden_data",
+      "elapsed_seconds": 0.004183697994449176,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "pcie_h2c_write_mskf_r",
+      "elapsed_seconds": 0.005696123997040559,
+      "status": "PASS",
+      "details": {
+        "bytes": 4194304,
+        "address": "0x40000000",
+        "mib_per_second": 702.2319040242478
+      }
+    },
+    {
+      "name": "pcie_h2c_write_mskf_i",
+      "elapsed_seconds": 0.00842252500297036,
+      "status": "PASS",
+      "details": {
+        "bytes": 4194304,
+        "address": "0x40400000",
+        "mib_per_second": 474.91696356963325
+      }
+    },
+    {
+      "name": "pcie_h2c_write_scales",
+      "elapsed_seconds": 0.00018481000006431714,
+      "status": "PASS",
+      "details": {
+        "bytes": 40,
+        "address": "0x40800000",
+        "mib_per_second": 0.20641184266530047
+      }
+    },
+    {
+      "name": "pcie_h2c_write_krn_r",
+      "elapsed_seconds": 0.0001415799997630529,
+      "status": "PASS",
+      "details": {
+        "bytes": 11560,
+        "address": "0x40880000",
+        "mib_per_second": 77.86746091331204
+      }
+    },
+    {
+      "name": "pcie_h2c_write_krn_i",
+      "elapsed_seconds": 0.00017202399612870067,
+      "status": "PASS",
+      "details": {
+        "bytes": 11560,
+        "address": "0x40900000",
+        "mib_per_second": 64.08684454352654
+      }
+    },
+    {
+      "name": "pcie_h2c_clear_tmpImg_ddr",
+      "elapsed_seconds": 0.00021142900368431583,
+      "status": "PASS",
+      "details": {
+        "bytes": 65536,
+        "address": "0x40980000"
+      }
+    },
+    {
+      "name": "pcie_h2c_clear_output",
+      "elapsed_seconds": 0.00016623300325591117,
+      "status": "PASS",
+      "details": {
+        "bytes": 65536,
+        "address": "0x40990000"
+      }
+    },
+    {
+      "name": "hls_configure_axilite",
+      "elapsed_seconds": 0.0010781430028146133,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "fpga_compute",
+      "elapsed_seconds": 0.02051177999965148,
+      "status": "PASS",
+      "details": {
+        "ap_ctrl": "0x0000000e"
+      }
+    },
+    {
+      "name": "pcie_c2h_read_tmpimgp",
+      "elapsed_seconds": 0.0002887779992306605,
+      "status": "PASS",
+      "details": {
+        "bytes": 65536
+      }
+    },
+    {
+      "name": "save_fpga_tmpimgp",
+      "elapsed_seconds": 0.0004384139974717982,
+      "status": "PASS",
+      "details": {
+        "path": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/fpga_tmpimgp_full_128.bin",
+        "bytes": 65536
+      }
+    },
+    {
+      "name": "host_fi_inverse_aerial",
+      "elapsed_seconds": 0.031741231003252324,
+      "status": "PASS",
+      "details": {
+        "input_shape": [
+          128,
+          128
+        ],
+        "output_shape": [
+          1024,
+          1024
+        ]
+      }
+    },
+    {
+      "name": "save_host_fi_aerial",
+      "elapsed_seconds": 0.0020146370006841607,
+      "status": "PASS",
+      "details": {
+        "path": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/fpga_aerial_fi.bin",
+        "bytes": 4194304
+      }
+    },
+    {
+      "name": "load_golden_socs_aerial",
+      "elapsed_seconds": 0.000835801001812797,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "load_golden_tcc_aerial",
+      "elapsed_seconds": 0.0008174049944500439,
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "compare_against_golden",
+      "elapsed_seconds": 0.08451598900137469,
+      "status": "PASS",
+      "details": {}
+    }
+  ],
+  "metrics": {
+    "tmpImgp_vs_golden": {
+      "rmse": 2.9303560513803195e-08,
+      "max_abs": 3.5762786865234375e-07,
+      "max_rel": 2.6540381632994295e-06,
+      "mean_abs": 1.4733238629105472e-08,
+      "correlation": 0.9999999999999577,
+      "psnr": 142.26472274530363,
+      "reference_min": 0.00032861315412446856,
+      "reference_max": 0.38032644987106323,
+      "actual_min": 0.00032861324143595994,
+      "actual_max": 0.3803265392780304,
+      "threshold_rmse": 1e-05,
+      "threshold_max_abs": 0.0001,
+      "threshold_max_rel": 0.01,
+      "passed": true
+    },
+    "host_FI_vs_golden_SOCS": {
+      "rmse": 2.952802745941517e-08,
+      "max_abs": 4.172325134277344e-07,
+      "max_rel": 8.662472058245616e-06,
+      "mean_abs": 1.5149402787795196e-08,
+      "correlation": 0.9999999999999539,
+      "psnr": 142.19905100783942,
+      "reference_min": 0.00032766032381914556,
+      "reference_max": 0.3803531229496002,
+      "actual_min": 0.00032766087679192424,
+      "actual_max": 0.3803532123565674,
+      "threshold_rmse": 1e-05,
+      "threshold_max_abs": 0.0001,
+      "threshold_max_rel": 0.01,
+      "passed": true
+    },
+    "host_FI_vs_TCC_direct": {
+      "rmse": 0.0054737755323060145,
+      "max_abs": 0.010465636849403381,
+      "max_rel": 0.9425180103860592,
+      "mean_abs": 0.0053700017381960174,
+      "correlation": 0.9999560989936723,
+      "psnr": 36.94658314521864,
+      "reference_min": 0.0040651969611644745,
+      "reference_max": 0.38513779640197754,
+      "actual_min": 0.00032766087679192424,
+      "actual_max": 0.3803532123565674,
+      "threshold_rmse": 0.01,
+      "threshold_max_abs": 0.02,
+      "threshold_max_rel": 5.0,
+      "passed": true
+    }
+  },
+  "outputs": {
+    "fpga_tmpimgp": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/fpga_tmpimgp_full_128.bin",
+    "host_fi_aerial": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/fpga_aerial_fi.bin",
+    "metrics_csv": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/metrics.csv",
+    "timing_csv": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/timing.csv",
+    "report": "/root/project/fpga-litho-accel/experiments/runs/E1_multi_mask/T1/full_platform_report.md"
+  }
+}

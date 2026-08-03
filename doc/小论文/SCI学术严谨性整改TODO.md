@@ -457,6 +457,26 @@
 
 ## 建议执行顺序
 
+## 2026-08-03 工作要点二实际执行状态
+
+本轮已在当前物理机（Core i3-4170 + xcku5p/XDMA 板卡）执行并归档可完成测试。统一入口为 `experiments/README.md`，详细结果见 `experiments/EXPERIMENT_COMPLETION_REPORT.md`，机器可读状态见 `experiments/data/experiment_index.json`。
+
+- [x] **D1 CPU kernel-only**：四种 FFTW 精度/线程组合均完成 20 次预热和 1000 次计时；另保存一次双精度单线程复测。
+- [ ] **D2 FPGA hardware cycles**：已完成 1000 次无 sleep 的 `ap_start/ap_done` host busy-poll，但当前 bitstream 未映射硬件 cycle counter，不能填写 `fpga_kernel_cycles_raw.csv`。
+- [x] **D3 end-to-end**：CPU 1000 次复测、FPGA resident/retransmit 两种场景、阶段分解及 batch 1/10/100/1000 已归档。
+- [ ] **D4 power/energy**：CPU package 三组独立 turbostat 测量完成；本机无 FPGA rail/board sensor，FPGA 仍只有无 SAIF/VCD 的低置信度 routed estimate，不计算跨平台能效倍数。
+- [ ] **E1 multi-mask**：T1-T10 共 10 个独立掩模已完成 Golden、板测和 Host FI，全部通过；尚缺至少 20 个样本以及 CD/EPE 定义。
+- [ ] **E2 kernel count**：1/5/10 核已各完成 1000 次板测；V18 `MAX_NK=10`，20/50 核需重建 bitstream。
+- [ ] **E3 kernel size**：`Nx=2/4/8` 已上板通过；V18 `MAX_KERNEL_SIZE=17`，`Nx=12/16/24` 需更大核版本。
+- [ ] **E4 optical configuration**：Annular、Dipole、CrossQuadrupole、NA=0.6 已上板通过；Quasar 未实现。10/100 nm defocus 暴露 10 核 SOCS 模型截断不足，作为负结果保留。
+- [x] **E5 resolution**：256/512/1024 已完成 Golden、板测、阶段耗时与精度汇总；2048 及以上超过当前 `Nx<=8` 板卡配置上限。
+- [ ] **E6 ablation**：缺少同版本、可独立开关的受控 baseline 与配套报告，未生成伪消融数据。
+- [ ] **E7 final implementation**：已有 xcku5p routed power report，但缺同一最终版本的 utilization、timing 和 bitstream manifest。
+- [x] **F1/F2**：论文数字映射、Golden 元数据与 SHA-256 索引已建立。
+- [ ] **F3 archive**：结构和入口已建立；待 cycle counter、FPGA 实测功耗、30+ 掩模、消融和最终实现报告后才能标记 archive-ready。
+
+> 口径提醒：本轮 `fpga_compute` 或 D2 host latency 均属于 `on-board host wall-clock`，不是 FPGA 硬件周期；`design_3_githubref_wrapper_power_routed.rpt` 属于低置信度估算，不是板上功耗实测。
+
 ### 第一阶段：立即进行的文字止损
 
 - [ ] 完成 A1-A6，先修正不对称比较、精度类型、能效、估计/实测和公式量纲。

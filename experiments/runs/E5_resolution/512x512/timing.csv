@@ -1,0 +1,15 @@
+step,status,elapsed_seconds,details_json
+load_json_config,PASS,0.000086091,{}
+load_golden_data,PASS,0.001943190,{}
+pcie_h2c_write_mskf_r,PASS,0.001498186,"{""address"": ""0x40000000"", ""bytes"": 1048576, ""mib_per_second"": 667.4738648870699}"
+pcie_h2c_write_mskf_i,PASS,0.001299878,"{""address"": ""0x40400000"", ""bytes"": 1048576, ""mib_per_second"": 769.3029651884623}"
+pcie_h2c_write_scales,PASS,0.000048457,"{""address"": ""0x40800000"", ""bytes"": 40, ""mib_per_second"": 0.7872335218102311}"
+pcie_h2c_write_krn_r,PASS,0.000038412,"{""address"": ""0x40880000"", ""bytes"": 3240, ""mib_per_second"": 80.44113382348624}"
+pcie_h2c_write_krn_i,PASS,0.000038035,"{""address"": ""0x40900000"", ""bytes"": 3240, ""mib_per_second"": 81.23845263435173}"
+pcie_h2c_clear_tmpImg_ddr,PASS,0.000096423,"{""address"": ""0x40980000"", ""bytes"": 65536}"
+pcie_h2c_clear_output,PASS,0.000092863,"{""address"": ""0x40990000"", ""bytes"": 65536}"
+hls_configure_axilite,PASS,0.000764917,{}
+fpga_compute,PASS,0.020416273,"{""ap_ctrl"": ""0x0000000e""}"
+pcie_c2h_read_tmpimgp,PASS,0.000225959,"{""bytes"": 65536}"
+save_fpga_tmpimgp,PASS,0.000231206,"{""bytes"": 65536, ""path"": ""/root/project/fpga-litho-accel/experiments/runs/E5_resolution/512x512/fpga_tmpimgp_full_128.bin""}"
+compare_tmpimgp_only,PASS,0.003698844,{}

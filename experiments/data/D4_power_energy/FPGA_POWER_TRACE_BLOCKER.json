@@ -1,0 +1,8 @@
+{
+  "available": false,
+  "missing_file": "fpga_power_trace.csv",
+  "reason": "No board-level FPGA power sensor is exposed in the current environment.",
+  "acceptable_next_measurement": "Collect synchronized idle/kernel/DDR-PCIe board power using PMBus, BMC, or an external power meter for at least three independent runs.",
+  "estimate_available": "design_3_githubref_wrapper_power_routed.rpt",
+  "estimate_confidence": "Low"
+}

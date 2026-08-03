@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "host": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+  "cpu_model": "Intel Core i3-4170 @ 3.70 GHz; see D1 environment file",
+  "fpga": "xcku5p board exposed as Xilinx 10ee:9038",
+  "pcie_measurement": "XDMA Host wall-clock",
+  "kernel_polling": "busy-poll AXI-Lite ap_done without sleep",
+  "git_commit": "61811930ee580f5acc05b6864b8f290e7e693557",
+  "git_dirty": true
+}

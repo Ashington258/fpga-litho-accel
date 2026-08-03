@@ -49,10 +49,10 @@ struct FullConfig {
     // Source parameters
     int srcSize = 0;
     string srcType;
-    Annular annular;
-    Dipole dipole;
-    CrossQuadrupole crossQuadrupole;
-    Point point;
+    Annular annular{0.6f, 0.9f};
+    Dipole dipole{0.5f, 0.3f, true};
+    CrossQuadrupole crossQuadrupole{0.5f, 0.3f};
+    Point point{0.0f, 0.0f};
     string sourceInputFile;
     
     // Optics parameters
@@ -968,15 +968,14 @@ void calcSOCS(vector<float>& image, const vector<ComplexD>& mskf,
             cout << "  ✓ Golden size: " << convX << "×" << convY << " = " << (convX * convY) << " floats" << endl;
         }
         
-        // Also output full tmpImgp for Fourier Interpolation validation
-        // Changed: Always output full 128×128 for HLS FI validation (Phase 1.4+)
-        if (verbose >= 1) {  // Changed from >= 2 to >= 1
-            vector<float> tmpImgp_full(fftConvX * fftConvY);
-            for (int i = 0; i < fftConvX * fftConvY; i++) {
-                tmpImgp_full[i] = static_cast<float>(tmpImgp[i]);
-            }
-            string fullFile = outputDir + "/tmpImgp_full_" + to_string(fftConvX) + ".bin";
-            writeFloatArrayToBinary(fullFile, tmpImgp_full, fftConvX * fftConvY);
+        // Always retain the fixed-grid output required by PCIe board validation.
+        vector<float> tmpImgp_full(fftConvX * fftConvY);
+        for (int i = 0; i < fftConvX * fftConvY; i++) {
+            tmpImgp_full[i] = static_cast<float>(tmpImgp[i]);
+        }
+        string fullFile = outputDir + "/tmpImgp_full_" + to_string(fftConvX) + ".bin";
+        writeFloatArrayToBinary(fullFile, tmpImgp_full, fftConvX * fftConvY);
+        if (verbose >= 1) {
             cout << "  ✓ Full tmpImgp saved: " << fullFile << " (for FI validation)" << endl;
         }
     }
@@ -1061,6 +1060,24 @@ bool parseValueInSection(const string& section, const string& key, string& value
     return true;
 }
 
+bool parseValueInSection(const string& section, const string& key, bool& value) {
+    size_t pos = section.find("\"" + key + "\"");
+    if (pos == string::npos) return false;
+    pos = section.find(":", pos);
+    if (pos == string::npos) return false;
+    size_t start = pos + 1;
+    while (start < section.length() && isspace(section[start])) start++;
+    if (section.compare(start, 4, "true") == 0) {
+        value = true;
+        return true;
+    }
+    if (section.compare(start, 5, "false") == 0) {
+        value = false;
+        return true;
+    }
+    return false;
+}
+
 bool loadConfig(const string& configPath, FullConfig& config) {
     ifstream ifs(configPath);
     if (!ifs.is_open()) {
@@ -1083,6 +1100,9 @@ bool loadConfig(const string& configPath, FullConfig& config) {
     
     string sourceSection = extractSection(content, "source");
     string annularSection = extractSection(sourceSection, "annular");
+    string dipoleSection = extractSection(sourceSection, "dipole");
+    string crossQuadrupoleSection = extractSection(sourceSection, "crossQuadrupole");
+    string pointSection = extractSection(sourceSection, "point");
     
     string opticsSection = extractSection(content, "optics");
     string kernelSection = extractSection(content, "kernel");
@@ -1101,6 +1121,14 @@ bool loadConfig(const string& configPath, FullConfig& config) {
     parseValueInSection(sourceSection, "type", config.srcType);
     parseValueInSection(annularSection, "innerRadius", config.annular.innerRadius);
     parseValueInSection(annularSection, "outerRadius", config.annular.outerRadius);
+    parseValueInSection(dipoleSection, "radius", config.dipole.radius);
+    parseValueInSection(dipoleSection, "offset", config.dipole.offset);
+    parseValueInSection(dipoleSection, "onXAxis", config.dipole.onXAxis);
+    parseValueInSection(crossQuadrupoleSection, "radius", config.crossQuadrupole.radius);
+    parseValueInSection(crossQuadrupoleSection, "offset", config.crossQuadrupole.offset);
+    parseValueInSection(pointSection, "x", config.point.x);
+    parseValueInSection(pointSection, "y", config.point.y);
+    parseValueInSection(sourceSection, "inputFile", config.sourceInputFile);
     
     parseValueInSection(opticsSection, "NA", config.NA);
     parseValueInSection(opticsSection, "wavelength", config.wavelength);
@@ -1170,8 +1198,8 @@ void writeFFTMeta(const string& path,
     if (!ofs.is_open()) return;
     int convX = 4 * Nx + 1;
     int convY = 4 * Ny + 1;
-    int fftConvX = nextPowerOfTwo(convX);
-    int fftConvY = nextPowerOfTwo(convY);
+    int fftConvX = 128;
+    int fftConvY = 128;
 
     ofs << "physical_size_x " << physLx << "\n";
     ofs << "physical_size_y " << physLy << "\n";

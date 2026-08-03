@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T06:23:19.735764+00:00",
+  "cpu_package_measured": {
+    "idle_power_w": {
+      "samples": 360,
+      "mean": 4.383611111111111,
+      "median": 4.15,
+      "stddev": 1.4151058363281186,
+      "min": 3.33,
+      "max": 13.23,
+      "p5": 3.52,
+      "p95": 5.616000000000001
+    },
+    "kernel_load_power_w": {
+      "samples": 360,
+      "mean": 22.900472222222223,
+      "median": 22.74,
+      "stddev": 1.0624403240291578,
+      "min": 21.85,
+      "max": 30.96,
+      "p5": 22.17,
+      "p95": 23.668000000000003
+    },
+    "mean_dynamic_power_w": 18.516861111111112,
+    "latency_source": "D1 single_single_thread mean kernel-only latency",
+    "latency_seconds": 0.0006272305420000001,
+    "dynamic_energy_per_kernel_call_j": 0.011614340830860947,
+    "absolute_energy_per_kernel_call_j": 0.014363875604000391,
+    "caution": "Power is CPU package power sampled by turbostat, not whole-system input power."
+  },
+  "fpga_routed_estimate": {
+    "measurement_type": "Vivado routed power estimate without SAIF/VCD",
+    "confidence": "Low",
+    "total_on_chip_power_w": 7.523,
+    "dynamic_power_w": 6.89,
+    "device_static_power_w": 0.633,
+    "calc_socs_hierarchy_dynamic_power_w": 1.122,
+    "source": "design_3_githubref_wrapper_power_routed.rpt",
+    "per_image_energy_not_reported": true,
+    "reason": "No synchronized board power trace and no hardware ap_start-to-ap_done cycle counter are available."
+  },
+  "cross_platform_energy_efficiency_ratio": null,
+  "ratio_blocker": "CPU package measurement and low-confidence FPGA on-chip estimate are not comparable power boundaries."
+}

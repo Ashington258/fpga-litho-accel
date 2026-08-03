@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T02:00:00.924907+00:00",
+  "task": "D1 fair CPU kernel-only benchmark",
+  "variants": {
+    "double_single_thread": {
+      "precision": "double",
+      "threads": 1,
+      "validation": {
+        "validation_rmse": 5.28743261251e-09,
+        "validation_max_abs": 3.25947025481e-08
+      },
+      "samples": 1000,
+      "mean_ms": 1.103415676,
+      "median_ms": 1.099371,
+      "stddev_ms": 0.02745668957203835,
+      "min_ms": 1.086739,
+      "max_ms": 1.539921,
+      "p5_ms": 1.0958659,
+      "p95_ms": 1.114159,
+      "ci95_low_ms": 1.1017138927493058,
+      "ci95_high_ms": 1.1051174592506943
+    },
+    "single_single_thread": {
+      "precision": "single",
+      "threads": 1,
+      "validation": {
+        "validation_rmse": 2.22146819231e-08,
+        "validation_max_abs": 1.49011611938e-07
+      },
+      "samples": 1000,
+      "mean_ms": 0.6272305420000001,
+      "median_ms": 0.625046,
+      "stddev_ms": 0.01372113757574818,
+      "min_ms": 0.618084,
+      "max_ms": 0.822714,
+      "p5_ms": 0.62174775,
+      "p95_ms": 0.6350766499999999,
+      "ci95_low_ms": 0.6263800970821735,
+      "ci95_high_ms": 0.6280809869178267
+    },
+    "double_multi_thread": {
+      "precision": "double",
+      "threads": 2,
+      "validation": {
+        "validation_rmse": 5.28743261625e-09,
+        "validation_max_abs": 3.25947024926e-08
+      },
+      "samples": 1000,
+      "mean_ms": 0.887979101,
+      "median_ms": 0.870015,
+      "stddev_ms": 0.07213575246134168,
+      "min_ms": 0.859259,
+      "max_ms": 1.951793,
+      "p5_ms": 0.86434475,
+      "p95_ms": 0.9288627999999999,
+      "ci95_low_ms": 0.8835080807412444,
+      "ci95_high_ms": 0.8924501212587556
+    },
+    "single_multi_thread": {
+      "precision": "single",
+      "threads": 2,
+      "validation": {
+        "validation_rmse": 2.22146819231e-08,
+        "validation_max_abs": 1.49011611938e-07
+      },
+      "samples": 1000,
+      "mean_ms": 0.594247696,
+      "median_ms": 0.5832615,
+      "stddev_ms": 0.0686801170794549,
+      "min_ms": 0.547461,
+      "max_ms": 1.747675,
+      "p5_ms": 0.5647983,
+      "p95_ms": 0.6820906999999999,
+      "ci95_low_ms": 0.5899908582412131,
+      "ci95_high_ms": 0.598504533758787
+    }
+  }
+}

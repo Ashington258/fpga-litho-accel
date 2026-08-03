@@ -1,0 +1,5 @@
+{
+  "available": false,
+  "reason": "The repository contains an xcku3p HLS report and an xcku5p routed power report, but no matching final xcku5p utilization/timing report set or bitstream manifest.",
+  "required_action": "Export post-synthesis and post-implementation utilization/timing reports plus the final bitstream manifest from the project that produced the measured board image."
+}

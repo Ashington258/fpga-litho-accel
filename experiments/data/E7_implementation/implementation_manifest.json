@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T06:23:19.750077+00:00",
+  "hls_synthesis": {
+    "source": "source/SOCS_HLS/socs_full_latest/hls/syn/report/csynth.rpt",
+    "sha256": "d5632d8d8e24699e22832bf7a0d83a83568f77db7573b7fc4e7e9e8bd35bc710",
+    "tool_version": "2025.2 (Build 6295257 on Nov 14 2025)",
+    "device": "xcku3p-ffvb676-2-e",
+    "latency_cycles": 17453599,
+    "latency_ns": 87270000.0,
+    "final_xcku5p_design": false,
+    "caution": "This report targets xcku3p and must not be combined with xcku5p implementation data."
+  },
+  "vivado_routed_power": {
+    "source": "design_3_githubref_wrapper_power_routed.rpt",
+    "sha256": "044307798609c5dc3b60aa6fa16832332ba3108b8023ffe2cb319dd536182d5a",
+    "device": "xcku5p-ffvb676-2-e",
+    "confidence": "Low",
+    "activity_file": null
+  },
+  "missing_final_xcku5p_reports": [
+    "xcku5p csynth report",
+    "post-synthesis utilization report",
+    "post-implementation utilization report",
+    "post-implementation timing report",
+    "bitstream manifest"
+  ],
+  "same_version_claim_supported": false
+}

@@ -1,0 +1,7 @@
+resolution_x,resolution_y,software_status,software_total_seconds,nx,ny,tcc_matrix_side,output_directory,fpga_board_measured,notes
+256,256,success,0.13585400581359863,2,2,5,output/Different_resolution_tests/256x256,False,
+512,512,success,0.4232766628265381,4,4,9,output/Different_resolution_tests/512x512,False,
+1024,1024,success,1.0476553440093994,8,8,17,output/Different_resolution_tests/1024x1024,False,
+2048,2048,success,5.543248653411865,16,16,33,output/Different_resolution_tests/2048x2048,False,
+4096,4096,success,124.89263439178467,32,32,65,output/Different_resolution_tests/4096x4096,False,
+8192,8192,execution_failed,601.4417223930359,64,64,129,output/Different_resolution_tests/8192x8192,False,kernel eigendecomposition timeout after 600 s

@@ -46,6 +46,8 @@ klitho_tcc
 klitho_socs
 socs_host
 tb_socs_simple_test
+validation/benchmarks/cpu_socs_kernel_benchmark
+validation/benchmarks/cpu_socs_e2e_benchmark
 
 # ============================================================================
 # HLS工作目录（vitis-run生成）

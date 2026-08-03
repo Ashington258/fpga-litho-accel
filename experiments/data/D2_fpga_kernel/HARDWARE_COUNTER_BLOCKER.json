@@ -1,0 +1,5 @@
+{
+  "available": false,
+  "reason": "Current bitstream address map exposes HLS control/control_r and DDR only; no ap_start-to-ap_done cycle counter register is mapped.",
+  "required_action": "Add an AXI cycle counter around ap_start/ap_done, map its registers, rebuild bitstream, then collect fpga_kernel_cycles_raw.csv."
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T12:40:00+00:00",
+  "git_commit": "61811930ee580f5acc05b6864b8f290e7e693557",
+  "git_dirty": true,
+  "entry_points": {
+    "index": "experiments/build_evidence_index.py",
+    "organizer": "experiments/organize_paper_evidence.py",
+    "multi_mask": "experiments/collect_multi_mask.py",
+    "optical_config": "experiments/collect_optical_config.py",
+    "board_smoke": "source/host/full_platform/scripts/python/run_full_platform_validation.py"
+  },
+  "data_root": "experiments/data",
+  "run_root": "experiments/runs",
+  "archive_ready": false,
+  "blockers": [
+    "working tree is not fixed to a clean archival tag",
+    "CPU benchmark source and build recipe are not present in the working tree",
+    "hardware cycle counter data is unavailable",
+    "FPGA board power trace is unavailable",
+    "multi-mask board coverage is 10 samples rather than the requested minimum of 30",
+    "current V18 limits prevent 20/50-kernel and Nx greater than 8 board tests",
+    "controlled ablation variants are unavailable",
+    "final xcku5p utilization/timing reports and bitstream manifest are unavailable"
+  ]
+}

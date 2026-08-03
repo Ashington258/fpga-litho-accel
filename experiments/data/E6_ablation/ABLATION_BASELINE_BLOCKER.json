@@ -1,0 +1,15 @@
+{
+  "status": "blocked",
+  "reason": "The working tree does not contain controlled, buildable V18 baseline variants with matching xcku5p reports for each requested optimization switch.",
+  "missing_controlled_variants": [
+    "single AXI bundle",
+    "DDR intermediate storage",
+    "BRAM transpose buffer disabled",
+    "BRAM accumulation disabled",
+    "block-floating scaling disabled",
+    "FFT LUT mapping disabled",
+    "kernel time-multiplexing baseline"
+  ],
+  "required_action": "Create one configuration switch per optimization, synthesize every variant with the same xcku5p part and clock, and archive latency, Fmax, resources, RMSE, and power reports before generating ablation_results.csv.",
+  "claim_limit": "Do not claim an independently measured area, bandwidth, or precision contribution for any optimization until the controlled variants exist."
+}

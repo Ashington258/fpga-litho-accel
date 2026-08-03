@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T12:46:34.911808+00:00",
+  "git_commit": "61811930ee580f5acc05b6864b8f290e7e693557",
+  "git_dirty": true,
+  "datasets": [
+    {
+      "task": "D1",
+      "directory": "experiments/data/D1_cpu_kernel",
+      "description": "Fair CPU SOCS kernel-only latency and numerical validation",
+      "status": "complete",
+      "file_count": 8,
+      "missing_required_files": [],
+      "blocker_files": [],
+      "git_archived_file_count": 8,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "D2",
+      "directory": "experiments/data/D2_fpga_kernel",
+      "description": "On-board FPGA kernel cycles and host-observed latency",
+      "status": "partial",
+      "file_count": 3,
+      "missing_required_files": [
+        "fpga_kernel_cycles_raw.csv"
+      ],
+      "blocker_files": [
+        "HARDWARE_COUNTER_BLOCKER.json"
+      ],
+      "git_archived_file_count": 3,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "D3",
+      "directory": "experiments/data/D3_end_to_end",
+      "description": "CPU and Host-FPGA end-to-end latency and batch throughput",
+      "status": "complete",
+      "file_count": 6,
+      "missing_required_files": [],
+      "blocker_files": [],
+      "git_archived_file_count": 6,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "D4",
+      "directory": "experiments/data/D4_power_energy",
+      "description": "Synchronized CPU/FPGA power and energy measurements",
+      "status": "partial",
+      "file_count": 4,
+      "missing_required_files": [
+        "fpga_power_trace.csv"
+      ],
+      "blocker_files": [
+        "FPGA_POWER_TRACE_BLOCKER.json"
+      ],
+      "git_archived_file_count": 4,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "E1",
+      "directory": "experiments/data/E1_multi_mask",
+      "description": "Multi-mask accuracy statistics",
+      "status": "partial",
+      "file_count": 365,
+      "missing_required_files": [],
+      "blocker_files": [
+        "MULTI_MASK_SAMPLE_COUNT_BLOCKER.json"
+      ],
+      "git_archived_file_count": 25,
+      "local_generated_file_count": 340
+    },
+    {
+      "task": "E2",
+      "directory": "experiments/data/E2_kernel_count",
+      "description": "SOCS kernel-count scaling and Pareto data",
+      "status": "partial",
+      "file_count": 4,
+      "missing_required_files": [],
+      "blocker_files": [
+        "KERNEL_COUNT_COVERAGE_BLOCKER.json"
+      ],
+      "git_archived_file_count": 4,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "E3",
+      "directory": "experiments/data/E3_kernel_size",
+      "description": "Runtime effective-kernel-size validation",
+      "status": "partial",
+      "file_count": 2,
+      "missing_required_files": [],
+      "blocker_files": [
+        "KERNEL_SIZE_COVERAGE_BLOCKER.json"
+      ],
+      "git_archived_file_count": 2,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "E4",
+      "directory": "experiments/data/E4_optical_config",
+      "description": "Optical-configuration robustness",
+      "status": "partial",
+      "file_count": 220,
+      "missing_required_files": [],
+      "blocker_files": [
+        "OPTICAL_CONFIG_COVERAGE_BLOCKER.json"
+      ],
+      "git_archived_file_count": 16,
+      "local_generated_file_count": 204
+    },
+    {
+      "task": "E5",
+      "directory": "experiments/data/E5_resolution",
+      "description": "Input-resolution scaling",
+      "status": "complete",
+      "file_count": 112,
+      "missing_required_files": [],
+      "blocker_files": [],
+      "git_archived_file_count": 10,
+      "local_generated_file_count": 102
+    },
+    {
+      "task": "E6",
+      "directory": "experiments/data/E6_ablation",
+      "description": "Architecture ablation results",
+      "status": "partial",
+      "file_count": 1,
+      "missing_required_files": [
+        "ablation_results.csv"
+      ],
+      "blocker_files": [
+        "ABLATION_BASELINE_BLOCKER.json"
+      ],
+      "git_archived_file_count": 1,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "E7",
+      "directory": "experiments/data/E7_implementation",
+      "description": "Final implementation utilization, timing, power, and bitstream manifest",
+      "status": "partial",
+      "file_count": 2,
+      "missing_required_files": [],
+      "blocker_files": [
+        "FINAL_XCKU5P_REPORTS_BLOCKER.json"
+      ],
+      "git_archived_file_count": 2,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "F1",
+      "directory": "experiments/data/F1_paper_evidence",
+      "description": "Paper-number-to-source mapping",
+      "status": "complete",
+      "file_count": 1,
+      "missing_required_files": [],
+      "blocker_files": [],
+      "git_archived_file_count": 1,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "F2",
+      "directory": "experiments/data/F2_golden_manifest",
+      "description": "Golden data metadata and hashes",
+      "status": "complete",
+      "file_count": 1,
+      "missing_required_files": [],
+      "blocker_files": [],
+      "git_archived_file_count": 1,
+      "local_generated_file_count": 0
+    },
+    {
+      "task": "F3",
+      "directory": "experiments/data/F3_archive",
+      "description": "Reproducible experiment archive metadata",
+      "status": "partial",
+      "file_count": 2,
+      "missing_required_files": [],
+      "blocker_files": [
+        "ARCHIVE_READINESS_BLOCKER.json"
+      ],
+      "git_archived_file_count": 2,
+      "local_generated_file_count": 0
+    }
+  ]
+}

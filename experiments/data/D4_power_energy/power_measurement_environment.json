@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-08-03T06:23:19.736978+00:00",
+  "host": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+  "cpu_sensor": "turbostat PkgWatt",
+  "sample_interval_seconds": 0.25,
+  "independent_runs": 3,
+  "samples_per_scenario": 360,
+  "samples_per_run": 120,
+  "cpu_scenarios": [
+    "idle",
+    "kernel_single_fftwf"
+  ],
+  "fpga_board_sensor_available": false,
+  "fpga_power_trace_status": "blocked",
+  "fpga_power_trace_blocker": "No FPGA rail/board sensor is exposed through hwmon or the current host tools.",
+  "vivado_report": "design_3_githubref_wrapper_power_routed.rpt",
+  "vivado_report_confidence": "Low; no simulation activity file; internal activity below 25 percent.",
+  "git_commit": "61811930ee580f5acc05b6864b8f290e7e693557",
+  "git_dirty": true
+}

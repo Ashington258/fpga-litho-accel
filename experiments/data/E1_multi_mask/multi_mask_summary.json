@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T12:20:54.610759+00:00",
+  "sample_count": 10,
+  "configuration": "1024x1024 V18 window; Annular 0.6/0.9; NA=0.8; 193 nm; nk=10",
+  "threshold": 0.225,
+  "statistics": {
+    "implementation_rmse": {
+      "mean": 2.6474927338843983e-08,
+      "stddev": 6.300958712377693e-09,
+      "p95": 3.504248322201885e-08,
+      "worst": 3.58097911601903e-08
+    },
+    "implementation_nrmse": {
+      "mean": 6.841096172710553e-08,
+      "stddev": 1.2341238664884346e-08,
+      "p95": 8.426811200837389e-08,
+      "worst": 8.757697631250816e-08
+    },
+    "implementation_max_abs": {
+      "mean": 2.86102294921875e-07,
+      "stddev": 6.982200698377919e-08,
+      "p95": 3.9041042327880853e-07,
+      "worst": 4.172325134277344e-07
+    },
+    "implementation_psnr_db": {
+      "mean": 143.44753156955034,
+      "stddev": 1.6131187580420812,
+      "p95": 145.8210290900438,
+      "worst": 141.15378494595197
+    },
+    "implementation_ssim": {
+      "mean": 0.9999999952717925,
+      "stddev": 7.442283365178065e-09,
+      "p95": 1.0,
+      "worst": 0.999999979700841
+    },
+    "binary_agreement_at_0_225": {
+      "mean": 1.0,
+      "stddev": 0.0,
+      "p95": 1.0,
+      "worst": 1.0
+    },
+    "model_rmse_vs_tcc": {
+      "mean": 0.004648197250230918,
+      "stddev": 0.0013315509463833143,
+      "p95": 0.006164961841327725,
+      "worst": 0.006215798132846936
+    },
+    "model_max_abs_vs_tcc": {
+      "mean": 0.007783348066732287,
+      "stddev": 0.0023423346710934045,
+      "p95": 0.010562113858759404,
+      "worst": 0.010641049593687057
+    }
+  },
+  "worst_implementation_rmse_sample": "T6",
+  "all_passed": true,
+  "limitations": [
+    "ICCAD masks are evaluated in a standardized 1024x1024 physical window, distinct from legacy Lx=2048 software runs.",
+    "CD/EPE is not reported because an edge extraction and measurement convention has not been fixed.",
+    "FPGA compute time is host-observed with polling and is not a hardware cycle count."
+  ]
+}

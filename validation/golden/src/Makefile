@@ -35,12 +35,12 @@ $(TARGET_THREAD): litho_thread.o common/file_io.o common/mask.o common/source.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 	@echo "Build successful: $(TARGET_THREAD)"
 
-# Pattern rule for object files
-%.cpp.o: %.cpp
+# Pattern rules for object files
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-%.cpp.o: common/%.cpp
+common/%.o: common/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	cmd /c del /f /q $(TARGET) *.o common\*.o 2>nul || echo "Clean done"
+	$(RM) $(TARGET) $(TARGET_THREAD) *.o common/*.o

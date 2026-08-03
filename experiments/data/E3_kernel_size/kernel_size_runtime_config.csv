@@ -1,0 +1,4 @@
+nx,ny,kernel_width,kernel_height,resolution_x,resolution_y,fpga_host_observed_seconds,rmse,max_abs,passed,measurement_scope,raw_run
+2,2,5,5,256,256,0.020734676,9.987043667419807e-09,7.450580596923828e-08,True,single run; resident generated Golden; 10 ms host busy-poll interval,experiments/runs/E5_resolution/256x256
+4,4,9,9,512,512,0.020416273,1.3601567429224438e-08,7.450580596923828e-08,True,single run; resident generated Golden; 10 ms host busy-poll interval,experiments/runs/E5_resolution/512x512
+8,8,17,17,1024,1024,0.020537306,2.9303560513803195e-08,3.5762786865234375e-07,True,single run; resident generated Golden; 10 ms host busy-poll interval,experiments/runs/E5_resolution/1024x1024

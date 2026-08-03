@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-03T12:29:40.900402+00:00",
+  "tested_cases": 4,
+  "all_passed": true,
+  "limitations": [
+    "Quasar is not implemented by the current CPU source generator and was not tested.",
+    "Only configurations yielding Nx and Ny at or below the V18 limit of 8 were sent to the board.",
+    "Defocus trials at 10 nm and 100 nm were retained as failed model-coverage cases because 10-kernel SOCS differed materially from full TCC.",
+    "FPGA timing is host-observed and not a hardware cycle count."
+  ]
+}

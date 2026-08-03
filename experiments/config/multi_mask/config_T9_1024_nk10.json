@@ -1,0 +1,39 @@
+{
+  "simulation": {
+    "description": "Paper evidence: ICCAD 2013 T9, 1024x1024 V18 window",
+    "version": "1.0"
+  },
+  "mask": {
+    "period": {
+      "Lx": 1024,
+      "Ly": 1024
+    },
+    "size": {
+      "maskSizeX": 1024,
+      "maskSizeY": 1024
+    },
+    "type": "Import",
+    "inputFile": "../input/mask/Different_mask_tests/T9.bin",
+    "dose": 1.0
+  },
+  "source": {
+    "gridSize": 101,
+    "type": "Annular",
+    "annular": {
+      "innerRadius": 0.6,
+      "outerRadius": 0.9
+    }
+  },
+  "optics": {
+    "NA": 0.8,
+    "wavelength": 193,
+    "defocus": 0.2
+  },
+  "kernel": {
+    "count": 10,
+    "targetIntensity": 0.225
+  },
+  "output": {
+    "baseDir": "out"
+  }
+}
