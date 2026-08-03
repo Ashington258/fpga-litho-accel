@@ -434,3 +434,14 @@ fft_synth_v*/
 doc/论文/auto/
 
 opencode.jsonc
+
+# ==========================================================================
+# 论文实验归档例外（必须位于文件末尾以覆盖前面的全局规则）
+# ==========================================================================
+# experiments/ 是固定论文证据包；完整 Golden、板测输出、可视化和日志需
+# 随分支共享给论文书写人员。其他目录仍遵循上面的全局生成物忽略规则。
+!experiments/**/*.bin
+!experiments/**/*.png
+!experiments/**/*.log
+!input/mask/Different_mask_tests/*.bin
+!input/mask/Different_resolution_tests/*.bin

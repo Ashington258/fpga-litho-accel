@@ -22,14 +22,15 @@
 
 ## Git 归档范围
 
-仓库现有 `.gitignore` 全局排除 `*.bin`、`*.png` 和 `*.log` 生成物，且当前仓库未配置 Git LFS。因此本次 Git 提交包含：
+仓库未配置 Git LFS。为使论文书写人员能够直接拉取全部测试证据，`.gitignore` 对 `experiments/` 和对应测试输入 BIN 设置了定向例外。因此 Git 归档包含：
 
 - 全部原始延迟 CSV、CPU 功耗 trace、阶段时间、精度指标和统计 JSON；
 - 所有实验配置、采集脚本、论文映射、状态 blocker 和 SHA-256 manifest；
 - 每次板测的 `timing.csv`、`metrics.csv`、`summary.json` 和 Markdown 报告；
 - Golden metadata 与 kernel metadata。
+- 完整 Golden/FPGA `.bin`、可视化 `.png`、原始运行 `.log` 和测试输入 BIN。
 
-约 370 MB 的可重建中间数组和可视化文件继续保留在实验物理机，不直接写入普通 Git 历史。`experiment_files.csv` 的 `git_archived` 列区分远端可获取文件与本地生成文件；被排除文件仍保留大小和 SHA-256，必要时可通过对应配置和采集器重建。
+`experiment_files.csv` 的 `git_archived` 列用于核验远端归档状态；本证据包内文件应全部标记为 `True`。单个文件最大约 4 MB，未触及 GitHub 100 MB 单文件限制。
 
 ## 口径约束
 

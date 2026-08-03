@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-08-03T12:46:34.911808+00:00",
-  "git_commit": "61811930ee580f5acc05b6864b8f290e7e693557",
+  "generated_at_utc": "2026-08-03T12:55:38.556426+00:00",
+  "git_commit": "78c159eca8549f89db4f9271b6c1c19946408a44",
   "git_dirty": true,
   "datasets": [
     {
@@ -66,8 +66,8 @@
       "blocker_files": [
         "MULTI_MASK_SAMPLE_COUNT_BLOCKER.json"
       ],
-      "git_archived_file_count": 25,
-      "local_generated_file_count": 340
+      "git_archived_file_count": 365,
+      "local_generated_file_count": 0
     },
     {
       "task": "E2",
@@ -105,8 +105,8 @@
       "blocker_files": [
         "OPTICAL_CONFIG_COVERAGE_BLOCKER.json"
       ],
-      "git_archived_file_count": 16,
-      "local_generated_file_count": 204
+      "git_archived_file_count": 220,
+      "local_generated_file_count": 0
     },
     {
       "task": "E5",
@@ -116,8 +116,8 @@
       "file_count": 112,
       "missing_required_files": [],
       "blocker_files": [],
-      "git_archived_file_count": 10,
-      "local_generated_file_count": 102
+      "git_archived_file_count": 112,
+      "local_generated_file_count": 0
     },
     {
       "task": "E6",

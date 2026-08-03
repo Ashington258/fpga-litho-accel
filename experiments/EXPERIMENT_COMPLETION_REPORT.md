@@ -74,6 +74,6 @@
 - 论文数字映射：`experiments/data/F1_paper_evidence/paper_evidence_manifest.csv`
 - 目录说明：`experiments/README.md`
 
-Git 提交包含全部 CSV/JSON 指标、原始计时与功耗 trace、配置、报告和哈希清单。仓库既有规则排除大体积 `*.bin`、`*.png`、`*.log` 生成物；其本地文件大小、SHA-256 和 Git 归档状态记录在 `experiment_files.csv`，可由配置与采集脚本重建。
+Git 提交包含全部 CSV/JSON 指标、原始计时与功耗 trace、配置、报告、哈希清单，以及完整 Golden/FPGA `.bin`、可视化 `.png`、运行 `.log` 和对应测试输入 BIN。文件大小、SHA-256 和 Git 归档状态记录在 `experiment_files.csv`。
 
 任何正文数字应继续标记为 `measured`、`on-board host wall-clock` 或 `estimated`，不得把本报告列出的 blocker 用估算值补齐。

@@ -120,7 +120,7 @@ def rebuild() -> None:
     )
 
     with (DATA_ROOT / "experiment_files.csv").open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.writer(stream)
+        writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(("task", "file", "size_bytes", "sha256", "git_archived"))
         writer.writerows(file_rows)
 
