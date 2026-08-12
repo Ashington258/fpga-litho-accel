@@ -7,8 +7,8 @@ Academic-style visualization for Chapter 5 of FPGA-Litho paper.
 Output: fig_visual_comparison_10kernels.png (1024×1024 resolution)
 
 Data sources:
-  - Golden: output/verification/aerial_image_tcc_direct.bin (1024×1024)
-  - FPGA: output/verification/tmpImgp_full_128.bin (128×128 → FI → 1024×1024)
+    - Golden: experiments/data/E1_multi_mask/golden/T1/aerial_image_tcc_direct.bin
+    - FPGA: experiments/runs/E1_multi_mask/T1/fpga_tmpimgp_full_128.bin
 
 Author: FPGA-Litho Project
 Date: 2026-05-07
@@ -131,7 +131,9 @@ def main():
     print("\n[Step 1] Loading data...")
     
     # Load Golden aerial image (1024×1024)
-    golden_path = PROJECT_ROOT / "output/verification/aerial_image_tcc_direct.bin"
+    golden_path = PROJECT_ROOT / (
+        "experiments/data/E1_multi_mask/golden/T1/aerial_image_tcc_direct.bin"
+    )
     if not golden_path.exists():
         print(f"❌ ERROR: {golden_path} not found!")
         return
@@ -140,7 +142,9 @@ def main():
     print(f"✓ Loaded Golden aerial: {golden_aerial.shape}")
     
     # Load FPGA tmpImgp (128×128)
-    fpga_tmpimgp_path = PROJECT_ROOT / "output/verification/tmpImgp_full_128.bin"
+    fpga_tmpimgp_path = PROJECT_ROOT / (
+        "experiments/runs/E1_multi_mask/T1/fpga_tmpimgp_full_128.bin"
+    )
     if not fpga_tmpimgp_path.exists():
         print(f"❌ ERROR: {fpga_tmpimgp_path} not found!")
         return
@@ -172,9 +176,9 @@ def main():
     # ========================================================================
     print("\n[Step 4] Creating academic-style visualization...")
     
-    # Create figure with 1×3 layout
-    fig = plt.figure(figsize=(15, 5))
-    gs = GridSpec(1, 3, figure=fig, wspace=0.25)
+    # Create a wider 1×3 layout so axis labels and colorbars remain separate.
+    fig = plt.figure(figsize=(18, 5.8))
+    gs = GridSpec(1, 3, figure=fig, wspace=0.42)
     
     # Common color scale for aerial images
     vmin_aerial = min(golden_aerial.min(), fpga_aerial.min())
@@ -184,21 +188,21 @@ def main():
     ax1 = fig.add_subplot(gs[0, 0])
     im1 = ax1.imshow(golden_aerial, cmap='hot', interpolation='nearest',
                      vmin=vmin_aerial, vmax=vmax_aerial)
-    ax1.set_title('(a) MATLAB Golden Aerial Image', fontweight='bold', pad=10)
+    ax1.set_title('(a) MATLAB Golden Aerial Image', fontsize=12, fontweight='bold', pad=10)
     ax1.set_xlabel('X (pixels)')
     ax1.set_ylabel('Y (pixels)')
-    cbar1 = plt.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
-    cbar1.set_label('Intensity', rotation=270, labelpad=15)
+    cbar1 = plt.colorbar(im1, ax=ax1, fraction=0.042, pad=0.06)
+    cbar1.set_label('Intensity', rotation=270, labelpad=12)
     
     # Middle: FPGA Output
     ax2 = fig.add_subplot(gs[0, 1])
     im2 = ax2.imshow(fpga_aerial, cmap='hot', interpolation='nearest',
                      vmin=vmin_aerial, vmax=vmax_aerial)
-    ax2.set_title('(b) FPGA Output Aerial Image', fontweight='bold', pad=10)
+    ax2.set_title('(b) FPGA Output Aerial Image', fontsize=12, fontweight='bold', pad=10)
     ax2.set_xlabel('X (pixels)')
     ax2.set_ylabel('Y (pixels)')
-    cbar2 = plt.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
-    cbar2.set_label('Intensity', rotation=270, labelpad=15)
+    cbar2 = plt.colorbar(im2, ax=ax2, fraction=0.042, pad=0.06)
+    cbar2.set_label('Intensity', rotation=270, labelpad=12)
     
     # Right: Residual Map
     residual = golden_aerial - fpga_aerial
@@ -209,22 +213,22 @@ def main():
     im3 = ax3.imshow(residual, cmap='RdBu_r', interpolation='nearest',
                      vmin=-vmax_residual, vmax=vmax_residual)
     ax3.set_title(f'(c) Residual Map (RMSE={metrics["rmse"]:.2e})',
-                  fontweight='bold', pad=10)
+                  fontsize=12, fontweight='bold', pad=10)
     ax3.set_xlabel('X (pixels)')
     ax3.set_ylabel('Y (pixels)')
-    cbar3 = plt.colorbar(im3, ax=ax3, fraction=0.046, pad=0.04)
-    cbar3.set_label('Residual', rotation=270, labelpad=15)
+    cbar3 = plt.colorbar(im3, ax=ax3, fraction=0.042, pad=0.06)
+    cbar3.set_label('Residual', rotation=270, labelpad=12)
     
     # Add overall title
     fig.suptitle('Figure 5-4: FPGA vs MATLAB Golden Visual Comparison (10 Kernels)',
-                 fontsize=14, fontweight='bold', y=1.02)
+                 fontsize=14, fontweight='bold', y=1.01)
     
     # ========================================================================
     # Step 5: Save figure
     # ========================================================================
     print("\n[Step 5] Saving figure...")
     
-    output_path = PROJECT_ROOT / "doc/论文/fig_visual_comparison_10kernels.png"
+    output_path = PROJECT_ROOT / "doc/image/论文/ch5_fig4_visual_comparison.png"
     plt.savefig(output_path, dpi=300, bbox_inches='tight', pad_inches=0.1)
     print(f"✓ Figure saved to: {output_path}")
     
