@@ -1,0 +1,5 @@
+$out_dir = 'output';
+$aux_dir = 'output';
+$pdf_mode = 5;
+$xelatex = 'xelatex -interaction=nonstopmode -halt-on-error %O %S';
+$clean_ext = 'aux log spl fdb_latexmk fls xdv toc out synctex.gz bbl blg lof lot nav snm vrb';

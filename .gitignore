@@ -143,6 +143,24 @@ ip_repo/
 # HLS IP 导出目录
 output/SOCS_IP/
 
+# Local publisher template archive (downloaded and extracted files)
+doc/template/
+
+# LaTeX manuscript build output
+doc/小论文/output/
+doc/小论文/*.aux
+doc/小论文/*.bbl
+doc/小论文/*.blg
+doc/小论文/*.fdb_latexmk
+doc/小论文/*.fls
+doc/小论文/*.log
+doc/小论文/*.out
+doc/小论文/*.pdf
+doc/小论文/*.spl
+doc/小论文/*.synctex.gz
+doc/小论文/*.toc
+doc/小论文/*.xdv
+
 # ============================================================================
 # 输出数据目录（Golden验证数据、板级验证数据）
 # ============================================================================
