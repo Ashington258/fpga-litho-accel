@@ -83,7 +83,7 @@
 - [ ] 明确 MATLAB baseline 版本、运行模式和是否使用多线程/并行工具箱。
 - [ ] 明确 FFTW/LAPACK/BLAS/OpenMP 的版本、线程数和链接方式。
 - [ ] 如条件允许，增加 GPU baseline 或说明无法公平复现 GPU 对比的原因。
-- [x] 在 Discussion 中解释 3.37x 加速的工程意义：OPC/SMO 中大量窗口高频调用时，总延迟和能耗收益会累积。
+- [x] 在 Discussion 中解释 3.37x 加速的工程意义：OPC/SMO 中大量窗口频繁调用时，总延迟和能耗收益会累积。
 
 ### 4. PCIe 与系统级口径
 
